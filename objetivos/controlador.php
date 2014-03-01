@@ -15,6 +15,5 @@ function nuevaPropuesta($descripcion){
         $res->errormsg[] = "Permisos insuficientes.";
     }
     return $res;
-    
 }
 

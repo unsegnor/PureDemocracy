@@ -31,7 +31,7 @@
                                     ?>
                                     <a href="" class="list-group-item">
                                         <?php echo $propuesta['descripcion'] ?>
-                                        <!--<span class="badge"><?php echo $info_reparacion['n_reparaciones'] ?></span>-->
+                                        <!--<span class="badge"></span>-->
                                     </a>
 
                                     <?php
@@ -46,7 +46,7 @@
                         </div>
                             
                         <div class="panel-body">
-                            <input type="text" class="form-control" onchange="llama('nuevaPropuesta',[$(this).val()])" placeholder="descripción">
+                            <input type="text" class="form-control" onchange="llama('nuevaPropuesta',[$(this).val()]); location.reload()" placeholder="descripción">
                         </div>
                     </div>
                 </div><!-- /.col-sm-4 -->

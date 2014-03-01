@@ -7,7 +7,8 @@ function llama(nombre, param) {
     peticion.parametros = param;
 
     $.ajax({
-        url: "../AJAX/entry.php"
+        async: false
+        , url: "../AJAX/entry.php"
         , cache: false
         , data:
                 {

@@ -20,9 +20,9 @@ if (in_array($peticion->id_funcion, $funcionesPermitidas)) {
     //Si tenemos parámetros los enviamos
 
     if (isset($peticion->parametros)) {
-        $respuesta->resultado = call_user_func_array($peticion->id_funcion, $peticion->parametros);
+        $respuesta = call_user_func_array($peticion->id_funcion, $peticion->parametros);
     } else {
-        $respuesta->resultado = call_user_func($peticion->id_funcion);
+        $respuesta = call_user_func($peticion->id_funcion);
     }
 } else {
 
