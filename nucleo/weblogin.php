@@ -1,42 +1,67 @@
 <!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
 
-<!--<link rel='stylesheet' type='text/css' href='../media/css/login.css'>-->
 <link rel='stylesheet' type='text/css' href='../media/css/loginb.css'>
-<html>
+<html lang="es" ng-app>
     <head><?php include dirname(__FILE__) . "/../include/head.php" ?>
-        </head>
-    <body>
-       <!-- <form method="post" action="login.php">
-            <input type="text" name="login" placeholder="usuario">
-            <input type="password" name="pass" placeholder="contraseña">
-            <input type="submit" value="Entrar">
-        </form>
+        <script src="controlador.js"></script>
+    </head>
+    <body ng-controller="inicio" ng-init="init()">
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Pure Democracy</a>
+                </div>
+                <form class="navbar-form navbar-right" role="form">
+                    <div class="form-group">
+                        <label class="sr-only">Usuario</label>
+                        <input type="text" class="form-control" placeholder="usuario">
+                    </div>
+                    <div class="form-group">
+                        <label class="sr-only">Contraseña</label>
+                        <input type="password" class="form-control" placeholder="contraseña">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Entrar</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="container principal">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="jumbotron">
+                        <h1>¡Bienvenido a la democracia!</h1>
+                        <p><strong>Pure Democracy</strong> 
+                            es una aplicación para fomentar la 
+                            <strong>autogestión</strong> de 
+                            grupos de personas de una forma 
+                            <strong>transparente</strong>, 
+                            <strong>democrática</strong> y 
+                            <strong>libre de corrupción</strong>.</p>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <h3>Regístrate</h3>
+                    <form>
+                        <div class="form-group">
+                            <label class="sr-only">Nuevo usuario</label>
+                            <input type="text" class="form-control" placeholder="Nuevo usuario">
+                        </div>
+                        <div class="form-group">
+                            <label class="sr-only">Tu correo electrónico</label>
+                            <input type="email" class="form-control" placeholder="Tu correo electrónico">
+                        </div>
+                        <div class="form-group">
+                            <label class="sr-only">Vuelve a escribir tu correo</label>
+                            <input type="email" class="form-control" placeholder="Vuelve a escribir tu correo">
+                        </div>
+                        <div class="form-group">
+                            <label class="sr-only">Contraseña</label>
+                            <input type="password" class="form-control" placeholder="Contraseña">
+                        </div>
+                        <button type="submit" class="btn btn-success">Registrar nuevo usuario</button>
+                    </form>
+                </div>
+            </div><!-- row -->
+        </div> <!-- /container -->
     </body>
-</html>-->
-
-<!--<form id="login" method="post" action="login.php">
-    <h1>Log In</h1>
-    <fieldset id="inputs">
-        <input id="username" name="login" type="text" placeholder="usuario" autofocus required>   
-        <input id="password" name="pass" type="password" placeholder="contraseña" required>
-    </fieldset>
-    <fieldset id="actions">
-        <input type="submit" id="submit" value="Entrar">
-    </fieldset>
-</form>
-       -->
-       <div class="container">
-
-           <form class="form-signin" role="form" method="post" action="login.php">
-        <h2 class="form-signin-heading">Identificación</h2>
-        <input name="login" type="text" class="form-control" placeholder="usuario" required autofocus>
-        <input name="pass" type="password" class="form-control" placeholder="contraseña" required>
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Acceder</button>
-      </form>
-
-    </div> <!-- /container -->
+</html>

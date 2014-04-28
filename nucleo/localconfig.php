@@ -1,8 +1,8 @@
 <?php
 
 $bdd_name = "pdbdd";
-$user_name = "root";
+$user_name = "puredemocracy";
 $pass = "";
-$host = "localhost";
+$host = "127.0.0.1";
 
 ?>
