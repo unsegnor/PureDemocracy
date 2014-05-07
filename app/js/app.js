@@ -11,6 +11,6 @@ angular.module('myApp', [
 ]).
 config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/login', {templateUrl: 'partials/login.html', controller: 'cLogin'});
-  $routeProvider.when('/view2', {templateUrl: 'partials/partial2.html', controller: 'MyCtrl2'});
+  $routeProvider.when('/testmenu', {templateUrl: 'partials/menu.html', controller: 'cLogin'});
   $routeProvider.otherwise({redirectTo: '/login'});
 }]);
