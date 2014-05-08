@@ -1,5 +1,5 @@
 
-var urlentrada = "http://localhost/PureDemocracy/server/ajax/entrada.php";
+var urlentrada = "../server/ajax/entrada.php";
 
 function obtenerasync(nombre, param, fcomplete) {
     //alert("Obteniendo de " + nombre + " con los parámetros: " + JSON.stringify(param));

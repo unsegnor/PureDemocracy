@@ -9,12 +9,12 @@
                 <div class="form-group">
                     <label class="sr-only">Email</label>
                     <input type="text" class="form-control" placeholder="correo electrónico"
-                           ng-model="login.email">
+                           ng-model="login.email" required>
                 </div>
                 <div class="form-group">
                     <label class="sr-only">Contraseña</label>
                     <input type="password" class="form-control" placeholder="contraseña"
-                           ng-model="login.pass">
+                           ng-model="login.pass" required>
                 </div>
                 <button type="submit" class="btn btn-primary"
                         ng-click="dologin(login.email, login.pass)">Entrar</button>
@@ -23,17 +23,20 @@
     </div>
 
     <div class="container principal">
-        <form class="form-inline visible-xs" role="form">
-            <div class="form-group">
-                <label class="sr-only">Email</label>
-                <input type="text" class="form-control" placeholder="correo electrónico">
-            </div>
-            <div class="form-group">
-                <label class="sr-only">Contraseña</label>
-                <input type="password" class="form-control" placeholder="contraseña">
-            </div>
-            <button type="submit" class="btn btn-primary">Entrar</button>
-        </form>
+        <form class="navbar-form navbar-right visible-xs" role="form">
+                <div class="form-group">
+                    <label class="sr-only">Email</label>
+                    <input type="text" class="form-control" placeholder="correo electrónico"
+                           ng-model="login.email" required>
+                </div>
+                <div class="form-group">
+                    <label class="sr-only">Contraseña</label>
+                    <input type="password" class="form-control" placeholder="contraseña"
+                           ng-model="login.pass" required>
+                </div>
+                <button type="submit" class="btn btn-primary"
+                        ng-click="dologin(login.email, login.pass)">Entrar</button>
+            </form>
         <div class="row">
             <div class="col-sm-6">
                 <div class="jumbotron">

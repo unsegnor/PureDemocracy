@@ -21,9 +21,9 @@ angular.module('puredemocracyapp.controllers', [])
                 allamar($http, 'checkLogin', null, function(res) {
                     //alert(JSON.stringify(res));
                     if (res.resultado) {
-                        redirect("vistas/principal.php");
+                        redirect("principal.php");
                     } else {
-                        redirect("vistas/login.php");
+                        redirect("login.php");
                     }
                 });
 
