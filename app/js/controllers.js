@@ -2,7 +2,7 @@
 
 /* Controllers */
 
-angular.module('myApp.controllers', [])
+angular.module('puredemocracyapp.controllers', [])
         .controller('cLogin', ['$scope', function($scope) {
                 alert("Iniciando cLogin");
             }])
