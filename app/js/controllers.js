@@ -36,6 +36,14 @@ angular.module('puredemocracyapp.controllers', [])
                     }
                 });
 
+                //Cargamos los datos del usuario actual
+                allamar($http, 'getUsuarioActual', null, function(res){
+                   
+                   alert(JSON.stringify(res));
+                    
+                });
+                
+
             }])
         .controller('controladorlogin', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y a principal

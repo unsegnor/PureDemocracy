@@ -113,3 +113,21 @@ function existeEmail($email) {
 
     return $res;
 }
+
+function getUsuarioActual(){
+    
+    //Comprobamos que estemos logueados
+    $res = checkLogin();
+    
+    if(!$res->hayerror){
+        
+        if($res->resultado){
+            //Estamos logueados
+            
+        }else{
+            //No estamos logueados
+        }
+    }
+    
+    return $res;
+}
