@@ -6,6 +6,9 @@ $peticion = json_decode($_REQUEST['p']);
 
 $funcionesPermitidas = array(
     'checkLogin'
+    , 'registrarUsuario'
+    , 'doLogin'
+    , 'doLogout'
 );
 
 

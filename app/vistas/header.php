@@ -25,6 +25,7 @@ include dirname(__FILE__) . "./head.php";
                         <li><a href="<?php echo direcciones::index ?>">Cosocoso</a></li>
                     </ul>
                 </li>
+                <li><a href="<?php echo direcciones::logout ?>">Salir</a></li>
             </ul>
         </div><!--/.nav-collapse -->
     </div>
