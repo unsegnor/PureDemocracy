@@ -1,5 +1,71 @@
-<?php include dirname(__FILE__) . "./header.php"; ?>
-<div class="container principal">
-    <p> Pantilla! </p>
+
+<html lang="es" ng-app="puredemocracyapp">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+
+        <title>Pure Decmorcacy</title>
+        <!--<link rel="stylesheet" type="text/css" href="estilos.css">-->
+        <!--<link rel="stylesheet" type="text/css" href="../media/css/style.css">-->
+
+        <!-- Latest compiled and minified CSS -->
+        <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">-->
+        <link rel="stylesheet" href="./css/bootstrap.min.css">
+
+        <!-- Optional theme -->
+        <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">-->
+        <link rel="stylesheet" href="./css/bootstrap-theme.min.css">
+
+        <!-- Estilos propios -->
+        <link rel="stylesheet" type="text/css" href="./css/app.css">
+
+    </head>
+    <body>
+<div ng-controller="controladorindex">
 </div>
-<?php include dirname(__FILE__) . "./footer.php"; ?>
+<div id="footer">
+    <div class="container">
+        <p class="text-muted">Proyecto de Fin de Carrera de Víctor Calatayud Asensio.</p>
+    </div>
+</div>
+
+<!-- Cargamos los js al final para que cargue más rápido la página -->
+
+<!-- Cargamos Jquery -->
+<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>-->
+<script src="../dev_components/jquery-1.11.0.min.js"></script>
+
+<!-- Latest compiled and minified JavaScript -->
+<!--<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>-->
+<script src="../dev_components/bootstrap.min.js"></script>
+
+<!-- Incluimos las funciones para llamar por AJAX -->
+<script src="./js/myAJAX.js"></script>
+
+<!-- Incluimos nuestras propias funciones js -->
+<script src="./js/myjs.js"></script>
+
+<!-- Angular CDN -->
+<!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular.min.js "></script>-->
+<script src="../dev_components/angular.min.js "></script>
+
+<!-- Scroll infinito -->
+<!--<script src="../../dev_components/ng-infinite-scroll-min.js"></script>-->
+
+<!--Scripts de la aplicación -->
+<script src="./js/app.js"></script>
+<script src="./js/services.js"></script>
+<script src="./js/controllers.js"></script>
+<script src="./js/filters.js"></script>
+<script src="./js/directives.js"></script>
+<script src="./js/myjs.js"></script>
+
+<!-- Incluimos los templates de angular para bootstrap -->
+<script src="../dev_components/ui-bootstrap-tpls-0.10.0.min.js"></script>
+</body>
+</html>
+

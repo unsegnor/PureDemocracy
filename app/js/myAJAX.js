@@ -1,3 +1,6 @@
+
+var urlentrada = "http://localhost/PureDemocracy/server/ajax/entrada.php";
+
 function obtenerasync(nombre, param, fcomplete) {
     //alert("Obteniendo de " + nombre + " con los parámetros: " + JSON.stringify(param));
 
@@ -10,7 +13,7 @@ function obtenerasync(nombre, param, fcomplete) {
 
     $.ajax({
         async: true
-        , url: "../AJAX/entry.php"
+        , url: urlentrada
         , cache: false
         , data:
                 {
@@ -63,7 +66,7 @@ function obtenersync(nombre, param) {
 
     $.ajax({
         async: false
-        , url: "../AJAX/entry.php"
+        , url: urlentrada
         , cache: false
         , data:
                 {
@@ -107,7 +110,7 @@ function llama(nombre, param) {
 
     $.ajax({
         async: false
-        , url: "../AJAX/entry.php"
+        , url: urlentrada
         , cache: false
         , data:
                 {
@@ -142,14 +145,48 @@ function hayerror(xhr, status, error) {
     notificar_error(error + "Respuesta: " + xhr.responseText);
 }
 
+function checkResult(resultado, status, xhr) {
+
+    var respuesta = true;
+    //Primero comprobamos que haya llegado la estructura correcta
+    if (resultado != null) {
+
+        //Comprobamos errores propios
+        if (resultado.hayerror) {
+            notificar_error(resultado.errormsg);
+            respuesta = false;
+        } else {
+            notificar("Todo correcto.");
+        }
+    } else {
+        /*Si recibimos un objeto que es null (no ha podido ser parseado, 
+         puede que sea porque se han escrito más cosas de las necesarias en la salida del servidor por 
+         tratarse de un servidor de desarrollo con los warnings activados u otra cosa
+         */
+        notificar_error("La llamada no ha devuelto un resultado válido.");
+        respuesta = false;
+    }
+    return respuesta;
+}
+
 function todocorrecto(resultado, status, xhr) {
     //alert("Todo correcto, resultados: " + JSON.stringify(resultado));
 
-    //Comprobamos errores propios
-    if (resultado.hayerror) {
-        notificar_error(resultado.errormsg);
+    //Primero comprobamos que haya llegado la estructura correcta
+    if (resultado != null) {
+
+        //Comprobamos errores propios
+        if (resultado.hayerror) {
+            notificar_error(resultado.errormsg);
+        } else {
+            notificar("Todo correcto.");
+        }
     } else {
-        notificar("Todo correcto.");
+        /*Si recibimos un objeto que es null (no ha podido ser parseado, 
+         puede que sea porque se han escrito más cosas de las necesarias en la salida del servidor por 
+         tratarse de un servidor de desarrollo con los warnings activados u otra cosa
+         */
+        notificar_error("La llamada no ha devuelto un resultado válido.");
     }
 }
 
@@ -197,7 +234,7 @@ function allamar(servicio, nombre, parametros, success, error) {
     //Usando http
     servicio({
         method: 'POST',
-        url: '../AJAX/entry.php',
+        url: urlentrada,
         params: {
             p: peticion
         },
@@ -206,13 +243,19 @@ function allamar(servicio, nombre, parametros, success, error) {
 
     }).success(function(data, status, headers, config) {
         //alert(JSON.stringify(data));
-        todocorrecto(data, status);
-
-        success(data);
+        if (checkResult(data, status)) {
+            success(data);
+        } else {
+            if (error != null) {
+                error(data);
+            }
+        }
     }).error(function(data, status, headers, config) {
         notificar_error("Error." + "Respuesta: " + data);
 
-        error(data);
+        if (error != null) {
+            error(data);
+        }
     });
 
 
