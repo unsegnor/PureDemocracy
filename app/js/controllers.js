@@ -37,13 +37,9 @@ angular.module('puredemocracyapp.controllers', [])
                 });
 
                 //Cargamos los datos del usuario actual
-                allamar($http, 'getUsuarioActual', null, function(res){
-                   
-                   alert(JSON.stringify(res));
-                    
+                allamar($http, 'getSession', null, function(res){
+                   $scope.session = res.resultado; 
                 });
-                
-
             }])
         .controller('controladorlogin', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y a principal
@@ -63,6 +59,7 @@ angular.module('puredemocracyapp.controllers', [])
 
                     //Intentamos hacer login en el servidor
                     allamar($http, 'doLogin', [id, pass], function(res) {
+                        //alert(JSON.stringify(res));
                         if (res.resultado) {
                             redirect("principal.php");
                         } else {

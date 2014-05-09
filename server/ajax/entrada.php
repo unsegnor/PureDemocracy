@@ -9,6 +9,7 @@ $funcionesPermitidas = array(
     , 'registrarUsuario'
     , 'doLogin'
     , 'doLogout'
+    , 'getSession'
 );
 
 

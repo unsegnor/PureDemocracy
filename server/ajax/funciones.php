@@ -24,6 +24,7 @@ function doLogin($email, $pass) {
     
     //Comprobamos si existe alguna cuenta con ese email y contraseña
     $res = ejecutar("SELECT usuarios.nombre"
+            . ", usuarios.id_usuario"
             . ", usuarios.apellidos"
             . ", usuarios.email"
             . ", usuarios.verificado"
@@ -38,6 +39,7 @@ function doLogin($email, $pass) {
             $fila = $res->resultado->fetch_assoc();
             
             $_SESSION['pd_identificado'] = true;
+            $_SESSION['id_usuario'] = $fila['id_usuario'];
             $_SESSION['nombre'] = $fila['nombre'];
             $_SESSION['apellidos'] = $fila['apellidos'];
             $_SESSION['email'] = $fila['email'];
@@ -114,6 +116,28 @@ function existeEmail($email) {
     return $res;
 }
 
+function getSession(){
+    //Comprobamos que estemos logueados
+    $res = checkLogin();
+    
+    if(!$res->hayerror){
+        
+        if($res->resultado){
+            //Estamos logueados
+            
+            //Devolvemos los datos de la sesión
+            $res->resultado = $_SESSION;
+            
+        }else{
+            //No estamos logueados
+            $res->hayerror = true;
+            $res->errormsg = "No hay sesión iniciada.";
+        }
+    }
+    
+    return $res;
+}
+
 function getUsuarioActual(){
     
     //Comprobamos que estemos logueados
@@ -123,6 +147,11 @@ function getUsuarioActual(){
         
         if($res->resultado){
             //Estamos logueados
+            
+            //Cargamos los datos de nuestro usuario
+            $id_usuario_actual = $_SESSION['id_usuario'];
+            
+            //$res = ejecutar("SELECT usuarios.nombre");
             
         }else{
             //No estamos logueados
