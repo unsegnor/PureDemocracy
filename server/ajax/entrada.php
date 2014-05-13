@@ -10,6 +10,8 @@ $funcionesPermitidas = array(
     , 'doLogin'
     , 'doLogout'
     , 'getSession'
+    , 'getObjetivos'
+    , 'addObjetivo'
 );
 
 

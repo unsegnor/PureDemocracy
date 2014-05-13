@@ -6,12 +6,47 @@ angular.module('puredemocracyapp.controllers', [])
         .controller('controladorplantilla', ['$scope', '$http', function($scope, $http) {
                 alert("Bienvenido a la Plantilla!");
             }])
+        .controller('controladorobjetivos', ['$scope', '$http', function($scope, $http) {
+                //Comprobar si el usuario tiene sesión y redirigir a login
+                allamar($http, 'checkLogin', null, function(res) {
+                    if (!res.resultado) {
+                        redirect("login.php");
+                    }
+                });
+
+                $scope.getObjetivos = function() {
+                    allamar($http, 'getObjetivos', null, function(res) {
+                        //alert(JSON.stringify(res));
+                        $scope.objetivos = res.resultado;
+                    });
+                };
+
+                //Traemos las propuestas
+                $scope.getObjetivos();
+
+                $scope.addObjetivo = function(objetivo) {
+
+                    allamar($http, 'addObjetivo', [objetivo.descripcion], function(res) {
+                        //Recargar las propuestas
+                        $scope.getObjetivos();
+                    });
+
+                };
+
+                $scope.onSelect = function(item, algo, label) {
+                    
+                    var idobjetivo = item.idobjetivo;
+                    
+                    //Redireccionamos al detalle de la propuesta seleccionada
+                    redirect("detalleobjetivo.php?id=" + idobjetivo);
+                };
+            }])
         .controller('controladorlogout', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 allamar($http, 'doLogout', null, function(res) {
                     if (res.resultado) {
                         redirect("login.php");
-                    }else{
+                    } else {
                         redirect("principal.php");
                     }
                 });
@@ -37,8 +72,8 @@ angular.module('puredemocracyapp.controllers', [])
                 });
 
                 //Cargamos los datos del usuario actual
-                allamar($http, 'getSession', null, function(res){
-                   $scope.session = res.resultado; 
+                allamar($http, 'getSession', null, function(res) {
+                    $scope.session = res.resultado;
                 });
             }])
         .controller('controladorlogin', ['$scope', '$http', function($scope, $http) {

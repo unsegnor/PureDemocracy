@@ -6,5 +6,6 @@ angular.module('puredemocracyapp', [
   'puredemocracyapp.filters',
   'puredemocracyapp.services',
   'puredemocracyapp.directives',
-  'puredemocracyapp.controllers'
+  'puredemocracyapp.controllers',
+  'ui.bootstrap'
 ]);

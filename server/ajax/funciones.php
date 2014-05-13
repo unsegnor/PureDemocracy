@@ -18,52 +18,49 @@ function checkLogin() {
 
 function doLogin($email, $pass) {
     //Logeamos con el id y la contraseña
-    
     //Codificamos la contraseña
     $pass_sha = sha1($pass);
-    
+
     //Comprobamos si existe alguna cuenta con ese email y contraseña
-    $res = ejecutar("SELECT usuarios.nombre"
-            . ", usuarios.id_usuario"
-            . ", usuarios.apellidos"
-            . ", usuarios.email"
-            . ", usuarios.verificado"
-            . " FROM usuarios WHERE"
-            . " usuarios.email = '".escape($email)."'"
-            . " AND usuarios.pass = '".escape($pass_sha)."'");
-    
-    if(!$res->hayerror){
-        
+    $res = ejecutar("SELECT usuario.nombre"
+            . ", usuario.idusuario"
+            . ", usuario.apellidos"
+            . ", usuario.email"
+            . ", usuario.verificado"
+            . " FROM usuario WHERE"
+            . " usuario.email = '" . escape($email) . "'"
+            . " AND usuario.pass = '" . escape($pass_sha) . "'");
+
+    if (!$res->hayerror) {
+
         //Si receibimos algún resultado lo logueamos
-        if($res->resultado->num_rows > 0){
+        if ($res->resultado->num_rows > 0) {
             $fila = $res->resultado->fetch_assoc();
-            
+
             $_SESSION['pd_identificado'] = true;
-            $_SESSION['id_usuario'] = $fila['id_usuario'];
+            $_SESSION['idusuario'] = $fila['idusuario'];
             $_SESSION['nombre'] = $fila['nombre'];
             $_SESSION['apellidos'] = $fila['apellidos'];
             $_SESSION['email'] = $fila['email'];
             $_SESSION['verificado'] = $fila['verificado'];
-            
+
             $res->resultado = true;
-        }else{
+        } else {
             $res->hayerror = true;
             $res->errormsg = "No existe una cuenta con ese correo y contraseña.";
         }
-        
     }
-    
+
     return $res;
-    
 }
 
-function doLogout(){
+function doLogout() {
     unset($_SESSION);
     session_destroy();
-    
+
     $res = new Res();
     $res->resultado = true;
-    
+
     return $res;
 }
 
@@ -78,7 +75,7 @@ function registrarUsuario($nombre, $apellidos, $email, $pass) {
 
             $pass_sha = sha1($pass);
 
-            $res = ejecutar("INSERT INTO `pdbdd`.`usuarios` "
+            $res = ejecutar("INSERT INTO `pdbdd`.`usuario` "
                     . "(`nombre`, `apellidos`, `email`, `pass`) "
                     . " VALUES ('" . escape($nombre) . "'"
                     . ",'" . escape($apellidos) . "'"
@@ -98,7 +95,7 @@ function registrarUsuario($nombre, $apellidos, $email, $pass) {
 
 function existeEmail($email) {
 
-    $res = ejecutar("SELECT COUNT(*) as existe FROM usuarios WHERE email='" . escape($email) . "'");
+    $res = ejecutar("SELECT COUNT(*) as existe FROM usuario WHERE email='" . escape($email) . "'");
 
     if (!$res->hayerror) {
         //Recogemos el resultado
@@ -116,47 +113,84 @@ function existeEmail($email) {
     return $res;
 }
 
-function getSession(){
+function getSession() {
     //Comprobamos que estemos logueados
     $res = checkLogin();
-    
-    if(!$res->hayerror){
-        
-        if($res->resultado){
+
+    if (!$res->hayerror) {
+
+        if ($res->resultado) {
             //Estamos logueados
-            
             //Devolvemos los datos de la sesión
             $res->resultado = $_SESSION;
-            
-        }else{
+        } else {
             //No estamos logueados
             $res->hayerror = true;
             $res->errormsg = "No hay sesión iniciada.";
         }
     }
-    
+
     return $res;
 }
 
-function getUsuarioActual(){
-    
+function getUsuarioActual() {
+
     //Comprobamos que estemos logueados
     $res = checkLogin();
-    
-    if(!$res->hayerror){
-        
-        if($res->resultado){
+
+    if (!$res->hayerror) {
+
+        if ($res->resultado) {
             //Estamos logueados
-            
             //Cargamos los datos de nuestro usuario
-            $id_usuario_actual = $_SESSION['id_usuario'];
-            
-            //$res = ejecutar("SELECT usuarios.nombre");
-            
-        }else{
+            $id_usuario_actual = $_SESSION['idusuario'];
+
+            //$res = ejecutar("SELECT usuario.nombre");
+        } else {
             //No estamos logueados
         }
     }
-    
+
+    return $res;
+}
+
+function getObjetivos() {
+    //Comprobamos que estemos logueados
+    $res = checkLogin();
+
+    if (!$res->hayerror) {
+
+        if ($res->resultado) {
+            //Estamos logueados
+
+            $res = ejecutar("SELECT * FROM objetivo");
+            
+            if(!$res->hayerror){
+                $res->resultado = toArray($res->resultado);
+            }
+        } else {
+            //No estamos logueados
+        }
+    }
+
+    return $res;
+}
+
+function addObjetivo($descripcion) {
+    //Comprobamos que estemos logueados
+    $res = checkLogin();
+
+    if (!$res->hayerror) {
+
+        if ($res->resultado) {
+            //Estamos logueados
+
+            $res = ejecutar("INSERT INTO `pdbdd`.`objetivo` (`descripcion`) "
+                    . "VALUES ('".  escape($descripcion)."')");
+        } else {
+            //No estamos logueados
+        }
+    }
+
     return $res;
 }

@@ -25,7 +25,7 @@ class Usuario {
         $pass_sha = sha1($pass);
 
         //Registramos un nuevo usuario
-        $res = $bdd->ejecutar("INSERT INTO `pdbdd`.`usuarios` "
+        $res = $bdd->ejecutar("INSERT INTO `pdbdd`.`usuario` "
                 . "(`nombre`, `apellidos`, `email`, `pass`) "
                 . "VALUES (" . $bdd->escape($nombre) . ", " . $bdd->escape($apellidos) . ", " . $bdd->escape($email) . ", " . $bdd->escape($pass_sha) . ")");
 
