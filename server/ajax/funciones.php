@@ -209,6 +209,9 @@ function addObjetivo($descripcion) {
             //Ahora calculamos el error en el que incurrimos al utilizar la muestra
             $error = getErrorDeMuestra($total, $nmuestra);
 
+            //Seleccionamos a los representantes antes de comenzar la transacción
+            $representantes = getRepresentantes($nmuestra)->resultado;
+
             //Iniciamos la transacción
             iniciar_transaccion();
 
@@ -251,18 +254,33 @@ function addObjetivo($descripcion) {
 
                     if (!$res->hayerror) {
 
+
+                        //Añadimos los representantes a la votación
                         //Seleccionamos y añadimos a los representantes
-                        $res = ejecutar("INSERT INTO `pdbdd`.`votosinodep` "
+                        $consulta = "INSERT INTO `pdbdd`.`votosinodep` "
                                 . "(`usuario_idusuario`, `votacionsinodep_idvotacionsinodep`"
-                                . ", `representante`)"
-                                . " SELECT usuario.idusuario"
-                                . "," . $id_votacion . "" //Añadimos el id de la votación
-                                . ", 1" //Son representantes, por eso comienza en 1 (True)
-                                . " FROM usuario ORDER BY RAND() LIMIT " . $nmuestra);
+                                . ", `representante`) VALUES ";
+
+                        $primero = true;
+                        foreach ($representantes as $representante) {
+
+                            if ($primero) {
+                                $primero = false;
+                            } else {
+                                $consulta.=",";
+                            }
+
+                            $consulta.="(" . $representante['idusuario'] . ""
+                                    . "," . $id_votacion . ""
+                                    . ",1)";
+                        }
+
+                        $res = ejecutar($consulta);
 
                         if (!$res->hayerror) {
 
                             //Anotamos notificaciones para los representantes
+                            //TODO no es necesario, se pueden consultar luego
                             
                         }
                     }
@@ -328,4 +346,17 @@ function getTamanioMuestra($total, $error) {
     $muestra = $r / (1 + (($r - 1) / $total));
 
     return $muestra;
+}
+
+function getRepresentantes($nmuestra) {
+    $res = ejecutar("SELECT usuario.idusuario FROM usuario ORDER BY RAND() LIMIT " . $nmuestra);
+
+    if (!$res->hayerror) {
+
+        $array = toArray($res->resultado);
+
+        $res->resultado = $array;
+    }
+
+    return $res;
 }
