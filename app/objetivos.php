@@ -14,10 +14,30 @@
                            ng-enter="addObjetivo(buscaobjetivo)"
                            placeholder="filtrar / añadir nuevo ...">
                     <div class="list-group">
-                        <a class="list-group-item" 
-                           ng-repeat="objetivo in objetivos| filter:buscaobjetivo"
-                           href="detalleobjetivo.php?id={{objetivo.idobjetivo}}"> 
-                            {{objetivo.descripcion}}</a>
+                        <a class="list-group-item"
+                           ng-repeat="objetivo in objetivos| filter:buscaobjetivo">
+                            <div class="row">
+                                <!-- Descripción del objetivo -->
+                                <div class="col-sm-6"
+                                     href="detalleobjetivo.php?id={{objetivo.idobjetivo}}">
+                                    {{objetivo.descripcion}}
+                                </div>
+                                <!-- Acciones -->
+                                <div class="col-sm-3">
+                                    <div class="btn-group">
+                                        <button class="btn btn-success"><span class="glyphicon glyphicon-ok-sign"></span></button>
+                                        <button class="btn btn-warning"><span class="glyphicon glyphicon-question-sign"></span></button>
+                                        <button class="btn btn-danger"><span class="glyphicon glyphicon-remove-sign"></span></button>
+                                    </div>
+                                </div>
+                                <!-- Estado -->
+                                <div class="col-sm-3">
+                                    <progressbar class="progress-striped active" max="objetivo.progreso_maximo" value="objetivo.progreso_actual" type="success">
+                                        <i>{{objetivo.progreso_actual}}/{{objetivo.progreso_maximo}}</i>
+                                    </progressbar>
+                                </div>
+                            </div>
+                        </a>
                     </div>
                 </div>
             </div>

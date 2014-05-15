@@ -164,9 +164,21 @@ function getObjetivos() {
             //Estamos logueados
 
             $res = ejecutar("SELECT * FROM objetivo");
-            
-            if(!$res->hayerror){
+
+            if (!$res->hayerror) {
                 $res->resultado = toArray($res->resultado);
+
+                //Convertimos los números
+                $array = $res->resultado;
+
+                $l = count($array);
+
+                for ($i = 0; $i < $l; $i++) {
+                    $array[$i]['progreso_actual'] = (float) $array[$i]['progreso_actual'];
+                    $array[$i]['progreso_maximo'] = (float) $array[$i]['progreso_maximo'];
+                }
+
+                $res->resultado = $array;
             }
         } else {
             //No estamos logueados
@@ -184,13 +196,136 @@ function addObjetivo($descripcion) {
 
         if ($res->resultado) {
             //Estamos logueados
+            //Obtenemos el total de la población actual
+            $total = getTotalIndividuos()->resultado;
 
-            $res = ejecutar("INSERT INTO `pdbdd`.`objetivo` (`descripcion`) "
-                    . "VALUES ('".  escape($descripcion)."')");
+            //Determinamos el número de representantes necesarios en función de la población total y el error máximo
+            //La primera vez nos basta un error inferior al 0.5
+            $nmuestra = getTamanioMuestra($total, 0.5);
+
+            //Redondeamos para abajo y sumamos uno al tamaño para asegurarnos de que el error está por debajo del 0.5
+            $nmuestra = floor($nmuestra) + 1;
+
+            //Ahora calculamos el error en el que incurrimos al utilizar la muestra
+            $error = getErrorDeMuestra($total, $nmuestra);
+
+            //Iniciamos la transacción
+            iniciar_transaccion();
+
+            //Añadimos el objetivo
+            $res = insert_id("INSERT INTO `pdbdd`.`objetivo` (`descripcion`) "
+                    . "VALUES ('" . escape($descripcion) . "')");
+
+
+            if (!$res->hayerror) {
+
+                $id_objetivo = $res->resultado;
+
+                //Añadimos la votación 
+                $res = insert_id("INSERT INTO `pdbdd`.`votacionsinodep` "
+                        . "(`error`, `timein`, `checktime`, `timeout`, `ampliaciones`, `activa`, `finalizada`, `resultado`) "
+                        . "VALUES "
+                        . "(" . $error . "" //El error que tiene de momento
+                        . ", NOW()" //Tiempo de creación
+                        . ", NOW() + INTERVAL 2 DAY" //El tiempo de checkeo son 2 días, 48 horas
+                        . ", NOW() + INTERVAL 8 DAY" //El tiempo máximo de vida de la votación son 8 días
+                        . ", 0" //Comienza con 0 ampliaciones
+                        . ", 1" //La creamos como activa
+                        . ", 0" //No finalizada
+                        . ", NULL" //No tiene resultado asignado aún
+                        . ")");
+
+                if (!$res->hayerror) {
+
+                    //Obtenemos el id de la votación
+                    $id_votacion = $res->resultado;
+
+                    //Asociamos la votación con el objetivo
+                    $res = ejecutar("INSERT INTO `pdbdd`.`objetivo_has_votacionsinodep` "
+                            . "(`objetivo_idobjetivo`, `votacionsinodep_idvotacionsinodep`, `nombre`) "
+                            . "VALUES "
+                            . "(" . $id_objetivo . ""
+                            . "," . $id_votacion . ""
+                            . ", 'Aprobación'"
+                            . ")");
+
+                    if (!$res->hayerror) {
+
+                        //Seleccionamos y añadimos a los representantes
+                        $res = ejecutar("INSERT INTO `pdbdd`.`votosinodep` "
+                                . "(`usuario_idusuario`, `votacionsinodep_idvotacionsinodep`"
+                                . ", `representante`)"
+                                . " SELECT usuario.idusuario"
+                                . "," . $id_votacion . "" //Añadimos el id de la votación
+                                . ", 1" //Son representantes, por eso comienza en 1 (True)
+                                . " FROM usuario ORDER BY RAND() LIMIT " . $nmuestra);
+
+                        if (!$res->hayerror) {
+
+                            //Anotamos notificaciones para los representantes
+                            
+                        }
+                    }
+                }
+            }
+
+            if (!$res->hayerror) {
+                //Si todo ha ido bien comitamos
+                commit();
+            } else {
+                //Sino rollback
+                rollback();
+            }
         } else {
             //No estamos logueados
         }
     }
 
     return $res;
+}
+
+function getTotalIndividuos() {
+    //Comprobamos que estemos logueados
+    $res = checkLogin();
+
+    if (!$res->hayerror) {
+
+        if ($res->resultado) {
+            //Estamos logueados
+
+            $res = ejecutar("SELECT COUNT(*) as total FROM usuario");
+
+            if (!$res->hayerror) {
+
+                //Obtenemos la fila
+                $fila = $res->resultado->fetch_assoc();
+
+                $res->resultado = $fila['total'];
+            }
+        } else {
+            //No estamos logueados
+        }
+    }
+
+    return $res;
+}
+
+function getErrorDeMuestra($total, $muestra) {
+    $z = 3.7;
+
+    $t1 = ($total - $muestra) / ($muestra * ($total - 1));
+    $result = ($z / 2) * sqrt($t1);
+
+    return $result;
+}
+
+function getTamanioMuestra($total, $error) {
+    //$z = 2.58; //Para el 99%
+    $z = 3.7; //Para el 99.99%
+
+    $r = ($z * $z * 0.25) / ($error * $error);
+
+    $muestra = $r / (1 + (($r - 1) / $total));
+
+    return $muestra;
 }
