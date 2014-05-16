@@ -364,17 +364,15 @@ function votarAprobacionObjetivo($id_objetivo, $valor) {
 
     //Obtenemos la votación correspondiente
     $res = getVotacionAprobacionDeObjetivo($id_objetivo);
-    
-    if(!$res->hayerror){
-        
+
+    if (!$res->hayerror) {
+
         $id_votacion = $res->resultado;
-        
+
         $res = emitirVoto($id_votacion, $valor);
-        
     }
-    
+
     return $res;
-    
 }
 
 function getVotacionAprobacionDeObjetivo($id_objetivo) {
@@ -422,11 +420,130 @@ function emitirVoto($id_votacion, $valor) {
                     . " valor=" . escape($valor));
         }
     }
-    
+
     return $res;
 }
 
 function checkTime() {
-
+    
+    //Obtenemos el total de individuos
+    $nindividuos = getTotalIndividuos()->resultado;
+    
+    //TODO Desactivamos todas las votaciones 
+    
     //Comprobar votaciones
+    //Obtenemos las votaciones que deben ser controladas con toda la información necesaria
+    $res = ejecutar("SELECT votacionsinodep.*"
+            . ", SUM(CASE WHEN votosinodep.representante = 1 THEN 1 ELSE 0 END) as representantes"
+            . ", SUM(CASE WHEN votosinodep.representante = 1 AND votosinodep.valor = 1 THEN 1 ELSE 0 END) as votos_negativos_rep"
+            . ", SUM(CASE WHEN votosinodep.representante = 1 AND votosinodep.valor = 2 THEN 1 ELSE 0 END) as votos_depende_rep"
+            . ", SUM(CASE WHEN votosinodep.representante = 1 AND votosinodep.valor = 3 THEN 1 ELSE 0 END) as votos_positivos_rep"
+            . ", SUM(CASE WHEN votosinodep.valor IS NOT NULL THEN 1 ELSE 0 END) as votos_emitidos"
+            . ", SUM(CASE WHEN votosinodep.representante = 0 AND votosinodep.valor = 1 THEN 1 ELSE 0 END) as votos_negativos_ind"
+            . ", SUM(CASE WHEN votosinodep.representante = 0 AND votosinodep.valor = 2 THEN 1 ELSE 0 END) as votos_depende_ind"
+            . ", SUM(CASE WHEN votosinodep.representante = 0 AND votosinodep.valor = 3 THEN 1 ELSE 0 END) as votos_positivos_ind"
+            . "FROM votacionsinodep "
+            . "LEFT JOIN votosinodep ON votosinodep.votacionsinodep_idvotacionsinodep = votacionsinodep.idvotacionsinodep"
+            . "WHERE checktime <= NOW()"
+            . "GROUP BY idvotacionsinodep");
+
+    if (!$res->hayerror) {
+
+        $votaciones = toArray($res->resultado);
+
+        //Recorremos las votaciones que ya deben ser controladas
+
+        foreach ($votaciones as $votacion) {
+            
+            //Recogemos datos
+            $nrepresentantes = $votacion['representantes'];
+            $votos_emitidos = $votacion['votos_emitidos'];
+            $vsi_ind = $votacion['votos_positivos_ind'];
+            $vno_ind = $votacion['votos_negativos_ind'];
+            $vdep_ind = $votacion['votos_depende_ind'];
+            $vsi_rep = $votacion['votos_positivos_rep'];
+            $vno_rep = $votacion['votos_negativos_rep'];
+            $vdep_rep = $votacion['votos_depende_rep'];
+            
+            $total_ind = $vsi_ind + $vno_ind + $vdep_ind;
+            $total_rep = $vsi_rep + $vno_rep + $vdep_rep;
+            
+            //Calculamos la abstención
+            $abstencion = $nindividuos - $total_ind;
+            $abstencion_rep = $nrepresentantes - $total_rep;
+            
+            //Calculamos el error_actual en función de la abstención
+            //ya que los votos de los representantes actúan sobre una población menor que la total
+            //si ha votado alguien por sí mismo el error disminuye
+            $error_actual = getErrorDeMuestra($abstencion, $nrepresentantes);
+            
+            //Los representantes representan a la abstención
+            $representacion = $abstencion / $nrepresentantes;
+            
+            //Sumamos los votos de cada opción
+            //que es lo que vale un representante por los votos de representantes que haya reciobido la opción
+            //más los votos individuales
+            $sumasi = $representacion*$vsi_rep + $vsi_ind;
+            $sumano = $representacion*$vno_rep + $vno_ind;
+            $sumadep = $representacion*$vdep_rep + $vdep_ind;
+            
+            //Calculamos los porcentajes de cada opción
+            $psi = $sumasi/$nindividuos;
+            $pno = $sumano/$nindividuos;
+            $pdep = $sumadep/$nindividuos;
+            
+            
+            //Y ahora ya podemos calcular el apoyo a las diferentes opciones y los errores
+            //Para cada una comprobamos si ha terminado o la ampliamos
+            $resultado = 0;
+            if($psi - $error_actual > 0.5){
+                //Si el porcentaje de sí menos el error aún es mayor que la mitad entonces es la opción seleccionada
+                $resultado = 3;
+            }else if($pno - $error_actual > 0.5){
+                $resultado = 1;
+            }else if($psi + $error_actual < 0.5 && $pno + $error_actual < 0.5){
+                //Si ni "sí" ni "no" tienen opciones ya de alcanzar mayoría es un "depende"
+                $resultado = 2;
+            }
+            
+            if($resultado == 0){
+                //Si seguimos sin tener una respuesta tenemos que ampliar la muestra
+                //Calculamos las diferencias en el error necesarias para cambiar de escenario
+                
+                //Nos interesa que el error sea tan pequeño que
+                //haga que los resultados más/menos el error no traspasen
+                //el 0.5, es decir, se queden en su lado, ya sea más allá o sin llegar a pasarlo
+                //así que calcularemos las diferencias entre los porcentajes y el 0.5
+                //estos son los errores deseados para las opciones y escogeremos de ellos
+                //el mayor por ser más fácil de conseguir (molestamos a menos personas)
+                
+                $dsi = abs($psi - 0.5);
+                $dno = abs($pno - 0.5);
+                
+                $error_deseado = max($dsi,$dno);
+                
+                //Calculamos el tamaño de la muestra en función de la abstención
+                //porque los que ya han votado no se pueden abstener
+                $muestra_necesaria = getTamanioMuestra($abstencion, $error_deseado);
+                
+                //Nos aseguramos de que se coge el mínimo más de lo necesario
+                $muestra_necesaria = floor($muestra_necesaria)+1;
+                
+                //No contamos con que los representantes que se han abstenido vayan a votar
+                //pero les seguimos dando la opción por si votan y así ayudan a disminuir el error más aún
+                //Calculamos la diferencia entre la muestra que tenemos 
+                //(los representantes que se han pronunciado) y la necesaria
+                //aunque los representantes que se han abstenido siguen representando a mucha gente
+                $muestra_real_actual = $total_rep;
+                
+                $ampliacion_muestra = $muestra_necesaria - $muestra_real_actual;
+                
+                //Calculamos el error que estaremos cometiendo, no hace falta guardarlo porque se
+                //calcula cada vez que se comprueban los datos de la votación
+                $error_nuevo = getErrorDeMuestra($abstencion, $muestra_necesaria);
+                
+            }
+            
+        }
+    }
 }
