@@ -15,7 +15,7 @@ angular.module('puredemocracyapp.controllers', [])
                 });
 
                 $scope.getObjetivos = function() {
-                    allamar($http, 'getObjetivos', null, function(res) {
+                    allamar($http, 'getObjetivosConInfo', null, function(res) {
                         //alert(JSON.stringify(res));
                         $scope.objetivos = res.resultado;
                     });

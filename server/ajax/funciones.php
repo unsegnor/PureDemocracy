@@ -154,6 +154,57 @@ function getUsuarioActual() {
     return $res;
 }
 
+function getObjetivosConInfo() {
+    //Comprobamos que estemos logueados
+    $res = checkLogin();
+
+    if (!$res->hayerror) {
+
+        if ($res->resultado) {
+            //Estamos logueados
+
+            $id_usuario = $_SESSION['idusuario'];
+            
+            $res = ejecutar("SELECT objetivo.*"
+                    . ", votosinodep.valor as voto"
+                    . ", votosinodep.representante as representante"
+                    . ", votacionsinodep.checktime as checktime"
+                    . " FROM objetivo "
+                    . " LEFT JOIN objetivo_has_votacionsinodep ON objetivo_has_votacionsinodep.objetivo_idobjetivo = objetivo.idobjetivo"
+                    . " AND objetivo_has_votacionsinodep.nombre = 'Aprobación'"
+                    . " LEFT JOIN votacionsinodep ON objetivo_has_votacionsinodep.votacionsinodep_idvotacionsinodep = votacionsinodep.idvotacionsinodep"
+                    . " LEFT JOIN votosinodep ON votosinodep.votacionsinodep_idvotacionsinodep = votacionsinodep.idvotacionsinodep"
+                    . " AND votosinodep.usuario_idusuario =".escape($id_usuario));
+
+            if (!$res->hayerror) {
+                $res->resultado = toArray($res->resultado);
+
+                //Convertimos los números
+                $array = $res->resultado;
+
+                $l = count($array);
+
+                for ($i = 0; $i < $l; $i++) {
+                    $array[$i]['progreso_actual'] = (float) $array[$i]['progreso_actual'];
+                    $array[$i]['progreso_maximo'] = (float) $array[$i]['progreso_maximo'];
+                    
+                    if($array[$i]['voto'] != null){
+                        $array[$i]['voto'] = (int) $array[$i]['voto'];
+                    }
+                    
+                    $array[$i]['representante'] = (int) $array[$i]['representante'];
+                }
+
+                $res->resultado = $array;
+            }
+        } else {
+            //No estamos logueados
+        }
+    }
+
+    return $res;
+}
+
 function getObjetivos() {
     //Comprobamos que estemos logueados
     $res = checkLogin();
@@ -477,12 +528,11 @@ function emitirVoto($id_votacion, $valor) {
     return $res;
 }
 
-function checkTime(){
-    
+function checkTime() {
+
     checkVotaciones();
-    
+
     checkObjetivos();
-    
 }
 
 function checkVotaciones() {
@@ -526,7 +576,7 @@ function checkVotaciones() {
             $vno_rep = $votacion['votos_negativos_rep'];
             $vdep_rep = $votacion['votos_depende_rep'];
             $id_votacion = $votacion['idvotacionsinodep'];
-            
+
             //Sumamos a los votos individuales los votos de representantes 
             //ya que los representantes también tienen voto individual
             $vsi_ind += $vsi_rep;
@@ -681,9 +731,7 @@ function checkVotaciones() {
     return $res;
 }
 
-function checkObjetivos(){
-    
+function checkObjetivos() {
+
     //Comprobamos los objetivos para ver si cambian de estado o qué pasa
-    
-    
 }

@@ -10,7 +10,7 @@ $funcionesPermitidas = array(
     , 'doLogin'
     , 'doLogout'
     , 'getSession'
-    , 'getObjetivos'
+    , 'getObjetivosConInfo'
     , 'addObjetivo'
     , 'votarAprobacionObjetivo'
 );
