@@ -12,6 +12,7 @@ $funcionesPermitidas = array(
     , 'getSession'
     , 'getObjetivos'
     , 'addObjetivo'
+    , 'votarAprobacionObjetivo'
 );
 
 

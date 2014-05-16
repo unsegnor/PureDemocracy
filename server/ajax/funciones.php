@@ -281,7 +281,6 @@ function addObjetivo($descripcion) {
 
                             //Anotamos notificaciones para los representantes
                             //TODO no es necesario, se pueden consultar luego
-                            
                         }
                     }
                 }
@@ -359,4 +358,75 @@ function getRepresentantes($nmuestra) {
     }
 
     return $res;
+}
+
+function votarAprobacionObjetivo($id_objetivo, $valor) {
+
+    //Obtenemos la votación correspondiente
+    $res = getVotacionAprobacionDeObjetivo($id_objetivo);
+    
+    if(!$res->hayerror){
+        
+        $id_votacion = $res->resultado;
+        
+        $res = emitirVoto($id_votacion, $valor);
+        
+    }
+    
+    return $res;
+    
+}
+
+function getVotacionAprobacionDeObjetivo($id_objetivo) {
+
+    $res = ejecutar("SELECT * FROM objetivo_has_votacionsinodep WHERE"
+            . " objetivo_idobjetivo='" . escape($id_objetivo) . "'"
+            . " AND nombre='Aprobación'");
+
+    if (!$res->hayerror) {
+        $resultado = $res->resultado;
+
+        if ($resultado->num_rows == 1) {
+
+            $fila = $resultado->fetch_assoc();
+
+            $res->resultado = $fila['votacionsinodep_idvotacionsinodep'];
+        } else {
+            $res->hayerror = true;
+            $res->errormsg = "Hay más de una votación de aprobación en el objetivo";
+        }
+    }
+
+    return $res;
+}
+
+function emitirVoto($id_votacion, $valor) {
+    //Comprobamos que estemos logueados
+    $res = checkLogin();
+
+    if (!$res->hayerror) {
+
+        if ($res->resultado) {
+            //Estamos logueados
+            //Utilizamos el id de usuario del usuario en cuestión
+            $id_usuario = $_SESSION['idusuario'];
+
+            //Insertamos el voto y si existe lo actualizamos
+            $res = ejecutar("INSERT INTO `pdbdd`.`votosinodep` "
+                    . "(`usuario_idusuario`, `votacionsinodep_idvotacionsinodep`, `valor`)"
+                    . " VALUES"
+                    . "('" . escape($id_usuario) . "'"
+                    . ",'" . escape($id_votacion) . "'"
+                    . "," . escape($valor)
+                    . ") ON DUPLICATE KEY UPDATE"
+                    . " valor=" . escape($valor));
+        }
+    }
+    
+    return $res;
+}
+
+function checkTime() {
+
+    //Comprobar votaciones
 }

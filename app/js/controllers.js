@@ -34,11 +34,19 @@ angular.module('puredemocracyapp.controllers', [])
                 };
 
                 $scope.onSelect = function(item, algo, label) {
-                    
+
                     var idobjetivo = item.idobjetivo;
-                    
+
                     //Redireccionamos al detalle de la propuesta seleccionada
                     redirect("detalleobjetivo.php?id=" + idobjetivo);
+                };
+
+                $scope.votar = function(objetivo, valor){
+                    //alert("Votando");
+                    allamar($http, 'votarAprobacionObjetivo', [objetivo.idobjetivo, valor], function(res) {
+                        //Recargar las propuestas
+                        $scope.getObjetivos();
+                    });
                 };
             }])
         .controller('controladorlogout', ['$scope', '$http', function($scope, $http) {
