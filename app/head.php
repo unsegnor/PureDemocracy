@@ -8,7 +8,7 @@
         <meta name="author" content="">
         <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
 
-        <title>Pure Decmorcacy</title>
+        <title>Pure Democracy</title>
         <!--<link rel="stylesheet" type="text/css" href="estilos.css">-->
         <!--<link rel="stylesheet" type="text/css" href="../media/css/style.css">-->
 
