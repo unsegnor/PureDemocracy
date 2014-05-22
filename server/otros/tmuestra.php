@@ -11,8 +11,10 @@ for ($error = 0.5; $error > 0; $error -= 0.001) {
     $muestra = getTamanioMuestra($total, $error);
 
     $nmuestra = floor($muestra) + 1;
+    
+    $proporcion_muestra = $nmuestra / $total;
 
-    echo "<br>".$error .",". $nmuestra;
+    echo "<br>$error, $nmuestra, $proporcion_muestra";
 }
 
 //Al final imprimimos el último que es con error 0

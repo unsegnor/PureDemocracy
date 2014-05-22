@@ -260,9 +260,6 @@ function addObjetivo($descripcion) {
             //La primera vez nos basta un error inferior al 0.5
             $nmuestra = getTamanioMuestra($total, 0.5);
 
-            //Redondeamos para abajo y sumamos uno al tamaño para asegurarnos de que el error está por debajo del 0.5
-            $nmuestra = floor($nmuestra) + 1;
-
             //Ahora calculamos el error en el que incurrimos al utilizar la muestra
             $error = getErrorDeMuestra($total, $nmuestra);
 
@@ -421,8 +418,8 @@ function getTotalIndividuos() {
 
 function getErrorDeMuestra($total, $muestra) {
 
-    //Si la muestra es mayor que el total el error es 0
-    if ($muestra > $total) {
+    //Si la muestra es mayor o igual que el total el error es 0
+    if ($muestra >= $total) {
         $result = 0;
     } else {
 
@@ -434,7 +431,7 @@ function getErrorDeMuestra($total, $muestra) {
     return $result;
 }
 
-function getTamanioMuestra($total, $error) {
+function calculaTamanioMuestra($total, $error) {
     $z = Constantes::z;
 
     $r = ($z * $z * 0.25) / ($error * $error);
@@ -442,6 +439,24 @@ function getTamanioMuestra($total, $error) {
     $muestra = $r / (1 + (($r - 1) / $total));
 
     return $muestra;
+}
+
+function getTamanioMuestra($total, $error) {
+    $muestra = calculaTamanioMuestra($total, $error);
+
+    //TODO esto es peligroso, es la corrección de la función según el error por el que preguntamos
+    if ($error == 0.5) {
+        //Si la muestra es mayor que la mitad entonces la muestra es la mitad mas uno
+        if ($muestra > $total / 2) {
+            $nmuestra = floor($total / 2) + 1;
+        } else {
+            $nmuestra = floor($muestra) + 1;
+        }
+    } else {
+        $nmuestra = floor($muestra) + 1;
+    }
+
+    return $nmuestra;
 }
 
 function getTamanioMuestraPro($total, $error) {
@@ -662,25 +677,26 @@ function checkVotaciones() {
             echo "<br>Los representantes representan $vsi_representados votos para el 'Si', $vno_representados votos para el 'No' y $vdep_representados votos para el 'Depende'";
 
             //Calculamos los votos reales y representados por separado
-            $porcentaje_vsi_representados = $vsi_representados/$abstencion;
-            $porcentaje_vno_representados = $vno_representados/$abstencion;
-            $porcentaje_vdep_representados = $vdep_representados/$abstencion;
-            
+            //no se divide entre la abstención por que la representatividad de cada voto ya ha sido calculada en función de la abstención
+            $porcentaje_vsi_representados = $vsi_representados / $nindividuos;
+            $porcentaje_vno_representados = $vno_representados / $nindividuos;
+            $porcentaje_vdep_representados = $vdep_representados / $nindividuos;
+
             echo "<br>Los votos de los representantes suponen:";
-            echo "<br>Un ".($porcentaje_vsi_representados*100)."% del 'Si'";
-            echo "<br>Un ".($porcentaje_vno_representados*100)."% del 'No'";
-            echo "<br>Un ".($porcentaje_vdep_representados*100)."% del 'Depende'";
-            
-            
-            $porcentaje_vsi_independientes = $vsi_ind/$nindividuos;
-            $porcentaje_vno_independientes = $vno_ind/$nindividuos;
-            $porcentaje_vdep_independientes = $vdep_ind/$nindividuos;
-            
+            echo "<br>Un " . ($porcentaje_vsi_representados * 100) . "% del 'Si'";
+            echo "<br>Un " . ($porcentaje_vno_representados * 100) . "% del 'No'";
+            echo "<br>Un " . ($porcentaje_vdep_representados * 100) . "% del 'Depende'";
+
+
+            $porcentaje_vsi_independientes = $vsi_ind / $nindividuos;
+            $porcentaje_vno_independientes = $vno_ind / $nindividuos;
+            $porcentaje_vdep_independientes = $vdep_ind / $nindividuos;
+
             echo "<br>Los votos individuales suponen:";
-            echo "<br>Un ".($porcentaje_vsi_independientes*100)."% del 'Si'";
-            echo "<br>Un ".($porcentaje_vno_independientes*100)."% del 'No'";
-            echo "<br>Un ".($porcentaje_vdep_independientes*100)."% del 'Depende'";
-            
+            echo "<br>Un " . ($porcentaje_vsi_independientes * 100) . "% del 'Si'";
+            echo "<br>Un " . ($porcentaje_vno_independientes * 100) . "% del 'No'";
+            echo "<br>Un " . ($porcentaje_vdep_independientes * 100) . "% del 'Depende'";
+
             $sumasi = $vsi_representados + $vsi_ind;
             $sumano = $vno_representados + $vno_ind;
             $sumadep = $vdep_representados + $vdep_ind;
@@ -695,25 +711,43 @@ function checkVotaciones() {
             echo "<br>$sumano votos para el 'No', el " . ($pno * 100) . "%";
             echo "<br>$sumadep votos para el 'Depende', el " . ($pdep * 100) . "%";
             echo "<br>Que juntos suman " . ($sumasi + $sumano + $sumadep) . ", el " . (($psi + $pno + $pdep) * 100) . "%";
-            
-            
-            
+
+
+
             //Y ahora ya podemos calcular el apoyo a las diferentes opciones y los errores
             //Para cada una comprobamos si ha terminado o la ampliamos
             //TODO a ver qué hacemos si se abstiene todo cristo
             $resultado = 0;
-            
-            //TODO calcular mejor los mínimos que no reste la segunda parte a la primera cuando el error sea mayor que el porcentaje representado
-            $minimo_si = $porcentaje_vsi_independientes + ($porcentaje_vsi_representados - $error_actual);
-            $minimo_no = $porcentaje_vno_independientes + ($porcentaje_vno_representados - $error_actual);
+
+            //Calculamos los mínimos de representación
+            $minimo_rep_si = ($porcentaje_vsi_representados - $error_actual);
+            $minimo_rep_no = ($porcentaje_vno_representados - $error_actual);
+
+            //El mínimo de la representación sólo puede sumar
+            $minimo_si = $porcentaje_vsi_independientes;
+            if ($minimo_rep_si > 0) {
+                $minimo_si += $minimo_rep_si;
+            }
+
+            $minimo_no = $porcentaje_vno_independientes;
+            if ($minimo_rep_no > 0) {
+                $minimo_no += $minimo_rep_no;
+            }
+
             $maximo_si = $porcentaje_vsi_independientes + ($porcentaje_vsi_representados + $error_actual);
             $maximo_no = $porcentaje_vno_independientes + ($porcentaje_vno_representados + $error_actual);
-            
+
+            //Sumamos la abstención de representantes por si la hay para que no termine la votación antes de que se pronuncien al menos todos los representantes
+            if ($abstencion_rep > 0) {
+                $maximo_si += ($abstencion_rep * $representacion) / $abstencion;
+                $maximo_no += ($abstencion_rep * $representacion) / $abstencion;
+            }
+
             echo "<br>Segun los datos obtenidos las predicciones son las siguientes:";
-            echo "<br>'Si' obtendra entre un ".($minimo_si*100)."% y un ".($maximo_si*100)."% del total de votos.";
-            echo "<br>'No' obtendra entre un ".($minimo_no*100)."% y un ".($maximo_no*100)."% del total de votos.";
+            echo "<br>'Si' obtendra entre un " . ($minimo_si * 100) . "% y un " . ($maximo_si * 100) . "% del total de votos.";
+            echo "<br>'No' obtendra entre un " . ($minimo_no * 100) . "% y un " . ($maximo_no * 100) . "% del total de votos.";
             //echo "<br>'Depende' obtendrá entre un ".$minimo_si."% y un ".$maximo_si."% del total de votos.";
-            
+
             if ($minimo_si > 0.5) {
                 //Si el porcentaje de sí menos el error aún es mayor que la mitad entonces es la opción seleccionada
                 $resultado = 3;
@@ -728,65 +762,82 @@ function checkVotaciones() {
             }
 
             if ($resultado == 0) {
-                
+
                 echo "<br>Aun no se han descartado suficientes opciones.";
-                
-                //Si seguimos sin tener una respuesta tenemos que ampliar la muestra
-                //Calculamos las diferencias en el error necesarias para cambiar de escenario
-                //Nos interesa que el error sea tan pequeño que
-                //haga que los resultados más/menos el error no traspasen
-                //el 0.5, es decir, se queden en su lado, ya sea más allá o sin llegar a pasarlo
-                //así que calcularemos las diferencias entre los porcentajes y el 0.5
-                //estos son los errores deseados para las opciones y escogeremos de ellos
-                //el mayor por ser más fácil de conseguir (molestamos a menos personas)
 
-                $dsi = abs($psi - 0.5);
-                $dno = abs($pno - 0.5);
-                
-                echo "<br>Para decidirnos tendriamos que reducir el error hasta el ".($dsi*100)."% o el ".($dno*100)."%";
-
-                $error_deseado = max($dsi, $dno);
-                
-                echo "<br>El mas cercano es ".($error_deseado*100)."%.";
+                if ($abstencion_rep > 0) {
+                    echo "<br>$abstencion_rep representantes se han abstenido, no se puede continuar hasta que se pronuncien";
+                } else {
 
 
-                //Calculamos el tamaño de la muestra en función de la abstención
-                //porque los que ya han votado no se pueden abstener
-                $muestra_necesaria = getTamanioMuestra($abstencion, $error_deseado);
 
-                //Nos aseguramos de que se coge el mínimo más de lo necesario
-                $muestra_necesaria = floor($muestra_necesaria) + 1;
+                    //Si seguimos sin tener una respuesta tenemos que ampliar la muestra
+                    //Calculamos las diferencias en el error necesarias para cambiar de escenario
+                    //Nos interesa que el error sea tan pequeño que
+                    //haga que los resultados más/menos el error no traspasen
+                    //el 0.5, es decir, se queden en su lado, ya sea más allá o sin llegar a pasarlo
+                    //así que calcularemos las diferencias entre los porcentajes y el 0.5
+                    //estos son los errores deseados para las opciones y escogeremos de ellos
+                    //el mayor por ser más fácil de conseguir (molestamos a menos personas)
 
-                echo "<br>Para poder representar a $abstencion individuos (la abstencion)"
-                        . " con un error inferior al ".($error_deseado*100)."% necesitamos una muestra de $muestra_necesaria individuos.";
+                    $dsi = abs($psi - 0.5);
+                    $dno = abs($pno - 0.5);
 
-                //No contamos con que los representantes que se han abstenido vayan a votar
-                //pero les seguimos dando la opción por si votan y así ayudan a disminuir el error más aún
-                //Calculamos la diferencia entre la muestra que tenemos 
-                //(los representantes que se han pronunciado) y la necesaria
-                //aunque los representantes que se han abstenido siguen representando a mucha gente
-                //así que este cálculo no servirá salvo que los que se han abstenido voten o 
-                //se les revoque la condición de representantes...
-                /*
-                 * Opción 1: Añadir más representantes y esperar a que todos voten para el siguiente checktime
-                 * Opción 2: Revocar la condición de representantes a los que se han abstenido y añadir los necesarios
-                 * Opción 3: Añadir representantes sin contar con los abstenidos pero no revocar la condición
-                 * Opción 4: Revocar la condición de representantes a todos y volver a nombrar representantes con la nueva muestra
-                 */
-                //De momento opción 1
-                $muestra_real_actual = $nrepresentantes;
+                    echo "<br>Para decidirnos tendriamos que reducir el error hasta el " . ($dsi * 100) . "% o el " . ($dno * 100) . "%";
 
-                $ampliacion_muestra = $muestra_necesaria - $muestra_real_actual;
+                    //Si alguno de los errores es mayor que el actual se descarta y se coge el otro
+                    if ($dsi > $error_actual && $dno <= $error_actual) {
+                        $error_deseado = $dno;
+                    } else if ($dno > $error_actual && $dsi <= $error_actual) {
+                        $error_deseado = $dsi;
+                    } else if ($dsi <= $error_actual && $dno <= $error_actual) {
+                        //Si los dos son menores cogemos el mayor de los dos, el que está más cerca
+                        $error_deseado = max($dsi, $dno);
+                    } else {
+                        //Si ninguno de los dos vale lo que hacemos es ignorar la ampliación ya que no podemos mejorar el error
+                        //lo que hace falta es que los representantes voten
+                    }
 
-                echo "<br>ampliacion_muestra: $ampliacion_muestra";
+                    echo "<br>El mas cercano es " . ($error_deseado * 100) . "%.";
 
-                //Ampliamos la muestra
 
-                if ($ampliacion_muestra > 0) {
-                    $representantes = getNuevosRepresentantesParaVotacion($ampliacion_muestra, $id_votacion)->resultado;
-                    $res = addRepresentantesAVotacion($representantes, $id_votacion);
+                    //Calculamos el tamaño de la muestra en función de la abstención
+                    //porque los que ya han votado no se pueden abstener
+                    $muestra_necesaria = getTamanioMuestra($abstencion, $error_deseado);
+
+                    echo "<br>Para poder representar a $abstencion individuos (la abstencion)"
+                    . " con un error inferior al " . ($error_deseado * 100) . "% necesitamos una muestra de $muestra_necesaria individuos.";
+
+                    //No contamos con que los representantes que se han abstenido vayan a votar
+                    //pero les seguimos dando la opción por si votan y así ayudan a disminuir el error más aún
+                    //Calculamos la diferencia entre la muestra que tenemos 
+                    //(los representantes que se han pronunciado) y la necesaria
+                    //aunque los representantes que se han abstenido siguen representando a mucha gente
+                    //así que este cálculo no servirá salvo que los que se han abstenido voten o 
+                    //se les revoque la condición de representantes...
+                    /*
+                     * Opción 1: Añadir más representantes y esperar a que todos voten para el siguiente checktime
+                     * Opción 2: Revocar la condición de representantes a los que se han abstenido y añadir los necesarios
+                     * Opción 3: Añadir representantes sin contar con los abstenidos pero no revocar la condición
+                     * Opción 4: Revocar la condición de representantes a todos y volver a nombrar representantes con la nueva muestra
+                     */
+                    //De momento opción 1
+                    $muestra_real_actual = $nrepresentantes;
+
+                    echo "<br>Ahora mismo tenemos una muestra de $muestra_real_actual representantes.";
+
+                    //Suponiendo que descartáramos a los representantes actuales
+                    $ampliacion_muestra = $muestra_necesaria - $muestra_real_actual;
+
+                    echo "<br>Necesitamos $ampliacion_muestra representantes mas.";
+
+                    //Ampliamos la muestra
+
+                    if ($ampliacion_muestra > 0) {
+                        $representantes = getNuevosRepresentantesParaVotacion($ampliacion_muestra, $id_votacion)->resultado;
+                        $res = addRepresentantesAVotacion($representantes, $id_votacion);
+                    }
                 }
-
                 //Contamos una ampliación más y definimos el nuevo checktime
                 $res = ejecutar("UPDATE votacionsinodep SET"
                         . " ampliaciones=ampliaciones+1" . $resultado
@@ -795,7 +846,6 @@ function checkVotaciones() {
                         . " WHERE idvotacionsinodep=" . $id_votacion);
             } else {
                 //Si tenemos resultado, lo guardamos con los datos de votación y se finaliza la votación
-                //TODO guardar todos los resultados
 
                 $res = ejecutar("UPDATE votacionsinodep SET"
                         . " resultado=" . $resultado
@@ -866,4 +916,38 @@ function checkObjetivos() {
             }
         }
     }
+}
+
+function factorial($n) {
+    if ($n == 1 || $n == 0) {
+        $r = 1;
+    } else {
+        $r = 2;
+        for ($i = 3; $i <= $n; $i++) {
+            $r *= $i;
+        }
+    }
+    return $r;
+}
+
+function combinaciones($n, $k) {
+
+    $ninicial = 1;
+    $otro = 1;
+
+    $nk = $n - $k;
+    if ($k > ($nk)) {
+        //Si k > (n-k) dividmos n por n-k
+        $ninicial = $k;
+        $otro = factorial($nk);
+    } else {
+        $ninicial = $nk;
+        $otro = factorial($k);
+    }
+
+    $t1 = 1;
+    for ($i = $ninicial + 1; $i <= $n; $i++) {
+        $t1 *= $i;
+    }
+    return $t1 / $otro;
 }
