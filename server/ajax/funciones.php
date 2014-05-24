@@ -155,6 +155,34 @@ function getUsuarioActual() {
     return $res;
 }
 
+function getGrupos() {
+
+    //Comprobamos que estemos logueados
+    $res = checkLogin();
+
+    if (!$res->hayerror) {
+
+        if ($res->resultado) {
+
+            $consulta = "SELECT * FROM grupo";
+
+            $res = ejecutar($consulta);
+
+            if (!$res->hayerror) {
+                $res->resultado = toArray($res->resultado);
+            }
+        } else {
+            //No estamos logueados
+        }
+    }
+
+    return $res;
+}
+
+function addGrupo($nombre){
+    
+}
+
 function getObjetivosConInfo() {
     //Comprobamos que estemos logueados
     $res = checkLogin();
@@ -167,17 +195,17 @@ function getObjetivosConInfo() {
             $id_usuario = $_SESSION['idusuario'];
 
             $res = ejecutar("SELECT objetivo.*"
-                    . ", votosinodep.valor as voto"
-                    . ", votosinodep.representante as representante"
-                    . ", votacionsinodep.checktime as checktime"
+                    . ", votosnd.valor as voto"
+                    . ", votosnd.representante as representante"
+                    . ", votacionsnd.checktime as checktime"
                     . ", estado_objetivo.nombre as nombre_estado"
                     . ", estado_objetivo.proceso as nombre_proceso"
                     . " FROM objetivo "
-                    . " LEFT JOIN objetivo_has_votacionsinodep ON objetivo_has_votacionsinodep.objetivo_idobjetivo = objetivo.idobjetivo"
-                    . " AND objetivo_has_votacionsinodep.nombre = 'Aprobación'"
-                    . " LEFT JOIN votacionsinodep ON objetivo_has_votacionsinodep.votacionsinodep_idvotacionsinodep = votacionsinodep.idvotacionsinodep"
-                    . " LEFT JOIN votosinodep ON votosinodep.votacionsinodep_idvotacionsinodep = votacionsinodep.idvotacionsinodep"
-                    . " AND votosinodep.usuario_idusuario =" . escape($id_usuario)
+                    . " LEFT JOIN objetivo_has_votacionsnd ON objetivo_has_votacionsnd.objetivo_idobjetivo = objetivo.idobjetivo"
+                    . " AND objetivo_has_votacionsnd.nombre = 'Aprobación'"
+                    . " LEFT JOIN votacionsnd ON objetivo_has_votacionsnd.votacionsnd_idvotacionsnd = votacionsnd.idvotacionsnd"
+                    . " LEFT JOIN votosnd ON votosnd.votacionsnd_idvotacionsnd = votacionsnd.idvotacionsnd"
+                    . " AND votosnd.usuario_idusuario =" . escape($id_usuario)
                     . ", estado_objetivo"
                     . " WHERE objetivo.estado_objetivo_idestado_objetivo = estado_objetivo.idestado_objetivo"
                     . " ORDER BY checktime ASC, representante DESC");
@@ -279,7 +307,7 @@ function addObjetivo($descripcion) {
                 $id_objetivo = $res->resultado;
 
                 //Añadimos la votación 
-                $res = insert_id("INSERT INTO `pdbdd`.`votacionsinodep` "
+                $res = insert_id("INSERT INTO `pdbdd`.`votacionsnd` "
                         . "(`error`, `timein`, `checktime`, `timeout`, `ampliaciones`, `activa`, `finalizada`, `resultado`) "
                         . "VALUES "
                         . "(" . $error . "" //El error que tiene de momento
@@ -298,8 +326,8 @@ function addObjetivo($descripcion) {
                     $id_votacion = $res->resultado;
 
                     //Asociamos la votación con el objetivo
-                    $res = ejecutar("INSERT INTO `pdbdd`.`objetivo_has_votacionsinodep` "
-                            . "(`objetivo_idobjetivo`, `votacionsinodep_idvotacionsinodep`, `nombre`) "
+                    $res = ejecutar("INSERT INTO `pdbdd`.`objetivo_has_votacionsnd` "
+                            . "(`objetivo_idobjetivo`, `votacionsnd_idvotacionsnd`, `nombre`) "
                             . "VALUES "
                             . "(" . $id_objetivo . ""
                             . "," . $id_votacion . ""
@@ -311,8 +339,8 @@ function addObjetivo($descripcion) {
 
                         //Añadimos los representantes a la votación
                         //Seleccionamos y añadimos a los representantes
-                        $consulta = "INSERT INTO `pdbdd`.`votosinodep` "
-                                . "(`usuario_idusuario`, `votacionsinodep_idvotacionsinodep`"
+                        $consulta = "INSERT INTO `pdbdd`.`votosnd` "
+                                . "(`usuario_idusuario`, `votacionsnd_idvotacionsnd`"
                                 . ", `representante`) VALUES ";
 
                         $primero = true;
@@ -363,8 +391,8 @@ function addNRepresentantesAVotacion($n, $id_votacion) {
 function addRepresentantesAVotacion($representantes, $id_votacion) {
     //Añadimos los representantes a la votación
     //Seleccionamos y añadimos a los representantes
-    $consulta = "INSERT INTO `pdbdd`.`votosinodep` "
-            . "(`usuario_idusuario`, `votacionsinodep_idvotacionsinodep`"
+    $consulta = "INSERT INTO `pdbdd`.`votosnd` "
+            . "(`usuario_idusuario`, `votacionsnd_idvotacionsnd`"
             . ", `representante`) VALUES ";
 
     $primero = true;
@@ -489,10 +517,10 @@ function getRepresentantes($nmuestra) {
 
 function getNuevosRepresentantesParaVotacion($nmuestra, $id_votacion) {
     $res = ejecutar("SELECT usuario.idusuario FROM usuario "
-            . " LEFT JOIN votosinodep ON votosinodep.usuario_idusuario = usuario.idusuario"
-            . " AND votosinodep.votacionsinodep_idvotacionsinodep =" . escape($id_votacion)
-            . " WHERE votosinodep.representante IS NULL"
-            . " OR votosinodep.representante = 0"
+            . " LEFT JOIN votosnd ON votosnd.usuario_idusuario = usuario.idusuario"
+            . " AND votosnd.votacionsnd_idvotacionsnd =" . escape($id_votacion)
+            . " WHERE votosnd.representante IS NULL"
+            . " OR votosnd.representante = 0"
             . " ORDER BY RAND() LIMIT " . $nmuestra);
 
     if (!$res->hayerror) {
@@ -522,7 +550,7 @@ function votarAprobacionObjetivo($id_objetivo, $valor) {
 
 function getVotacionAprobacionDeObjetivo($id_objetivo) {
 
-    $res = ejecutar("SELECT * FROM objetivo_has_votacionsinodep WHERE"
+    $res = ejecutar("SELECT * FROM objetivo_has_votacionsnd WHERE"
             . " objetivo_idobjetivo='" . escape($id_objetivo) . "'"
             . " AND nombre='Aprobación'");
 
@@ -533,7 +561,7 @@ function getVotacionAprobacionDeObjetivo($id_objetivo) {
 
             $fila = $resultado->fetch_assoc();
 
-            $res->resultado = $fila['votacionsinodep_idvotacionsinodep'];
+            $res->resultado = $fila['votacionsnd_idvotacionsnd'];
         } else {
             $res->hayerror = true;
             $res->errormsg = "Hay más de una votación de aprobación en el objetivo";
@@ -555,8 +583,8 @@ function emitirVoto($id_votacion, $valor) {
             $id_usuario = $_SESSION['idusuario'];
 
             //Insertamos el voto y si existe lo actualizamos
-            $res = ejecutar("INSERT INTO `pdbdd`.`votosinodep` "
-                    . "(`usuario_idusuario`, `votacionsinodep_idvotacionsinodep`, `valor`)"
+            $res = ejecutar("INSERT INTO `pdbdd`.`votosnd` "
+                    . "(`usuario_idusuario`, `votacionsnd_idvotacionsnd`, `valor`)"
                     . " VALUES"
                     . "('" . escape($id_usuario) . "'"
                     . ",'" . escape($id_votacion) . "'"
@@ -584,20 +612,20 @@ function checkVotaciones() {
     //TODO Desactivamos todas las votaciones 
     //Comprobar votaciones
     //Obtenemos las votaciones que deben ser controladas con toda la información necesaria
-    $res = ejecutar("SELECT votacionsinodep.*"
-            . ", SUM(CASE WHEN votosinodep.representante = 1 THEN 1 ELSE 0 END) as representantes"
-            . ", SUM(CASE WHEN votosinodep.representante = 1 AND votosinodep.valor = 1 THEN 1 ELSE 0 END) as votos_negativos_rep"
-            . ", SUM(CASE WHEN votosinodep.representante = 1 AND votosinodep.valor = 2 THEN 1 ELSE 0 END) as votos_depende_rep"
-            . ", SUM(CASE WHEN votosinodep.representante = 1 AND votosinodep.valor = 3 THEN 1 ELSE 0 END) as votos_positivos_rep"
-            . ", SUM(CASE WHEN votosinodep.valor IS NOT NULL THEN 1 ELSE 0 END) as votos_emitidos"
-            . ", SUM(CASE WHEN votosinodep.representante = 0 AND votosinodep.valor = 1 THEN 1 ELSE 0 END) as votos_negativos_ind"
-            . ", SUM(CASE WHEN votosinodep.representante = 0 AND votosinodep.valor = 2 THEN 1 ELSE 0 END) as votos_depende_ind"
-            . ", SUM(CASE WHEN votosinodep.representante = 0 AND votosinodep.valor = 3 THEN 1 ELSE 0 END) as votos_positivos_ind"
-            . " FROM votacionsinodep "
-            . " LEFT JOIN votosinodep ON votosinodep.votacionsinodep_idvotacionsinodep = votacionsinodep.idvotacionsinodep"
+    $res = ejecutar("SELECT votacionsnd.*"
+            . ", SUM(CASE WHEN votosnd.representante = 1 THEN 1 ELSE 0 END) as representantes"
+            . ", SUM(CASE WHEN votosnd.representante = 1 AND votosnd.valor = 1 THEN 1 ELSE 0 END) as votos_negativos_rep"
+            . ", SUM(CASE WHEN votosnd.representante = 1 AND votosnd.valor = 2 THEN 1 ELSE 0 END) as votos_depende_rep"
+            . ", SUM(CASE WHEN votosnd.representante = 1 AND votosnd.valor = 3 THEN 1 ELSE 0 END) as votos_positivos_rep"
+            . ", SUM(CASE WHEN votosnd.valor IS NOT NULL THEN 1 ELSE 0 END) as votos_emitidos"
+            . ", SUM(CASE WHEN votosnd.representante = 0 AND votosnd.valor = 1 THEN 1 ELSE 0 END) as votos_negativos_ind"
+            . ", SUM(CASE WHEN votosnd.representante = 0 AND votosnd.valor = 2 THEN 1 ELSE 0 END) as votos_depende_ind"
+            . ", SUM(CASE WHEN votosnd.representante = 0 AND votosnd.valor = 3 THEN 1 ELSE 0 END) as votos_positivos_ind"
+            . " FROM votacionsnd "
+            . " LEFT JOIN votosnd ON votosnd.votacionsnd_idvotacionsnd = votacionsnd.idvotacionsnd"
             . " WHERE checktime <= NOW()"
             . " AND finalizada=0"
-            . " GROUP BY idvotacionsinodep");
+            . " GROUP BY idvotacionsnd");
 
     if (!$res->hayerror) {
 
@@ -616,7 +644,7 @@ function checkVotaciones() {
             $vsi_rep = $votacion['votos_positivos_rep'];
             $vno_rep = $votacion['votos_negativos_rep'];
             $vdep_rep = $votacion['votos_depende_rep'];
-            $id_votacion = $votacion['idvotacionsinodep'];
+            $id_votacion = $votacion['idvotacionsnd'];
 
             //Sumamos a los votos individuales los votos de representantes 
             //ya que los representantes también tienen voto individual
@@ -624,13 +652,14 @@ function checkVotaciones() {
             $vno_ind += $vno_rep;
             $vdep_ind += $vdep_rep;
 
-            echo "<br>Votacion: $id_votacion";
+            echo "<hr>";
+            echo "<br>Votación: $id_votacion";
             echo "<br>$nindividuos individuos llamados a votar";
-            echo "<br>para esta votacion se han nombrado $nrepresentantes representantes";
-            echo "<br>$vsi_ind personas han votado 'Si' (incluidos representantes), el " . (($vsi_ind / $nindividuos) * 100) . "% de los individuos";
+            echo "<br>Para esta votación se han nombrado $nrepresentantes representantes";
+            echo "<br>$vsi_ind personas han votado 'Sí' (incluidos representantes), el " . (($vsi_ind / $nindividuos) * 100) . "% de los individuos";
             echo "<br>$vno_ind personas han votado 'No' (incluidos representantes), el " . (($vno_ind / $nindividuos) * 100) . "% de los individuos";
             echo "<br>$vdep_ind personas han votado 'Depende' (incluidos representantes), el " . (($vdep_ind / $nindividuos) * 100) . "% de los individuos";
-            echo "<br>$vsi_rep representantes han votado 'Si', el " . (($vsi_rep / $nrepresentantes) * 100) . "% de los representantes";
+            echo "<br>$vsi_rep representantes han votado 'Sí', el " . (($vsi_rep / $nrepresentantes) * 100) . "% de los representantes";
             echo "<br>$vno_rep representantes han votado 'No', el " . (($vno_rep / $nrepresentantes) * 100) . "% de los representantes";
             echo "<br>$vdep_rep representantes han votado 'Depende', el " . (($vdep_rep / $nrepresentantes) * 100) . "% de los representantes";
 
@@ -638,7 +667,7 @@ function checkVotaciones() {
             $total_rep = $vsi_rep + $vno_rep + $vdep_rep;
 
             echo "<br>En total se han emitido $total_ind votos";
-            echo "<br>de los cuales $total_rep son de representantes";
+            echo " de los cuales $total_rep son de representantes";
 
             //Calculamos la abstención
             $abstencion = $nindividuos - $votos_emitidos;
@@ -652,19 +681,19 @@ function checkVotaciones() {
             //Si hay representantes y abstención mayor que una persona lo podemos calcular, sino no
             if ($nrepresentantes > 0 && $abstencion > 1) {
                 $error_actual = getErrorDeMuestra($abstencion, $nrepresentantes);
-                echo "<br>El error que calculamos que pueden cometer $nrepresentantes representantes votando por $abstencion individuos es " . $error_actual * 100;
+                echo "<br>El error que calculamos que pueden cometer $nrepresentantes representantes votando por $abstencion individuos es " . ($error_actual * 100) . "%";
             } else {
                 $error_actual = 0;
-                echo "<br>No tenemos representantes o ha votado todo el mundo asi que el error es $error_actual";
+                echo "<br>No tenemos representantes o ha votado todo el mundo así que el error es $error_actual";
             }
 
             //Los representantes representan a la abstención si los hay
             if ($nrepresentantes > 0) {
                 $representacion = $abstencion / $nrepresentantes;
-                echo "<br>Tenemos $nrepresentantes representantes que representan a $abstencion individuos con una cuota de representacion de $representacion cada uno";
+                echo "<br>Tenemos $nrepresentantes representantes que representan a $abstencion individuos con una cuota de representación de $representacion cada uno";
             } else {
                 $representacion = 0;
-                echo "<br>No tenemos representantes asi que la cuota de representacion es $representacion";
+                echo "<br>No tenemos representantes así que la cuota de representacion es $representacion";
             }
 
             //Sumamos los votos de cada opción
@@ -674,7 +703,7 @@ function checkVotaciones() {
             $vno_representados = $representacion * $vno_rep;
             $vdep_representados = $representacion * $vdep_rep;
 
-            echo "<br>Los representantes representan $vsi_representados votos para el 'Si', $vno_representados votos para el 'No' y $vdep_representados votos para el 'Depende'";
+            echo "<br>Los representantes representan $vsi_representados votos para el 'Sí', $vno_representados votos para el 'No' y $vdep_representados votos para el 'Depende'";
 
             //Calculamos los votos reales y representados por separado
             //no se divide entre la abstención por que la representatividad de cada voto ya ha sido calculada en función de la abstención
@@ -683,7 +712,7 @@ function checkVotaciones() {
             $porcentaje_vdep_representados = $vdep_representados / $nindividuos;
 
             echo "<br>Los votos de los representantes suponen:";
-            echo "<br>Un " . ($porcentaje_vsi_representados * 100) . "% del 'Si'";
+            echo "<br>Un " . ($porcentaje_vsi_representados * 100) . "% del 'Sí'";
             echo "<br>Un " . ($porcentaje_vno_representados * 100) . "% del 'No'";
             echo "<br>Un " . ($porcentaje_vdep_representados * 100) . "% del 'Depende'";
 
@@ -693,7 +722,7 @@ function checkVotaciones() {
             $porcentaje_vdep_independientes = $vdep_ind / $nindividuos;
 
             echo "<br>Los votos individuales suponen:";
-            echo "<br>Un " . ($porcentaje_vsi_independientes * 100) . "% del 'Si'";
+            echo "<br>Un " . ($porcentaje_vsi_independientes * 100) . "% del 'Sí'";
             echo "<br>Un " . ($porcentaje_vno_independientes * 100) . "% del 'No'";
             echo "<br>Un " . ($porcentaje_vdep_independientes * 100) . "% del 'Depende'";
 
@@ -707,7 +736,7 @@ function checkVotaciones() {
             $pdep = $sumadep / $nindividuos;
 
             echo "<br>Si sumamos los votos individuales y representados tenemos:";
-            echo "<br>$sumasi votos para el 'Si', el " . ($psi * 100) . "%";
+            echo "<br>$sumasi votos para el 'Sí', el " . ($psi * 100) . "%";
             echo "<br>$sumano votos para el 'No', el " . ($pno * 100) . "%";
             echo "<br>$sumadep votos para el 'Depende', el " . ($pdep * 100) . "%";
             echo "<br>Que juntos suman " . ($sumasi + $sumano + $sumadep) . ", el " . (($psi + $pno + $pdep) * 100) . "%";
@@ -743,27 +772,27 @@ function checkVotaciones() {
                 $maximo_no += ($abstencion_rep * $representacion) / $abstencion;
             }
 
-            echo "<br>Segun los datos obtenidos las predicciones son las siguientes:";
-            echo "<br>'Si' obtendra entre un " . ($minimo_si * 100) . "% y un " . ($maximo_si * 100) . "% del total de votos.";
-            echo "<br>'No' obtendra entre un " . ($minimo_no * 100) . "% y un " . ($maximo_no * 100) . "% del total de votos.";
+            echo "<br>Según los datos obtenidos las predicciones son las siguientes:";
+            echo "<br>'Sí' obtendrá entre un " . ($minimo_si * 100) . "% y un " . ($maximo_si * 100) . "% del total de votos.";
+            echo "<br>'No' obtendrá entre un " . ($minimo_no * 100) . "% y un " . ($maximo_no * 100) . "% del total de votos.";
             //echo "<br>'Depende' obtendrá entre un ".$minimo_si."% y un ".$maximo_si."% del total de votos.";
 
             if ($minimo_si > 0.5) {
                 //Si el porcentaje de sí menos el error aún es mayor que la mitad entonces es la opción seleccionada
                 $resultado = 3;
-                echo "<br>Como el minimo del 'Si' es mayor que la mitad podemos asegurar que este sera el resultado mayoritario.";
+                echo "<br>Como el mínimo del 'Sí' es mayor que la mitad podemos asegurar que éste será el resultado mayoritario.";
             } else if ($minimo_no > 0.5) {
                 $resultado = 1;
-                echo "<br>Como el minimo del 'No' es mayor que la mitad podemos asegurar que este sera el resultado mayoritario.";
+                echo "<br>Como el mínimo del 'No' es mayor que la mitad podemos asegurar que éste será el resultado mayoritario.";
             } else if ($maximo_si <= 0.5 && $maximo_no <= 0.5) {
                 //Si ni "sí" ni "no" tienen opciones ya de alcanzar mayoría es un "depende"
                 $resultado = 2;
-                echo "<br>Ya que ninguna de las opciones extremas puede ya conseguir la mayoria 'Depende' es la opcion seleccionada.";
+                echo "<br>Ya que ninguna de las opciones extremas puede ya conseguir la mayoría 'Depende' es la opción seleccionada.";
             }
 
             if ($resultado == 0) {
 
-                echo "<br>Aun no se han descartado suficientes opciones.";
+                echo "<br>Aún no se han descartado suficientes opciones.";
 
                 if ($abstencion_rep > 0) {
                     echo "<br>$abstencion_rep representantes se han abstenido, no se puede continuar hasta que se pronuncien";
@@ -783,7 +812,7 @@ function checkVotaciones() {
                     $dsi = abs($psi - 0.5);
                     $dno = abs($pno - 0.5);
 
-                    echo "<br>Para decidirnos tendriamos que reducir el error hasta el " . ($dsi * 100) . "% o el " . ($dno * 100) . "%";
+                    echo "<br>Para decidirnos tendríamos que reducir el error hasta el " . ($dsi * 100) . "% o el " . ($dno * 100) . "%";
 
                     //Si alguno de los errores es mayor que el actual se descarta y se coge el otro
                     if ($dsi > $error_actual && $dno <= $error_actual) {
@@ -798,14 +827,14 @@ function checkVotaciones() {
                         //lo que hace falta es que los representantes voten
                     }
 
-                    echo "<br>El mas cercano es " . ($error_deseado * 100) . "%.";
+                    echo "<br>El más cercano es " . ($error_deseado * 100) . "%.";
 
 
                     //Calculamos el tamaño de la muestra en función de la abstención
                     //porque los que ya han votado no se pueden abstener
                     $muestra_necesaria = getTamanioMuestra($abstencion, $error_deseado);
 
-                    echo "<br>Para poder representar a $abstencion individuos (la abstencion)"
+                    echo "<br>Para poder representar a $abstencion individuos (la abstención)"
                     . " con un error inferior al " . ($error_deseado * 100) . "% necesitamos una muestra de $muestra_necesaria individuos.";
 
                     //No contamos con que los representantes que se han abstenido vayan a votar
@@ -829,7 +858,7 @@ function checkVotaciones() {
                     //Suponiendo que descartáramos a los representantes actuales
                     $ampliacion_muestra = $muestra_necesaria - $muestra_real_actual;
 
-                    echo "<br>Necesitamos $ampliacion_muestra representantes mas.";
+                    echo "<br>Añadimos $ampliacion_muestra representantes más.";
 
                     //Ampliamos la muestra
 
@@ -839,15 +868,15 @@ function checkVotaciones() {
                     }
                 }
                 //Contamos una ampliación más y definimos el nuevo checktime
-                $res = ejecutar("UPDATE votacionsinodep SET"
+                $res = ejecutar("UPDATE votacionsnd SET"
                         . " ampliaciones=ampliaciones+1" . $resultado
                         . ", checktime=NOW() + INTERVAL " . Constantes::checktime_minutos . " MINUTE"
                         . ", activa=1"
-                        . " WHERE idvotacionsinodep=" . $id_votacion);
+                        . " WHERE idvotacionsnd=" . $id_votacion);
             } else {
                 //Si tenemos resultado, lo guardamos con los datos de votación y se finaliza la votación
 
-                $res = ejecutar("UPDATE votacionsinodep SET"
+                $res = ejecutar("UPDATE votacionsnd SET"
                         . " resultado=" . $resultado
                         . ", finalizada=1"
                         . ", activa=0"
@@ -859,7 +888,7 @@ function checkVotaciones() {
                         . ", votossirep=" . $vsi_rep
                         . ", votosnorep=" . $vno_rep
                         . ", votosdeprep=" . $vdep_rep
-                        . " WHERE idvotacionsinodep=" . $id_votacion);
+                        . " WHERE idvotacionsnd=" . $id_votacion);
             }
         }
     }
@@ -872,12 +901,12 @@ function checkObjetivos() {
     //Aquellos objetivos en el estado 1 con sus votaciones de "Aprobación" finalizadas y con resultado 2 pasan a estar rechazados (estado 2)
     //Seleccionamos los objetivos con estado 1 (aprobación) y votación finalizada
     $res = ejecutar("SELECT objetivo.*"
-            . ", votacionsinodep.resultado as resultado"
+            . ", votacionsnd.resultado as resultado"
             . " FROM objetivo "
-            . " STRAIGHT_JOIN objetivo_has_votacionsinodep ON objetivo_has_votacionsinodep.objetivo_idobjetivo=objetivo.idobjetivo"
-            . " AND objetivo_has_votacionsinodep.nombre='Aprobación'"
-            . " STRAIGHT_JOIN votacionsinodep ON objetivo_has_votacionsinodep.votacionsinodep_idvotacionsinodep = votacionsinodep.idvotacionsinodep"
-            . " AND votacionsinodep.finalizada=1"
+            . " STRAIGHT_JOIN objetivo_has_votacionsnd ON objetivo_has_votacionsnd.objetivo_idobjetivo=objetivo.idobjetivo"
+            . " AND objetivo_has_votacionsnd.nombre='Aprobación'"
+            . " STRAIGHT_JOIN votacionsnd ON objetivo_has_votacionsnd.votacionsnd_idvotacionsnd = votacionsnd.idvotacionsnd"
+            . " AND votacionsnd.finalizada=1"
             . " WHERE estado_objetivo_idestado_objetivo = 1");
 
     if (!$res->hayerror) {

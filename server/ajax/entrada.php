@@ -13,6 +13,7 @@ $funcionesPermitidas = array(
     , 'getObjetivosConInfo'
     , 'addObjetivo'
     , 'votarAprobacionObjetivo'
+    , 'getGrupos'
 );
 
 

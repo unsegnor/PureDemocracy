@@ -6,6 +6,29 @@ angular.module('puredemocracyapp.controllers', [])
         .controller('controladorplantilla', ['$scope', '$http', function($scope, $http) {
                 alert("Bienvenido a la Plantilla!");
             }])
+        .controller('controladorgrupos', ['$scope', '$http', function($scope, $http) {
+                //Comprobar si el usuario tiene sesión y redirigir a login
+                allamar($http, 'checkLogin', null, function(res) {
+                    if (!res.resultado) {
+                        redirect("login.php");
+                    }
+                });
+                
+                //Cargar grupos
+                $scope.cargarGrupos = function(){
+                    
+                    allamar($http, 'getGrupos', null, function(res){
+                       
+                       $scope.grupos = res.resultado;
+                        
+                    });
+                    
+                };
+                
+                
+                
+                
+            }])
         .controller('controladorobjetivos', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 allamar($http, 'checkLogin', null, function(res) {
@@ -41,7 +64,7 @@ angular.module('puredemocracyapp.controllers', [])
                     redirect("detalleobjetivo.php?id=" + idobjetivo);
                 };
 
-                $scope.votar = function(objetivo, valor){
+                $scope.votar = function(objetivo, valor) {
                     //alert("Votando");
                     allamar($http, 'votarAprobacionObjetivo', [objetivo.idobjetivo, valor], function(res) {
                         //Recargar las propuestas

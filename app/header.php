@@ -19,6 +19,7 @@ include dirname(__FILE__) . "./head.php";
             <ul class="nav navbar-nav">
                 <li><a href="<?php echo direcciones::index ?>">Inicio</a></li>
                 <li><a href="<?php echo direcciones::objetivos ?>">Objetivos</a></li>
+                <li><a href="<?php echo direcciones::grupos ?>">Grupos</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Cosas <b class="caret"></b></a>
                     <ul class="dropdown-menu">

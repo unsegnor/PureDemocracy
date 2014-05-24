@@ -17,99 +17,99 @@ $vdeprep = $_REQUEST['vdeprep'];
 
 echo "<br>";
 //VNO
-var_dump(ejecutar("INSERT INTO `pdbdd`.`votosinodep` "
-                . " (`usuario_idusuario`, `votacionsinodep_idvotacionsinodep`,`valor`) "
+var_dump(ejecutar("INSERT INTO `pdbdd`.`votosnd` "
+                . " (`usuario_idusuario`, `votacionsnd_idvotacionsnd`,`valor`) "
                 . " SELECT usuario.idusuario"
                 . ", " . escape($id_votacion)
                 . ", 1"
                 . " FROM usuario"
-                . " LEFT JOIN votosinodep"
-                . " ON votosinodep.usuario_idusuario = usuario.idusuario"
-                . " AND votosinodep.votacionsinodep_idvotacionsinodep = " . escape($id_votacion)
-                . " WHERE (votosinodep.valor IS NULL OR votosinodep.valor = 0)" //Que no hayann votado
-                . " AND (votosinodep.representante IS NULL OR votosinodep.representante =0)"
+                . " LEFT JOIN votosnd"
+                . " ON votosnd.usuario_idusuario = usuario.idusuario"
+                . " AND votosnd.votacionsnd_idvotacionsnd = " . escape($id_votacion)
+                . " WHERE (votosnd.valor IS NULL OR votosnd.valor = 0)" //Que no hayann votado
+                . " AND (votosnd.representante IS NULL OR votosnd.representante =0)"
                 . " ORDER BY RAND()"
                 . " LIMIT " . escape($vno)));
 
 echo "<br>";
 //VDEP
-var_dump(ejecutar("INSERT INTO `pdbdd`.`votosinodep` "
-                . " (`usuario_idusuario`, `votacionsinodep_idvotacionsinodep`,`valor`) "
+var_dump(ejecutar("INSERT INTO `pdbdd`.`votosnd` "
+                . " (`usuario_idusuario`, `votacionsnd_idvotacionsnd`,`valor`) "
                 . " SELECT usuario.idusuario"
                 . ", " . escape($id_votacion)
                 . ", 2"
                 . " FROM usuario"
-                . " LEFT JOIN votosinodep"
-                . " ON votosinodep.usuario_idusuario = usuario.idusuario"
-                . " AND votosinodep.votacionsinodep_idvotacionsinodep = " . escape($id_votacion)
-                . " WHERE (votosinodep.valor IS NULL OR votosinodep.valor = 0)" //Que no hayann votado
-                . " AND (votosinodep.representante IS NULL OR votosinodep.representante =0)"
+                . " LEFT JOIN votosnd"
+                . " ON votosnd.usuario_idusuario = usuario.idusuario"
+                . " AND votosnd.votacionsnd_idvotacionsnd = " . escape($id_votacion)
+                . " WHERE (votosnd.valor IS NULL OR votosnd.valor = 0)" //Que no hayann votado
+                . " AND (votosnd.representante IS NULL OR votosnd.representante =0)"
                 . " ORDER BY RAND()"
                 . " LIMIT " . escape($vdep)));
 
 echo "<br>";
 //VSI
-var_dump(ejecutar("INSERT INTO `pdbdd`.`votosinodep` "
-                . " (`usuario_idusuario`, `votacionsinodep_idvotacionsinodep`,`valor`) "
+var_dump(ejecutar("INSERT INTO `pdbdd`.`votosnd` "
+                . " (`usuario_idusuario`, `votacionsnd_idvotacionsnd`,`valor`) "
                 . " SELECT usuario.idusuario"
                 . ", " . escape($id_votacion)
                 . ", 3"
                 . " FROM usuario"
-                . " LEFT JOIN votosinodep"
-                . " ON votosinodep.usuario_idusuario = usuario.idusuario"
-                . " AND votosinodep.votacionsinodep_idvotacionsinodep = " . escape($id_votacion)
-                . " WHERE (votosinodep.valor IS NULL OR votosinodep.valor = 0)" //Que no hayann votado
-                . " AND (votosinodep.representante IS NULL OR votosinodep.representante =0)"
+                . " LEFT JOIN votosnd"
+                . " ON votosnd.usuario_idusuario = usuario.idusuario"
+                . " AND votosnd.votacionsnd_idvotacionsnd = " . escape($id_votacion)
+                . " WHERE (votosnd.valor IS NULL OR votosnd.valor = 0)" //Que no hayann votado
+                . " AND (votosnd.representante IS NULL OR votosnd.representante =0)"
                 . " ORDER BY RAND()"
                 . " LIMIT " . escape($vsi)));
 
 echo "<br>";
 //VNOREP
-var_dump(ejecutar("INSERT INTO `pdbdd`.`votosinodep` "
-                . " (`usuario_idusuario`, `votacionsinodep_idvotacionsinodep`,`valor`) "
+var_dump(ejecutar("INSERT INTO `pdbdd`.`votosnd` "
+                . " (`usuario_idusuario`, `votacionsnd_idvotacionsnd`,`valor`) "
                 . " SELECT usuario.idusuario"
                 . ", " . escape($id_votacion)
                 . ", 1"
                 . " FROM usuario"
-                . " LEFT JOIN votosinodep"
-                . " ON votosinodep.usuario_idusuario = usuario.idusuario"
-                . " AND votosinodep.votacionsinodep_idvotacionsinodep = " . escape($id_votacion)
-                . " WHERE (votosinodep.valor IS NULL OR votosinodep.valor = 0)" //Que no hayan votado
-                . " AND (votosinodep.representante =1)" //Que sean representantes
+                . " LEFT JOIN votosnd"
+                . " ON votosnd.usuario_idusuario = usuario.idusuario"
+                . " AND votosnd.votacionsnd_idvotacionsnd = " . escape($id_votacion)
+                . " WHERE (votosnd.valor IS NULL OR votosnd.valor = 0)" //Que no hayan votado
+                . " AND (votosnd.representante =1)" //Que sean representantes
                 . " ORDER BY RAND()"
                 . " LIMIT " . escape($vnorep)
-                . " ON DUPLICATE KEY UPDATE votosinodep.valor=1"));
+                . " ON DUPLICATE KEY UPDATE votosnd.valor=1"));
 
 echo "<br>";
 //VDEPREP
-var_dump(ejecutar("INSERT INTO `pdbdd`.`votosinodep` "
-                . " (`usuario_idusuario`, `votacionsinodep_idvotacionsinodep`,`valor`) "
+var_dump(ejecutar("INSERT INTO `pdbdd`.`votosnd` "
+                . " (`usuario_idusuario`, `votacionsnd_idvotacionsnd`,`valor`) "
                 . " SELECT usuario.idusuario"
                 . ", " . escape($id_votacion)
                 . ", 2"
                 . " FROM usuario"
-                . " LEFT JOIN votosinodep"
-                . " ON votosinodep.usuario_idusuario = usuario.idusuario"
-                . " AND votosinodep.votacionsinodep_idvotacionsinodep = " . escape($id_votacion)
-                . " WHERE (votosinodep.valor IS NULL OR votosinodep.valor = 0)" //Que no hayan votado
-                . " AND (votosinodep.representante =1)" //Que sean representantes
+                . " LEFT JOIN votosnd"
+                . " ON votosnd.usuario_idusuario = usuario.idusuario"
+                . " AND votosnd.votacionsnd_idvotacionsnd = " . escape($id_votacion)
+                . " WHERE (votosnd.valor IS NULL OR votosnd.valor = 0)" //Que no hayan votado
+                . " AND (votosnd.representante =1)" //Que sean representantes
                 . " ORDER BY RAND()"
                 . " LIMIT " . escape($vdeprep)
-                . " ON DUPLICATE KEY UPDATE votosinodep.valor=2"));
+                . " ON DUPLICATE KEY UPDATE votosnd.valor=2"));
 
 echo "<br>";
 //VSIREP
-var_dump(ejecutar("INSERT INTO `pdbdd`.`votosinodep` "
-                . " (`usuario_idusuario`, `votacionsinodep_idvotacionsinodep`,`valor`) "
+var_dump(ejecutar("INSERT INTO `pdbdd`.`votosnd` "
+                . " (`usuario_idusuario`, `votacionsnd_idvotacionsnd`,`valor`) "
                 . " SELECT usuario.idusuario"
                 . ", " . escape($id_votacion)
                 . ", 3"
                 . " FROM usuario"
-                . " LEFT JOIN votosinodep"
-                . " ON votosinodep.usuario_idusuario = usuario.idusuario"
-                . " AND votosinodep.votacionsinodep_idvotacionsinodep = " . escape($id_votacion)
-                . " WHERE (votosinodep.valor IS NULL OR votosinodep.valor = 0)" //Que no hayan votado
-                . " AND (votosinodep.representante =1)" //Que sean representantes
+                . " LEFT JOIN votosnd"
+                . " ON votosnd.usuario_idusuario = usuario.idusuario"
+                . " AND votosnd.votacionsnd_idvotacionsnd = " . escape($id_votacion)
+                . " WHERE (votosnd.valor IS NULL OR votosnd.valor = 0)" //Que no hayan votado
+                . " AND (votosnd.representante =1)" //Que sean representantes
                 . " ORDER BY RAND()"
                 . " LIMIT " . escape($vsirep)
-                . " ON DUPLICATE KEY UPDATE votosinodep.valor=3"));
+                . " ON DUPLICATE KEY UPDATE votosnd.valor=3"));
