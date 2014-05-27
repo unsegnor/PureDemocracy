@@ -1,98 +1,39 @@
 <?php
 
-include_once dirname(__FILE__) . "/localconfig.php";
+include_once dirname(__FILE__) . "/BDD.php";
+include_once dirname(__FILE__). "/LocalConfig.php";
 
-$mysqli = new mysqli($host, $user_name, $pass, $bdd_name) or die("No se pudo conectar a la BDD.");
-$mysqli->set_charset("UTF-8");
+//Generamos una conexión principal a bdd
+$conn = new BDD(LocalConfig::host, LocalConfig::bdd_name, LocalConfig::user_name, LocalConfig::pass);
 
-$mysqli->query("SET NAMES utf8");
-
-function ejecutar($consulta) {
-    # Para utilizar una variable global hay que indicarlo dentro de la función    
-    global $mysqli;
-
-    $resultado = $mysqli->query($consulta);
-
-    $respuesta = new Res();
-
-    if (!$resultado) {
-        $respuesta->hayerror = true;
-        $respuesta->errormsg = "Falló la consulta $consulta (" . $mysqli->errno . ") " . $mysqli->error;
-        //trigger_error("Falló la consulta $consulta (" . $mysqli->errno . ") " . $mysqli->error, E_USER_ERROR);
-    } else {
-        $respuesta->resultado = $resultado;
-    }
-
-    return $respuesta;
+function getBDD(){
+    global $conn;
+    return $conn;
 }
 
-function toArray($resultado) {
-    $respuesta = array();
-
-    while ($fila = $resultado->fetch_assoc()) {
-        $respuesta[] = $fila;
-    }
-
-    return $respuesta;
+function ejecutar($consulta){
+    global $conn;
+    return $conn->ejecutar($consulta);
 }
 
-function toArrayID($resultado, $id) {
-    $respuesta = array();
-
-    while ($fila = $resultado->fetch_assoc()) {
-        $respuesta[(int) ($fila[$id])] = $fila;
-    }
-
-    return $respuesta;
+function escape($string){
+    global $conn;
+    return $conn->escape($string);
 }
 
-/**
- * 
- * @global mysqli $mysqli
- * @param type $consulta
- * @return type Realiza el insert y devuelve el vector de ids asignadas
- */
-function insert_id($consulta) {
-    # Para utilizar una variable global hay que indicarlo dentro de la función    
-    global $mysqli;
-
-    $res = new Res();
-
-    $resultado = $mysqli->query($consulta);
-
-    if (!$resultado) {
-        echo "Falló la consulta $consulta (" . $mysqli->errno . ") " . $mysqli->error;
-        $res->hayerror = true;
-        $res->errormsg = "Falló la consulta $consulta (" . $mysqli->errno . ") " . $mysqli->error;
-    } else {
-        $res->resultado = $mysqli->insert_id;
-    }
-
-    return $res;
+function insert_id($consulta){
+    global $conn;
+    return $conn->insert_id($consulta);
 }
 
-function escape($string) {
-    global $mysqli;
-    return $mysqli->real_escape_string($string);
+function toArray($resultado){
+    global $conn;
+    return $conn->toArray($resultado);
 }
 
-function iniciar_transaccion() {
-    global $mysqli;
-    return $mysqli->autocommit(false);
-}
-
-function commit() {
-    global $mysqli;
-    $r = $mysqli->commit();
-    $mysqli->autocommit(true);
-    return $r;
-}
-
-function rollback() {
-    global $mysqli;
-    $r = $mysqli->rollback();
-    $mysqli->autocommit(true);
-    return $r;
+function toArrayID($resultado, $id){
+    global $conn;
+    return $conn->toArrayID($resultado, $id);
 }
 
 ?>

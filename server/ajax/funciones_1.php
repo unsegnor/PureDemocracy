@@ -5,11 +5,15 @@ include_once dirname(__FILE__) . "./../core/clases.php";
 include_once dirname(__FILE__) . "./conexionbdd.php";
 
 function checkLogin() {
-    $res = false;
+    $res = new Res();
+
     //Comprobamos en la sesión si el usuario actual está identificado
     if (isset($_SESSION['pd_identificado']) && $_SESSION['pd_identificado']) {
-        $res = true;
+        $res->resultado = true;
+    } else {
+        $res->resultado = false;
     }
+
     return $res;
 }
 
@@ -28,20 +32,24 @@ function doLogin($email, $pass) {
             . " usuario.email = '" . escape($email) . "'"
             . " AND usuario.pass = '" . escape($pass_sha) . "'");
 
-    //Si receibimos algún resultado lo logueamos
-    if ($res->num_rows > 0) {
-        $fila = $res->fetch_assoc();
+    if (!$res->hayerror) {
 
-        $_SESSION['pd_identificado'] = true;
-        $_SESSION['idusuario'] = $fila['idusuario'];
-        $_SESSION['nombre'] = $fila['nombre'];
-        $_SESSION['apellidos'] = $fila['apellidos'];
-        $_SESSION['email'] = $fila['email'];
-        $_SESSION['verificado'] = $fila['verificado'];
+        //Si receibimos algún resultado lo logueamos
+        if ($res->resultado->num_rows > 0) {
+            $fila = $res->resultado->fetch_assoc();
 
-        $res = true;
-    } else {
-        throw new Exception("No existe una cuenta con ese correo y contraseña.");
+            $_SESSION['pd_identificado'] = true;
+            $_SESSION['idusuario'] = $fila['idusuario'];
+            $_SESSION['nombre'] = $fila['nombre'];
+            $_SESSION['apellidos'] = $fila['apellidos'];
+            $_SESSION['email'] = $fila['email'];
+            $_SESSION['verificado'] = $fila['verificado'];
+
+            $res->resultado = true;
+        } else {
+            $res->hayerror = true;
+            $res->errormsg = "No existe una cuenta con ese correo y contraseña.";
+        }
     }
 
     return $res;
@@ -51,7 +59,8 @@ function doLogout() {
     unset($_SESSION);
     session_destroy();
 
-    $res = true;
+    $res = new Res();
+    $res->resultado = true;
 
     return $res;
 }
@@ -61,24 +70,26 @@ function registrarUsuario($nombre, $apellidos, $email, $pass) {
     //Comprobamos si ya existe la dirección de email
     $res = existeEmail($email);
 
+    if (!$res->hayerror) {
 
-    if (!$res) {
+        if (!$res->resultado) {
 
-        $pass_sha = sha1($pass);
+            $pass_sha = sha1($pass);
 
-        $res = ejecutar("INSERT INTO `pdbdd`.`usuario` "
-                . "(`nombre`, `apellidos`, `email`, `pass`) "
-                . " VALUES ('" . escape($nombre) . "'"
-                . ",'" . escape($apellidos) . "'"
-                . ",'" . escape($email) . "'"
-                . ",'" . escape($pass_sha) . "')");
-    } else {
-        throw new Exception("La dirección de email ya existe. "
-        . "Confirma que es tu dirección. "
-        . "Comprueba si ya tienes una cuenta abierta "
-        . "o inténtalo de nuevo más tarde.");
+            $res = ejecutar("INSERT INTO `pdbdd`.`usuario` "
+                    . "(`nombre`, `apellidos`, `email`, `pass`) "
+                    . " VALUES ('" . escape($nombre) . "'"
+                    . ",'" . escape($apellidos) . "'"
+                    . ",'" . escape($email) . "'"
+                    . ",'" . escape($pass_sha) . "')");
+        } else {
+            $res->hayerror = true;
+            $res->errormsg = "La dirección de email ya existe. "
+                    . "Confirma que es tu dirección. "
+                    . "Comprueba si ya tienes una cuenta abierta "
+                    . "o inténtalo de nuevo más tarde.";
+        }
     }
-
 
     return $res;
 }
@@ -87,32 +98,58 @@ function existeEmail($email) {
 
     $res = ejecutar("SELECT COUNT(*) as existe FROM usuario WHERE email='" . escape($email) . "'");
 
+    if (!$res->hayerror) {
+        //Recogemos el resultado
+        $fila = $res->resultado->fetch_assoc();
 
-    //Recogemos el resultado
-    $fila = $res->fetch_assoc();
+        $existe = $fila['existe'];
 
-    $existe = $fila['existe'];
-
-    if ($existe > 0) {
-        $res = true;
-    } else {
-        $res = false;
+        if ($existe > 0) {
+            $res->resultado = true;
+        } else {
+            $res->resultado = false;
+        }
     }
-
 
     return $res;
 }
 
 function getSession() {
     //Comprobamos que estemos logueados
+    $res = checkLogin();
 
-    if (checkLogin()) {
-        //Estamos logueados
-        //Devolvemos los datos de la sesión
-        $res = $_SESSION;
-    } else {
-        //No estamos logueados
-        throw new Exception("No hay sesión iniciada.");
+    if (!$res->hayerror) {
+
+        if ($res->resultado) {
+            //Estamos logueados
+            //Devolvemos los datos de la sesión
+            $res->resultado = $_SESSION;
+        } else {
+            //No estamos logueados
+            $res->hayerror = true;
+            $res->errormsg = "No hay sesión iniciada.";
+        }
+    }
+
+    return $res;
+}
+
+function getUsuarioActual() {
+
+    //Comprobamos que estemos logueados
+    $res = checkLogin();
+
+    if (!$res->hayerror) {
+
+        if ($res->resultado) {
+            //Estamos logueados
+            //Cargamos los datos de nuestro usuario
+            $id_usuario_actual = $_SESSION['idusuario'];
+
+            //$res = ejecutar("SELECT usuario.nombre");
+        } else {
+            //No estamos logueados
+        }
     }
 
     return $res;
@@ -121,18 +158,28 @@ function getSession() {
 function getGrupos() {
 
     //Comprobamos que estemos logueados
-    if (checkLogin()) {
+    $res = checkLogin();
 
-        $consulta = "SELECT * FROM grupo";
+    if (!$res->hayerror) {
 
-        $res = ejecutar($consulta);
-        $res = toArray($res);
+        if ($res->resultado) {
+
+            $consulta = "SELECT * FROM grupo";
+
+            $res = ejecutar($consulta);
+
+            if (!$res->hayerror) {
+                $res->resultado = toArray($res->resultado);
+            }
+        } else {
+            //No estamos logueados
+        }
     }
 
     return $res;
 }
 
-function addGrupo($nombre) {
+function addGrupo($nombre){
     
 }
 
