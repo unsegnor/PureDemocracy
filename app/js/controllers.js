@@ -4,38 +4,91 @@
 
 angular.module('puredemocracyapp.controllers', [])
         .controller('controladorplantilla', ['$scope', '$http', function($scope, $http) {
-                alert("Bienvenido a la Plantilla!");
+                //Comprobar si el usuario tiene sesión y redirigir a login
+                checkLogin($http);
+            }])
+        .controller('controladordetallegrupo', ['$scope', '$http', function($scope, $http) {
+                checkLogin($http);
+
+                //Cargar la información del grupo
+                $scope.cargarGrupo = function(id) {
+
+                    allamar($http, 'getDetalleDeGrupo', [id], function(res) {
+                        //alert(JSON.stringify(res));
+                        $scope.grupo = res.resultado;
+                    });
+
+                };
+
+                $scope.init = function(id) {
+                    $scope.id = id;
+                    $scope.cargarGrupo(id);
+                };
+
+                $scope.solicitarIngreso = function() {
+
+                    allamar($http, 'solicitarIngresoEnGrupo', [$scope.id], function(res) {
+                        $scope.cargarGrupo($scope.id);
+                    });
+
+                };
+
+                $scope.solicitarBaja = function() {
+
+                    if (confirm("Se dispone a darse de baja en el grupo actual.")) {
+                        allamar($http, 'solicitarBaja', [$scope.id], function(res) {
+                            $scope.cargarGrupo($scope.id);
+                        });
+                    }
+
+                };
+
             }])
         .controller('controladorgrupos', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
-                allamar($http, 'checkLogin', null, function(res) {
-                    if (!res.resultado) {
-                        redirect("login.php");
-                    }
-                });
-                
+                checkLogin($http);
+
                 //Cargar grupos
-                $scope.cargarGrupos = function(){
-                    
-                    allamar($http, 'getGrupos', null, function(res){
-                       
-                       $scope.grupos = res.resultado;
-                        
+                $scope.cargarGrupos = function() {
+
+                    allamar($http, 'getGrupos', null, function(res) {
+                        //alert(JSON.stringify(res));
+                        $scope.grupos = res.resultado;
+
                     });
-                    
+
                 };
-                
-                
-                
-                
+
+                //Cargar los grupos del usuario
+                $scope.cargarMisGrupos = function() {
+
+                    allamar($http, 'getGruposDeUsuarioActual', null, function(res) {
+                        //alert(JSON.stringify(res));
+                        $scope.misGrupos = res.resultado;
+                    });
+                };
+
+                $scope.cargarMisGrupos();
+
+                $scope.cargarGrupos();
+
+                //Añadir grupos
+                $scope.addGrupo = function(nombre) {
+
+                    allamar($http, 'addGrupo', [nombre], function(res) {
+
+                        $scope.cargarGrupos();
+
+                    });
+
+                };
+
+
+
             }])
         .controller('controladorobjetivos', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
-                allamar($http, 'checkLogin', null, function(res) {
-                    if (!res.resultado) {
-                        redirect("login.php");
-                    }
-                });
+                checkLogin($http);
 
                 $scope.getObjetivos = function() {
                     allamar($http, 'getObjetivosConInfo', null, function(res) {
@@ -96,11 +149,7 @@ angular.module('puredemocracyapp.controllers', [])
             }])
         .controller('controladorprincipal', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
-                allamar($http, 'checkLogin', null, function(res) {
-                    if (!res.resultado) {
-                        redirect("login.php");
-                    }
-                });
+                checkLogin($http);
 
                 //Cargamos los datos del usuario actual
                 allamar($http, 'getSession', null, function(res) {

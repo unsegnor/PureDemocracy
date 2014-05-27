@@ -119,7 +119,6 @@ function getSession() {
 }
 
 function getGrupos() {
-
     //Comprobamos que estemos logueados
     if (checkLogin()) {
 
@@ -132,8 +131,99 @@ function getGrupos() {
     return $res;
 }
 
+function getGruposDeUsuarioActual() {
+    if (checkLogin()) {
+        $id_usuario = $_SESSION['idusuario'];
+
+        $res = ejecutar("SELECT grupo.* FROM grupo, miembro"
+                . " WHERE"
+                . " miembro.usuario_idusuario = " . escape($id_usuario)
+                . " AND"
+                . " miembro.grupo_idgrupo = grupo.idgrupo");
+
+        $res = toArray($res);
+
+        return $res;
+    }
+}
+
+function getDetalleDeGrupo($id_grupo) {
+    if (checkLogin()) {
+        
+        $id_usuario = $_SESSION['idusuario'];
+        
+        $consulta = "SELECT grupo.*"
+                . ", CASE WHEN miembro.usuario_idusuario IS NOT NULL THEN 1 ELSE 0 END as es_miembro "
+                . " FROM grupo"
+                . " LEFT JOIN miembro"
+                . " ON miembro.grupo_idgrupo =".  escape($id_grupo)
+                . " AND miembro.usuario_idusuario=".  escape($id_usuario)
+                . " WHERE grupo.idgrupo = ".  escape($id_grupo);
+        
+        $res = ejecutar($consulta);
+        $res = $res->fetch_assoc();
+        return $res;
+    }
+}
+
+function solicitarIngresoEnGrupo($id_grupo){
+    if(checkLogin()){
+        
+        $id_usuario = $_SESSION['idusuario'];
+        
+        //Ingresar al usuario directamente en el grupo
+        addMiembro($id_usuario, $id_grupo);
+    }
+}
+
+function solicitarBaja($id_grupo){
+    if(checkLogin()){
+        $id_usuario = $_SESSION['idusuario'];
+        
+        delMiembro($id_usuario, $id_grupo);
+    }
+}
+
+function getGrupoPorID($id_grupo) {
+    if (checkLogin()) {
+        $res = ejecutar("SELECT * FROM grupo WHERE idgrupo=" . escape($id_grupo));
+        $res = $res->fetch_assoc();
+        return $res;
+    }
+}
+
 function addGrupo($nombre) {
-    
+    if (checkLogin()) {
+        ejecutar("INSERT INTO `pdbdd`.`grupo` (`nombre`) VALUES ('" . escape($nombre) . "')");
+    }
+}
+
+function addMiembro($id_usuario, $id_grupo) {
+    if (checkLogin()) {
+
+        iniciar_transaccion();
+
+        try {
+
+            //Añadimos el miembro
+            ejecutar("INSERT INTO `pdbdd`.`miembro` (`grupo_idgrupo`, `usuario_idusuario`) "
+                    . "VALUES (" . escape($id_grupo) . ", " . escape($id_usuario) . ")");
+
+            //Aumentamos el contador de miembros del grupo
+            ejecutar("UPDATE grupo SET nmiembros = nmiembros +1 WHERE idgrupo=" . escape($id_grupo));
+
+            validar_transaccion();
+        } catch (Exception $e) {
+            //Si hay algún error cancelamos la transacción y seguimos propagándola
+            cancelar_transaccion();
+            throw $e;
+        }
+    }
+}
+
+//Función no permitida desde fuera
+function delMiembro($id_usuario, $id_grupo){
+    ejecutar("DELETE FROM miembro WHERE miembro.usuario_idusuario=".escape($id_usuario)." AND miembro.grupo_idgrupo=".escape($id_grupo));
 }
 
 function getObjetivosConInfo() {

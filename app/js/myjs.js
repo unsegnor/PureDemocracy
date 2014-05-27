@@ -98,3 +98,12 @@ function mapear(vector, id_attr) {
 
     return respuesta;
 }
+
+function checkLogin(servicio) {
+    //Comprobar si el usuario tiene sesión y redirigir a login
+    allamar(servicio, 'checkLogin', null, function(res) {
+        if (!res.resultado) {
+            redirect("login.php");
+        }
+    });
+}

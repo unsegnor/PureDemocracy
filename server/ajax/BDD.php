@@ -44,7 +44,7 @@ class BDD {
 
 
         if (!$resultado) {
-            throw new Exception("Falló la consulta $consulta (" . $mysqli->errno . ") " . $mysqli->error);
+            throw new Exception("Falló la consulta $consulta (" . $this->mysqli->errno . ") " . $this->mysqli->error);
         } else {
             $respuesta = $resultado;
         }
@@ -100,5 +100,21 @@ class BDD {
 
         return $respuesta;
     }
+    
+    function iniciar_transaccion(){
+        $this->checkConnection();
+        return $this->mysqli->autocommit(false);
+    }
 
+    function validar_transaccion(){
+        $this->checkConnection();
+        $this->mysqli->commit();
+        return $this->mysqli->autocommit(true);
+    }
+    
+    function cancelar_transaccion(){
+        $this->checkConnection();
+        $this->mysqli->rollback();
+        return $this->mysqli->autocommit(true);
+    }
 }

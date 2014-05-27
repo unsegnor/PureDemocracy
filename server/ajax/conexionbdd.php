@@ -36,4 +36,19 @@ function toArrayID($resultado, $id){
     return $conn->toArrayID($resultado, $id);
 }
 
+function iniciar_transaccion(){
+    global $conn;
+    return $conn->iniciar_transaccion();
+}
+
+function validar_transaccion(){
+    global $conn;
+    return $conn->validar_transaccion();
+}
+
+function cancelar_transaccion(){
+    global $conn;
+    return $conn->cancelar_transaccion();
+}
+
 ?>

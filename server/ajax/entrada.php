@@ -17,6 +17,13 @@ try {
         , 'addObjetivo'
         , 'votarAprobacionObjetivo'
         , 'getGrupos'
+        , 'addGrupo'
+        , 'getGruposDeUsuarioActual'
+        , 'addMiembro'
+        , 'getGrupoPorID'
+        , 'getDetalleDeGrupo'
+        , 'solicitarIngresoEnGrupo'
+        , 'solicitarBaja'
     );
 
 
@@ -30,9 +37,10 @@ try {
             $resultado = call_user_func($peticion->id_funcion);
         }
         //var_dump($resultado);
+        /*
         if ($resultado === null) {
             throw new Exception("La función $peticion->id_funcion no existe, no es accesible o sufre de excepciones no controladas.");
-        }
+        }*/
     } else {
         throw new Exception("Función no permitida $peticion->id_funcion.");
     }

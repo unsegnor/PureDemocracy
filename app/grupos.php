@@ -9,22 +9,33 @@
             </div>
             
             <!-- Listar mis grupos -->
-            
+            <div class="list-group">
+                
+                <a class="list-group-item" ng-repeat="migrupo in misGrupos"
+                   href="detallegrupo.php?id={{migrupo.idgrupo}}">
+                    {{migrupo.nombre}}
+                </a>
+                
+            </div>
             
         </div>
         
         <div class="panel panel-primary">
             
             <div class="panel-heading">
-                Grupos
+                Todos los grupos
             </div>
             
             <!-- Añadir / Filtrar grupos -->
-            <input type="text" class="form-control">
-            <!-- Listar mis grupos -->
+            <input type="text" 
+                   class="form-control" 
+                   ng-model="filtro.nombre" 
+                   ng-enter="addGrupo(filtro.nombre)"
+                   placeholder="filtrar/añadir ...">
+            <!-- Listar grupos -->
             <div class="list-group">
                 
-                <a class="list-group-item" ng-repeat="grupo in grupos"
+                <a class="list-group-item" ng-repeat="grupo in grupos | filter:filtro"
                    href="detallegrupo.php?id={{grupo.idgrupo}}">
                     {{grupo.nombre}}
                 </a>
