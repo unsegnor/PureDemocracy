@@ -62,15 +62,12 @@ class BDD {
 
         $this->checkConnection();
 
-        $res = new stdClass();
+        $res = $this->mysqli->query($consulta);
 
-        $resultado = $this->mysqli->query($consulta);
-
-        if (!$resultado) {
-            $res->hayerror = true;
-            $res->errormsg = "Falló la consulta $consulta (" . $this->mysqli->errno . ") " . $this->mysqli->error;
+        if (!$res) {
+            throw new Exception("Falló la consulta $consulta (" . $this->mysqli->errno . ") " . $this->mysqli->error);
         } else {
-            $res->resultado = $this->mysqli->insert_id;
+            $res = $this->mysqli->insert_id;
         }
 
         return $res;

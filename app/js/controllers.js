@@ -23,6 +23,8 @@ angular.module('puredemocracyapp.controllers', [])
                 $scope.init = function(id) {
                     $scope.id = id;
                     $scope.cargarGrupo(id);
+                    $scope.cargarsubgrupos();
+                    $scope.cargarsupergrupos();
                 };
 
                 $scope.solicitarIngreso = function() {
@@ -42,6 +44,31 @@ angular.module('puredemocracyapp.controllers', [])
                     }
 
                 };
+                
+                $scope.cargarsubgrupos = function(){
+                  
+                    allamar($http, 'getSubGrupos', [$scope.id,1], function(res){
+                       //alert(JSON.stringify(res));
+                       $scope.subgrupos = res.resultado; 
+                    });
+                    
+                };
+                
+                $scope.cargarsupergrupos = function(){
+                  
+                    allamar($http, 'getSuperGrupos', [$scope.id,1], function(res){
+                       $scope.supergrupos = res.resultado; 
+                    });
+                };
+                
+                $scope.addSubGrupo = function(nombre){
+                  
+                    allamar($http, 'addSubGrupo', [$scope.id,nombre], function(res){
+                       $scope.cargarsubgrupos(); 
+                    });
+                };
+                
+                
 
             }])
         .controller('controladorgrupos', ['$scope', '$http', function($scope, $http) {

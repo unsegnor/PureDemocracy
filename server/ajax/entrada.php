@@ -24,11 +24,20 @@ try {
         , 'getDetalleDeGrupo'
         , 'solicitarIngresoEnGrupo'
         , 'solicitarBaja'
+        , 'getSubGrupos'
+        , 'addSubGrupo'
+        , 'getSuperGrupos'
+    );
+    
+    $funcionesProhibidas = array(
+        'addMiembro'
+        , 'hacerSubGrupo'
     );
 
 
 //Si está permitida la ejecutamos y delvolvemos el resultado
-    if (in_array($peticion->id_funcion, $funcionesPermitidas)) {
+    if (in_array($peticion->id_funcion, $funcionesPermitidas)
+            && !in_array($peticion->id_funcion, $funcionesProhibidas)) {
 
         //Si tenemos parámetros los enviamos
         if (isset($peticion->parametros)) {
