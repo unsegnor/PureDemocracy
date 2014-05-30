@@ -162,8 +162,39 @@ function getDetalleDeGrupo($id_grupo) {
 
         $res = ejecutar($consulta);
         $res = $res->fetch_assoc();
+
+        //Determinamos si es un miembro nato
+        $es_nato = esNato($id_usuario, $id_grupo);
+        
+        $res['es_nato'] = $es_nato;
+
         return $res;
     }
+}
+
+function esNato($id_usuario, $id_grupo) {
+    //Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
+    $subgrupos = getSubgruposID($id_grupo, 0);
+
+    //Componemos la consulta y contamos sólo los miembros natos o no de los grupos componentes de éste
+    $consulta = "SELECT COUNT(*) as es_nato"
+            . " FROM usuario,miembro WHERE "
+            . " miembro.usuario_idusuario = usuario.idusuario "
+            . " AND usuario.idusuario = ".  escape($id_usuario)
+            . " AND ( 0 ";
+
+    foreach ($subgrupos as $subgrupo) {
+
+        $consulta.= " OR miembro.grupo_idgrupo = " . escape($subgrupo);
+    }
+
+    $consulta.=")";
+
+    $res = ejecutar($consulta);
+
+    $res = $res->fetch_assoc();
+
+    return $res['es_nato'];
 }
 
 function solicitarIngresoEnGrupo($id_grupo) {
@@ -240,17 +271,56 @@ function getSubGrupos($id_grupo, $nivel) {
     }
 }
 
-function addSubGrupo($id_supergrupo, $nombre){
-    if(checkLogin()){
+function addSubGrupo($id_supergrupo, $nombre) {
+    if (checkLogin()) {
         $id_subgrupo = addGrupo($nombre);
-        
+
         //Ahora añadimos el grupo al supergrupo
         hacerSubGrupo($id_supergrupo, $id_subgrupo);
     }
 }
 
-function hacerSubGrupo($id_supergrupo, $id_subgrupo){
-        ejecutar("INSERT INTO `pdbdd`.`subgrupo` (`idgrupo`, `idsubgrupo`) VALUES (".  escape($id_supergrupo).",".  escape($id_subgrupo).")");
+function hacerSuperGrupo($id_subgrupo, $id_supergrupo) {
+    //Se añade directamente
+    hacerSubGrupo($id_supergrupo, $id_subgrupo);
+}
+
+function addNuevoSuperGrupo($id_subgrupo, $nombre) {
+    //Se añade directamente
+    $id_supergrupo = addGrupo($nombre);
+
+    hacerSuperGrupo($id_subgrupo, $id_supergrupo);
+}
+
+function proponerSuperGrupo($id_subgrupo, $id_supergrupo) {
+    //Se crea una propuesta que se votará para determinar si se convierte en supergrupo o no
+    if (checkLogin()) {
+        
+    }
+}
+
+function crearVotacionDeGrupo($id_grupo, $enunciado) {
+
+    //Tenemos que generar una votación que será gestionada por el check-script
+    //Tenemos que determinar de algún modo las personas a las que va dirigida la votación, con el grupo
+    //Obtenemos el número total de personas del grupo
+    $total_censo = actualizarMiembrosDeGrupo($id_grupo);
+
+    //Calculamos el número de representantes que tocan    
+    //Toda votación necesita un censo así que es lógico que toda votación tenga que obligatoriamente tener asignado un grupo
+    $consulta = "INSERT INTO `pdbdd`.`votacionsnd` SET "
+            . " fecha_creacion = NOW()"
+            . ", timein = NOW()"
+            . ", checktime = NOW() + INTERVAL " . Constantes::checktime_minutos . " MINUTE"
+            . ", activa = 1"
+            . ", nrepresentantes = " . $nrepresentantes
+            . ", censo = " . escape($id_grupo);
+
+    //Si se aprueba o se rechaza pos yasta, si queda "depende" se abre un espacio de debate sobre la pregunta, si queda desierta se penaliza al grupo, si queda denunciada se penaliza al promotor
+}
+
+function hacerSubGrupo($id_supergrupo, $id_subgrupo) {
+    ejecutar("INSERT INTO `pdbdd`.`subgrupo` (`idgrupo`, `idsubgrupo`) VALUES (" . escape($id_supergrupo) . "," . escape($id_subgrupo) . ")");
 }
 
 function getSuperGrupos($id_grupo, $nivel) {
@@ -295,6 +365,142 @@ function actualizarMiembrosDeGrupo($id_grupo) {
     ejecutar("UPDATE grupo SET nmiembros = "
             . "(SELECT COUNT(*) FROM miembro WHERE miembro.grupo_idgrupo=" . escape($id_grupo) . ")"
             . " WHERE grupo.idgrupo=" . escape($id_grupo));
+}
+
+function actualizarTotalMiembrosDeGrupo($id_grupo) {
+    //Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
+    $subgrupos = getSubgruposID($id_grupo, 0);
+
+    //Componemos la consulta que actualice directamente el 
+    $consulta = "UPDATE grupo SET "
+            . " nmiembros = (SELECT COUNT(DISTINCT(usuario.idusuario)) as total FROM usuario, miembro WHERE "
+            . " miembro.usuario_idusuario = usuario.idusuario"
+            . " AND (";
+
+    //Contamos también los miembros del propio grupo
+    $consulta.=" miembro.grupo_idgrupo = " . escape($id_grupo);
+
+    foreach ($subgrupos as $subgrupo) {
+        $consulta.= " OR miembro.grupo_idgrupo = " . escape($subgrupo);
+    }
+
+    $consulta.="))"
+            . " WHERE grupo.idgrupo = " . escape($id_grupo);
+
+    echo $consulta;
+
+    ejecutar($consulta);
+}
+
+function getTotalMiembrosDeGrupo($id_grupo) {
+    //Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
+    $subgrupos = getSubgruposID($id_grupo, 0);
+
+    //Componemos la consulta
+    $consulta = "SELECT usuario.idusuario FROM usuario,miembro WHERE "
+            . " miembro.usuario_idusuario = usuario.idusuario AND (";
+
+    //Contamos también los miembros del propio grupo
+    $consulta.=" miembro.grupo_idgrupo = " . escape($id_grupo);
+
+    foreach ($subgrupos as $subgrupo) {
+
+        $consulta.= " OR miembro.grupo_idgrupo = " . escape($subgrupo);
+    }
+
+    $consulta.=") GROUP BY usuario.idusuario";
+
+    $res = ejecutar($consulta);
+
+    $res = toArray($res);
+
+    return $res;
+}
+
+function getMiembrosNatos($id_grupo) {
+    //Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
+    $subgrupos = getSubgruposID($id_grupo, 0);
+
+    //Componemos la consulta y contamos sólo los miembros natos o no de los grupos componentes de éste
+    $consulta = "SELECT usuario.idusuario FROM usuario,miembro WHERE "
+            . " miembro.usuario_idusuario = usuario.idusuario AND (";
+
+    $primero = true;
+    foreach ($subgrupos as $subgrupo) {
+
+        if ($primero) {
+            $primero = false;
+        } else {
+            $consulta.= " OR ";
+        }
+
+        $consulta.= " miembro.grupo_idgrupo = " . escape($subgrupo);
+    }
+
+    $consulta.=") GROUP BY usuario.idusuario";
+
+    $res = ejecutar($consulta);
+
+    $res = toArray($res);
+
+    return $res;
+}
+
+function getSubgruposID($id_grupo, $nivel) {
+    //Obtenemos todos los grupos que componen el grupo indicado así como sus subgrupos hasta el nivel especificado
+    if ($nivel == 1) {
+        //Si el nivel es uno la consulta es sencilla
+        $res = ejecutar("SELECT grupo.idgrupo FROM grupo, subgrupo WHERE subgrupo.idgrupo = " . escape($id_grupo)
+                . " AND subgrupo.idsubgrupo = grupo.idgrupo");
+
+        $res = toArray($res);
+    } else {
+        //Sino pues ya tenemos que obtener toda la tabla e ir seleccionando
+        //Obtenemos toda la tabla de subgrupos
+        $mapaGrupos = getMapaGrupos();
+
+        if ($nivel == 0) {
+            //Obtenemos todos los hijos
+            //Vamos recorriendo y añadiendo los hijos a la respuesta
+
+            $respuesta = array();
+
+            $subnivel = array();
+            $subnivel[$id_grupo] = $id_grupo;
+            $nextnivel = array();
+
+            //Mientras hay hijos
+            while (count($subnivel) > 0) {
+                //Recorrer el mapa y anotar los hijos
+                foreach ($mapaGrupos as $relacion) {
+                    //Si el grupo es padre anotamos al hijo
+                    if (isset($subnivel[$relacion['idgrupo']])) {
+                        $id_hijo = $relacion['idsubgrupo'];
+                        //Si no estaba ya en la respuesta lo añadimos (evitamos ciclos)
+                        if (!isset($respuesta[$id_hijo])) {
+                            $nextnivel[$id_hijo] = $id_hijo;
+                            $respuesta[$id_hijo] = $id_hijo;
+                        }
+                    }
+                }
+                //Ahora actualizamos el subnivel
+                $subnivel = $nextnivel;
+                $nextnivel = array();
+            }
+
+            //Aquí ya hemos recorrido todos los hijos hasta que ya están todos en el vector respuesta
+            $res = $respuesta;
+        }
+    }
+
+    return $res;
+}
+
+function getMapaGrupos() {
+    $consulta = "SELECT * FROM subgrupo";
+    $res = ejecutar($consulta);
+    $res = toArray($res);
+    return $res;
 }
 
 function getObjetivosConInfo() {

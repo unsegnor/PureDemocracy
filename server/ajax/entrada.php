@@ -27,6 +27,8 @@ try {
         , 'getSubGrupos'
         , 'addSubGrupo'
         , 'getSuperGrupos'
+        , 'addNuevoSuperGrupo'
+        , 'hacerSuperGrupo'
     );
     
     $funcionesProhibidas = array(

@@ -30,7 +30,7 @@ body {
 
 .notificacion{
     position: fixed;
-    top: 10%;
+    bottom: 10%;
     width: 20%;
     right: 1%;
 }

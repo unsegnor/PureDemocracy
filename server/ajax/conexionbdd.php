@@ -1,10 +1,10 @@
 <?php
 
 include_once dirname(__FILE__) . "/BDD.php";
-include_once dirname(__FILE__). "/LocalConfig.php";
+include_once dirname(__FILE__). "/ConfiguracionLocal.php";
 
 //Generamos una conexión principal a bdd
-$conn = new BDD(LocalConfig::host, LocalConfig::bdd_name, LocalConfig::user_name, LocalConfig::pass);
+$conn = new BDD(ConfiguracionLocal::host, ConfiguracionLocal::bdd_name, ConfiguracionLocal::user_name, ConfiguracionLocal::pass);
 
 function getBDD(){
     global $conn;

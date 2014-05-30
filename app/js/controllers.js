@@ -25,6 +25,7 @@ angular.module('puredemocracyapp.controllers', [])
                     $scope.cargarGrupo(id);
                     $scope.cargarsubgrupos();
                     $scope.cargarsupergrupos();
+                    cargarGrupos($scope,$http);
                 };
 
                 $scope.solicitarIngreso = function() {
@@ -44,31 +45,57 @@ angular.module('puredemocracyapp.controllers', [])
                     }
 
                 };
-                
-                $scope.cargarsubgrupos = function(){
-                  
-                    allamar($http, 'getSubGrupos', [$scope.id,1], function(res){
-                       //alert(JSON.stringify(res));
-                       $scope.subgrupos = res.resultado; 
+
+                $scope.cargarsubgrupos = function() {
+
+                    allamar($http, 'getSubGrupos', [$scope.id, 1], function(res) {
+                        //alert(JSON.stringify(res));
+                        $scope.subgrupos = res.resultado;
                     });
+
+                };
+
+                $scope.cargarsupergrupos = function() {
+
+                    allamar($http, 'getSuperGrupos', [$scope.id, 1], function(res) {
+                        $scope.supergrupos = res.resultado;
+                    });
+                };
+
+                $scope.addSubGrupo = function(nombre) {
+
+                    allamar($http, 'addSubGrupo', [$scope.id, nombre], function(res) {
+                        $scope.cargarsubgrupos();
+                    });
+                };
+                
+                $scope.addSuperGrupo = function(parametro){
+                    
+                    
+                    if(parametro.idgrupo == null){
+                        //Si no trae parámetro idgrupo es que es un grupo nuevo
+                        //alert("Agregar un nuevo grupo llamado " + parametro);
+                        
+                        allamar($http, 'addNuevoSuperGrupo', [$scope.id, parametro], function(res){
+                           $scope.cargarsupergrupos(); 
+                        });
+                        
+                    }else{
+                        //Sino relacionamos los grupos existentes
+                        //alert("Agregar un grupo existente, con id " + parametro.idgrupo);
+                        
+                        allamar($http, 'hacerSuperGrupo', [$scope.id, parametro.idgrupo], function(res){
+                           $scope.cargarsupergrupos();
+                        });
+                        
+                    }
+                    
+                    //Recargamos los grupos
+                    cargarGrupos($scope, $http);
                     
                 };
-                
-                $scope.cargarsupergrupos = function(){
-                  
-                    allamar($http, 'getSuperGrupos', [$scope.id,1], function(res){
-                       $scope.supergrupos = res.resultado; 
-                    });
-                };
-                
-                $scope.addSubGrupo = function(nombre){
-                  
-                    allamar($http, 'addSubGrupo', [$scope.id,nombre], function(res){
-                       $scope.cargarsubgrupos(); 
-                    });
-                };
-                
-                
+
+
 
             }])
         .controller('controladorgrupos', ['$scope', '$http', function($scope, $http) {
@@ -225,3 +252,17 @@ angular.module('puredemocracyapp.controllers', [])
                 };
             }])
         ;
+
+
+function cargarGrupos(servicioScope, servicioHttp) {
+    //Cargar grupos
+
+        allamar(servicioHttp, 'getGrupos', null, function(res) {
+            //alert(JSON.stringify(res));
+            servicioScope.grupos = res.resultado;
+
+        });
+
+   
+}
+;
