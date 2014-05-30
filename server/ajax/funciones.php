@@ -167,6 +167,10 @@ function getDetalleDeGrupo($id_grupo) {
         $es_nato = esNato($id_usuario, $id_grupo);
         
         $res['es_nato'] = $es_nato;
+        
+        $nmiembros = getNTotalMiembrosDeGrupo($id_grupo);
+        
+        $res['nmiembros'] = $nmiembros;
 
         return $res;
     }
@@ -241,7 +245,7 @@ function addMiembro($id_usuario, $id_grupo) {
             ejecutar("INSERT INTO `pdbdd`.`miembro` (`grupo_idgrupo`, `usuario_idusuario`) "
                     . "VALUES (" . escape($id_grupo) . ", " . escape($id_usuario) . ")");
 
-            actualizarMiembrosDeGrupo($id_grupo);
+            actualizarTotalMiembrosDeGrupo($id_grupo);
 
             validar_transaccion();
         } catch (Exception $e) {
@@ -304,7 +308,7 @@ function crearVotacionDeGrupo($id_grupo, $enunciado) {
     //Tenemos que generar una votación que será gestionada por el check-script
     //Tenemos que determinar de algún modo las personas a las que va dirigida la votación, con el grupo
     //Obtenemos el número total de personas del grupo
-    $total_censo = actualizarMiembrosDeGrupo($id_grupo);
+    $total_censo = actualizarTotalMiembrosDeGrupo($id_grupo);
 
     //Calculamos el número de representantes que tocan    
     //Toda votación necesita un censo así que es lógico que toda votación tenga que obligatoriamente tener asignado un grupo
@@ -351,7 +355,7 @@ function delMiembro($id_usuario, $id_grupo) {
         //Borramos al miembro
         ejecutar("DELETE FROM miembro WHERE miembro.usuario_idusuario=" . escape($id_usuario) . " AND miembro.grupo_idgrupo=" . escape($id_grupo));
 
-        actualizarMiembrosDeGrupo($id_grupo);
+        actualizarTotalMiembrosDeGrupo($id_grupo);
 
         validar_transaccion();
     } catch (Exception $e) {
@@ -371,9 +375,9 @@ function actualizarTotalMiembrosDeGrupo($id_grupo) {
     //Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
     $subgrupos = getSubgruposID($id_grupo, 0);
 
-    //Componemos la consulta que actualice directamente el 
+    //Componemos la consulta que actualice directamente el valor del número de miembros
     $consulta = "UPDATE grupo SET "
-            . " nmiembros = (SELECT COUNT(DISTINCT(usuario.idusuario)) as total FROM usuario, miembro WHERE "
+            . " nmiembros = (SELECT COUNT(DISTINCT(usuario.idusuario)) FROM usuario, miembro WHERE "
             . " miembro.usuario_idusuario = usuario.idusuario"
             . " AND (";
 
@@ -387,7 +391,7 @@ function actualizarTotalMiembrosDeGrupo($id_grupo) {
     $consulta.="))"
             . " WHERE grupo.idgrupo = " . escape($id_grupo);
 
-    echo $consulta;
+    //echo $consulta;
 
     ejecutar($consulta);
 }
@@ -414,6 +418,33 @@ function getTotalMiembrosDeGrupo($id_grupo) {
 
     $res = toArray($res);
 
+    return $res;
+}
+
+function getNTotalMiembrosDeGrupo($id_grupo){
+    //Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
+    $subgrupos = getSubgruposID($id_grupo, 0);
+
+    //Componemos la consulta que actualice directamente el valor del número de miembros
+    $consulta = "SELECT COUNT(DISTINCT(usuario.idusuario)) as total FROM usuario, miembro WHERE "
+            . " miembro.usuario_idusuario = usuario.idusuario"
+            . " AND (";
+
+    //Contamos también los miembros del propio grupo
+    $consulta.=" miembro.grupo_idgrupo = " . escape($id_grupo);
+
+    foreach ($subgrupos as $subgrupo) {
+        $consulta.= " OR miembro.grupo_idgrupo = " . escape($subgrupo);
+    }
+
+    $consulta.=" )";
+
+    $res = ejecutar($consulta);
+    
+    $fila = $res->fetch_assoc();
+    
+    $res = $fila['total'];
+    
     return $res;
 }
 
