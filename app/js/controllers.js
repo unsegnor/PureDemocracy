@@ -26,6 +26,7 @@ angular.module('puredemocracyapp.controllers', [])
                     $scope.cargarsubgrupos();
                     $scope.cargarsupergrupos();
                     cargarGrupos($scope,$http);
+                    $scope.cargarVotaciones();
                 };
 
                 $scope.solicitarIngreso = function() {
@@ -94,9 +95,21 @@ angular.module('puredemocracyapp.controllers', [])
                     cargarGrupos($scope, $http);
                     
                 };
-
-
-
+                
+                $scope.cargarVotaciones = function(){
+                  
+                    allamar($http, 'getVotacionesSNDDeGrupo', [$scope.id], function(res){
+                       //alert(JSON.stringify(res));
+                       $scope.votaciones = res.resultado;
+                    });
+                };
+                
+                $scope.addPregunta = function(enunciado){
+                    allamar($http, 'addPregunta', [$scope.id, enunciado], function(res){
+                       $scope.cargarVotaciones() ;
+                    });
+                    
+                };
             }])
         .controller('controladorgrupos', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login

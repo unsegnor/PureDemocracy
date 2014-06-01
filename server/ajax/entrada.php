@@ -29,6 +29,8 @@ try {
         , 'getSuperGrupos'
         , 'addNuevoSuperGrupo'
         , 'hacerSuperGrupo'
+        , 'getVotacionesSNDDeGrupo'
+        , 'addPregunta'
     );
     
     $funcionesProhibidas = array(

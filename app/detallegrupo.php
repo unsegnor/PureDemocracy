@@ -95,10 +95,32 @@ $id = filter_input(INPUT_GET, 'id');
             <input type="text" 
                    class="form-control" 
                    ng-model="nuevadecision.enunciado"
-                   placeholder="Pregunta al grupo">
+                   placeholder="Pregunta al grupo"
+                   ng-enter="addPregunta(nuevadecision.enunciado)">
 
             <div class="list-group">
                 <!-- Listamos las decisiones pendientes del grupo -->
+                <div class="list-group-item"
+                     ng-repeat="votacion in votaciones">
+                    <div class="row">
+                        <div class="col-sm-10">
+                            {{votacion.enunciado}}     
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="btn-group">
+                                <button class="btn btn-success"
+                                        ng-click="votar(votacion, 3)"
+                                        ng-disabled="objetivo.voto == 3"><span class="glyphicon glyphicon-ok-sign"></span></button>
+                                <button class="btn btn-warning"
+                                        ng-click="votar(votacion, 2)"
+                                        ng-disabled="objetivo.voto == 2"><span class="glyphicon glyphicon-question-sign"></span></button>
+                                <button class="btn btn-danger"
+                                        ng-click="votar(votacion, 1)"
+                                        ng-disabled="objetivo.voto == 1"><span class="glyphicon glyphicon-remove-sign"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>            
         </div>
 
