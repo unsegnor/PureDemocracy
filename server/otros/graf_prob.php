@@ -6,7 +6,7 @@ $poblacion = 100000;
 
 $muestra = getTamanioMuestra($total, 0.5);
 
-$muestra = floor($muestra)+1;
+//$muestra = floor($muestra)+1;
 
 $distribucion_real_si = 1;
 $distribucion_real_no = 0;

@@ -2,11 +2,13 @@
 
 include_once dirname(__FILE__) . "./../ajax/funciones.php";
 
-for ($poblacion = 1; $poblacion < 1000; $poblacion++) {
-    $muestra = getTamanioMuestra($poblacion, 0.5);
+for ($poblacion = 1; $poblacion < 100000; $poblacion++) {
+    
+    $muestra = calculaTamanioMuestra($poblacion, 0.5);
 
 
     //Si la muestra es mayor que la mitad entonces la muestra es la mitad mas uno
+    
     if ($muestra > $poblacion / 2) {
         $nmuestra = floor($poblacion / 2) + 1;
     } else {
