@@ -14,7 +14,7 @@ for ($poblacion = 1; $poblacion < 100000; $poblacion++) {
     } else {
         $nmuestra = floor($muestra) + 1;
     }
-
+/*
     $abstencion = $poblacion - $nmuestra;
     //Si la abstencioón es mayor que la muestra entonces podemos representarlos, si no el error es 0 
     if ($abstencion > $nmuestra) {
@@ -23,6 +23,8 @@ for ($poblacion = 1; $poblacion < 100000; $poblacion++) {
     } else {
         $error_real = 0;
     }
+ */
+    $error_real = getErrorDeMuestra($poblacion, $nmuestra);
      
     echo "<br>$poblacion, $muestra, $nmuestra, $error_real";
 }

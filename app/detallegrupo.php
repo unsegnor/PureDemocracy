@@ -30,7 +30,7 @@ $id = filter_input(INPUT_GET, 'id');
                 <div ng-hide="grupo.es_miembro == 0">
                     <!-- Si somos miembros mostramos el botón de abandonar grupo -->
                     <label>Ya eres miembro</label>
-                    <button class="btn btn-danger" ng-click="solicitarBaja()">Darme de baja</button>    
+                    <button class="btn btn-danger" ng-click="solicitarBaja()">Solicitar baja</button>    
                 </div>
             </div>
         </div>
