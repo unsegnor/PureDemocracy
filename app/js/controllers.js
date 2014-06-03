@@ -110,6 +110,13 @@ angular.module('puredemocracyapp.controllers', [])
                     });
                     
                 };
+                
+                $scope.votar = function(idvotacion, valor){
+                  allamar($http, 'emitirVoto', [idvotacion, valor], function(res){
+                     //TODO Recargar la información sobre la votación en concreto
+                     
+                  });  
+                };
             }])
         .controller('controladorgrupos', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login

@@ -1093,9 +1093,9 @@ function getRepresentantesDeGrupo($nmuestra, $id_grupo) {
     }
 
     $consulta.= " GROUP BY miembro.usuario_idusuario";
-    
+
     $consulta .= " ORDER BY RAND()";
-    
+
 
     $consulta.= " LIMIT " . escape($nmuestra);
 
@@ -1110,6 +1110,13 @@ function getRepresentantesDeGrupo($nmuestra, $id_grupo) {
     return $res;
 }
 
+function getCensoDeVotacion($id_votacion) {
+    //Obtenemos el censo de la votación
+    $res = ejecutar("SELECT votacionsnd.censo FROM votacionsnd WHERE votacionsnd.idvotacionsnd = " . escape($id_votacion));
+    $fila = $res->fetch_assoc();
+    return $fila['censo'];
+}
+
 /**
  * Obtiene tantos representantes como nmuestra indique para la votación id_votacion
  * @param type $nmuestra
@@ -1118,10 +1125,7 @@ function getRepresentantesDeGrupo($nmuestra, $id_grupo) {
  */
 function getNuevosRepresentantesDeVotacion($nmuestra, $id_votacion) {
 
-    //Obtenemos el censo de la votación
-    $res = ejecutar("SELECT votacionsnd.censo FROM votacionsnd WHERE votacionsnd.idvotacionsnd = " . escape($id_votacion));
-    $fila = $res->fetch_assoc();
-    $id_grupo = $fila['censo'];
+    $id_grupo = getCensoDeVotacion($id_votacion);
 
     //Seleccionamos representantes de este o de cualquier subgrupo
     $subgrupos = getSubgruposID($id_grupo, 0);
@@ -1205,12 +1209,16 @@ function getVotacionAprobacionDeObjetivo($id_objetivo) {
 
 function emitirVoto($id_votacion, $valor) {
     //Comprobamos que estemos logueados
-    $res = checkLogin();
+    if (checkLogin()) {
 
-    if (!$res->hayerror) {
+        //Obtenemos el censo de la votación
+        $id_censo = getCensoDeVotacion($id_votacion);
 
-        if ($res->resultado) {
-            //Estamos logueados
+        //Comprobamos que el usuario sea miembro del censo        
+        if (miembrode($id_censo)) {
+
+            //Estamos logueados y pertenecemos al censo de la votación
+            //
             //Utilizamos el id de usuario del usuario en cuestión
             $id_usuario = $_SESSION['idusuario'];
 
@@ -1223,10 +1231,10 @@ function emitirVoto($id_votacion, $valor) {
                     . "," . escape($valor)
                     . ") ON DUPLICATE KEY UPDATE"
                     . " valor=" . escape($valor));
+
+            return $res;
         }
     }
-
-    return $res;
 }
 
 function checkTime() {

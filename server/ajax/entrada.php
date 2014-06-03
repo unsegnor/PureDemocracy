@@ -31,6 +31,7 @@ try {
         , 'hacerSuperGrupo'
         , 'getVotacionesSNDDeGrupo'
         , 'addPregunta'
+        , 'emitirVoto'
     );
     
     $funcionesProhibidas = array(
