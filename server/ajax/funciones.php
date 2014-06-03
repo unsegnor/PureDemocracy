@@ -1233,7 +1233,11 @@ function emitirVoto($id_votacion, $valor) {
                     . " valor=" . escape($valor));
 
             return $res;
+        } else {
+            throw new Exception("No puedes participar en esta votación.");
         }
+    } else {
+        throw new Exception("Debes estar logueado.");
     }
 }
 
@@ -1345,6 +1349,8 @@ function checkVotaciones() {
             //el error será igual o mayor de lo que inicialmente se calculó.
             $representantes_activos = $nrepresentantes - $abstencion_rep;
             $error_actual = getErrorDeMuestra($nindividuos, $representantes_activos);
+            
+            echo "<br>El error que podemos cometer con $representantes_activos representantes activos es del ".($error_actual * 100)."%";
 
             /*
               //Los representantes representan a la abstención si los hay
@@ -1446,8 +1452,8 @@ function checkVotaciones() {
 
             //TODO si el número de votos reales es mayor que el máximo previsto entonces ha fallado la representación
 
-            /* //Truncamos los máximos para que sean más reales
-              $invariable = $minimo_si + $minimo_no;
+             //Truncamos los máximos para que sean más reales
+              $invariable = $minimo_si + $minimo_no + $minimo_dep;
               $variable = 1 - $invariable;
 
               if ($maximo_no > $minimo_no + $variable) {
@@ -1456,7 +1462,7 @@ function checkVotaciones() {
 
               if ($maximo_si > $minimo_si + $variable) {
               $maximo_si = $minimo_si + $variable;
-              } */
+              }
 
             echo "<br>Según los datos obtenidos las predicciones son las siguientes:";
             echo "<br>'Sí' obtendrá entre un " . ($minimo_si * 100) . "% y un " . ($maximo_si * 100) . "% del total de votos.";
@@ -1556,6 +1562,7 @@ function checkVotaciones() {
                 //Contamos una ampliación más y definimos el nuevo checktime
                 $res = ejecutar("UPDATE votacionsnd SET"
                         . " ampliaciones=ampliaciones+1" . $resultado
+                        . ", timein=NOW()"
                         . ", checktime=NOW() + INTERVAL " . Constantes::checktime_minutos . " MINUTE"
                         . ", activa=1"
                         . " WHERE idvotacionsnd=" . $id_votacion);

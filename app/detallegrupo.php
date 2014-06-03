@@ -103,8 +103,11 @@ $id = filter_input(INPUT_GET, 'id');
                 <div class="list-group-item"
                      ng-repeat="votacion in votaciones">
                     <div class="row">
-                        <div class="col-sm-10">
+                        <div class="col-sm-8">
                             {{votacion.enunciado}}     
+                        </div>
+                        <div class="col-sm-2">
+                            <progressbar class="progress-striped active" max="1" value="votacion.transcurrido" type="primary"></progressbar>
                         </div>
                         <div class="col-sm-2">
                             <div class="btn-group">
@@ -123,7 +126,6 @@ $id = filter_input(INPUT_GET, 'id');
                 </div>
             </div>            
         </div>
-
     </div>
 </div>
 <?php include dirname(__FILE__) . "./footer.php"; ?>

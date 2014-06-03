@@ -7,7 +7,7 @@ angular.module('puredemocracyapp.controllers', [])
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 checkLogin($http);
             }])
-        .controller('controladordetallegrupo', ['$scope', '$http', function($scope, $http) {
+        .controller('controladordetallegrupo', ['$scope', '$http', '$interval', function($scope, $http, $interval) {
                 checkLogin($http);
 
                 //Cargar la información del grupo
@@ -25,8 +25,14 @@ angular.module('puredemocracyapp.controllers', [])
                     $scope.cargarGrupo(id);
                     $scope.cargarsubgrupos();
                     $scope.cargarsupergrupos();
-                    cargarGrupos($scope,$http);
+                    cargarGrupos($scope, $http);
                     $scope.cargarVotaciones();
+
+                    //Llamamos una vez para inicializar
+                    $scope.actualizartiempotranscurrido();
+
+                    //Activamos el interval para actualizar los valores de las votaciones
+                    $interval($scope.actualizartiempotranscurrido, 1000);
                 };
 
                 $scope.solicitarIngreso = function() {
@@ -69,53 +75,82 @@ angular.module('puredemocracyapp.controllers', [])
                         $scope.cargarsubgrupos();
                     });
                 };
-                
-                $scope.addSuperGrupo = function(parametro){
-                    
-                    
-                    if(parametro.idgrupo == null){
+
+                $scope.addSuperGrupo = function(parametro) {
+
+
+                    if (parametro.idgrupo == null) {
                         //Si no trae parámetro idgrupo es que es un grupo nuevo
                         //alert("Agregar un nuevo grupo llamado " + parametro);
-                        
-                        allamar($http, 'addNuevoSuperGrupo', [$scope.id, parametro], function(res){
-                           $scope.cargarsupergrupos(); 
+
+                        allamar($http, 'addNuevoSuperGrupo', [$scope.id, parametro], function(res) {
+                            $scope.cargarsupergrupos();
                         });
-                        
-                    }else{
+
+                    } else {
                         //Sino relacionamos los grupos existentes
                         //alert("Agregar un grupo existente, con id " + parametro.idgrupo);
-                        
-                        allamar($http, 'hacerSuperGrupo', [$scope.id, parametro.idgrupo], function(res){
-                           $scope.cargarsupergrupos();
+
+                        allamar($http, 'hacerSuperGrupo', [$scope.id, parametro.idgrupo], function(res) {
+                            $scope.cargarsupergrupos();
                         });
-                        
+
                     }
-                    
+
                     //Recargamos los grupos
                     cargarGrupos($scope, $http);
-                    
+
                 };
-                
-                $scope.cargarVotaciones = function(){
-                  
-                    allamar($http, 'getVotacionesSNDDeGrupo', [$scope.id], function(res){
-                       //alert(JSON.stringify(res));
-                       $scope.votaciones = res.resultado;
+
+                $scope.cargarVotaciones = function() {
+
+                    allamar($http, 'getVotacionesSNDDeGrupo', [$scope.id], function(res) {
+                        //alert(JSON.stringify(res));
+                        $scope.votaciones = res.resultado;
                     });
                 };
-                
-                $scope.addPregunta = function(enunciado){
-                    allamar($http, 'addPregunta', [$scope.id, enunciado], function(res){
-                       $scope.cargarVotaciones() ;
+
+                $scope.addPregunta = function(enunciado) {
+                    allamar($http, 'addPregunta', [$scope.id, enunciado], function(res) {
+                        $scope.cargarVotaciones();
                     });
-                    
+
                 };
-                
-                $scope.votar = function(idvotacion, valor){
-                  allamar($http, 'emitirVoto', [idvotacion, valor], function(res){
-                     //TODO Recargar la información sobre la votación en concreto
-                     
-                  });  
+
+                $scope.votar = function(idvotacion, valor) {
+                    allamar($http, 'emitirVoto', [idvotacion, valor], function(res) {
+                        //TODO Recargar la información sobre la votación en concreto
+
+                    });
+                };
+
+                $scope.actualizartiempotranscurrido = function() {
+
+                    //Recorremos las votaciones y actualizamos el tiempo transcurrido desde que inició y hasta que le toque otro checktime  
+                    var ahora = new Date().getTime();
+                    for (var nvotacion in $scope.votaciones) {
+                        var votacion = $scope.votaciones[nvotacion];
+                        //Obtenemos las fechas
+                        var f_ini = new Date(votacion.timein).getTime();
+                        var f_fin = new Date(votacion.checktime).getTime();
+
+                        //Calculamos los valores máximo y actual
+                        var max = f_fin - f_ini;
+                        var actual = ahora - f_ini;
+
+                        //Calculamos el porcentaje completado
+                        var transcurrido = actual / max;
+
+                        //Anotamos el valor
+                        //Si está entre 0 y 1
+                        if (transcurrido < 0) {
+                            transcurrido = 0;
+                        } else if (transcurrido > 1) {
+                            transcurrido = 1;
+                        }
+                        votacion.transcurrido = transcurrido;
+                    }
+
                 };
             }])
         .controller('controladorgrupos', ['$scope', '$http', function($scope, $http) {
@@ -277,12 +312,12 @@ angular.module('puredemocracyapp.controllers', [])
 function cargarGrupos(servicioScope, servicioHttp) {
     //Cargar grupos
 
-        allamar(servicioHttp, 'getGrupos', null, function(res) {
-            //alert(JSON.stringify(res));
-            servicioScope.grupos = res.resultado;
+    allamar(servicioHttp, 'getGrupos', null, function(res) {
+        //alert(JSON.stringify(res));
+        servicioScope.grupos = res.resultado;
 
-        });
+    });
 
-   
+
 }
 ;
