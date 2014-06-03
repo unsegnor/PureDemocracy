@@ -1132,7 +1132,7 @@ function getNuevosRepresentantesDeVotacion($nmuestra, $id_votacion) {
             . " WHERE miembro.grupo_idgrupo = " . escape($id_grupo);
 
     foreach ($subgrupos as $subgrupo) {
-        $consulta.= " OR miembro.grupo_idgrupo = " . $subgrupo['idgrupo'];
+        $consulta.= " OR miembro.grupo_idgrupo = " . $subgrupo;
     }
 
     //Siempre que no sean ya representantes
