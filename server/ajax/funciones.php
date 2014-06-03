@@ -432,7 +432,7 @@ function getVotacionesSNDDeGrupo($id_grupo) {
     $consulta .= " votacionsnd.censo = " . escape($id_grupo);
 
     foreach ($supergrupos as $supergrupo) {
-        $consulta .= " OR votacionsnd.censo = " . $supergrupo['idgrupo'];
+        $consulta .= " OR votacionsnd.censo = " . $supergrupo;
     }
 
     $res = ejecutar($consulta);
