@@ -355,6 +355,7 @@ function crearVotacionDeGrupo($id_grupo, $enunciado) {
     //Calculamos el número de representantes que tocan
     $tmuestra = getTamanioMuestra($total_censo, 0.5);
 
+    //echo "<br>tmuestra = ".$tmuestra;
     //Si salen más representantes que la mitad del censo cogemos la mitad más uno ya que el error que queremos es menor del 0.5
     /* if ($tmuestra > $total_censo / 2) {
       $tmuestra = floor($total_censo / 2) + 1;
@@ -597,6 +598,7 @@ function getMiembrosNatos($id_grupo) {
 
 function getSubgruposID($id_grupo, $nivel) {
     //Obtenemos todos los grupos que componen el grupo indicado así como sus subgrupos hasta el nivel especificado
+    $res = array();
     if ($nivel == 1) {
         //Si el nivel es uno la consulta es sencilla
         $res = ejecutar("SELECT grupo.idgrupo FROM grupo, subgrupo WHERE subgrupo.idgrupo = " . escape($id_grupo)
@@ -611,6 +613,7 @@ function getSubgruposID($id_grupo, $nivel) {
         if ($nivel == 0) {
             //Obtenemos todos los hijos
             //Vamos recorriendo y añadiendo los hijos a la respuesta
+            //echo "Comenzamos recorrido del árbol";
 
             $respuesta = array();
 
@@ -621,14 +624,22 @@ function getSubgruposID($id_grupo, $nivel) {
             //Mientras hay hijos
             while (count($subnivel) > 0) {
                 //Recorrer el mapa y anotar los hijos
+                //echo "<br>Tenemos grupos que observar";
+                //var_dump($subnivel);
+                //echo "<br>";
                 foreach ($mapaGrupos as $relacion) {
                     //Si el grupo es padre anotamos al hijo
                     if (isset($subnivel[$relacion['idgrupo']])) {
+                        //echo "<br>El grupo " . $relacion['idgrupo'] . " se encuentra entre los que observar";
                         $id_hijo = $relacion['idsubgrupo'];
+                        //echo "<br>Su subgrupo es " . $id_hijo;
                         //Si no estaba ya en la respuesta lo añadimos (evitamos ciclos)
                         if (!isset($respuesta[$id_hijo])) {
+                            //echo "<br>$id_hijo no estaba en la respuesta así que lo añadimos";
                             $nextnivel[$id_hijo] = $id_hijo;
                             $respuesta[$id_hijo] = $id_hijo;
+                            //echo "La respuesta queda así:";
+                            //var_dump($respuesta);
                         }
                     }
                 }
@@ -641,7 +652,8 @@ function getSubgruposID($id_grupo, $nivel) {
             $res = $respuesta;
         }
     }
-
+    //echo "Los subgrupos de $id_grupo son :";
+    //var_dump($res);
     return $res;
 }
 
@@ -1077,10 +1089,19 @@ function getRepresentantesDeGrupo($nmuestra, $id_grupo) {
             . " WHERE miembro.grupo_idgrupo = " . escape($id_grupo);
 
     foreach ($subgrupos as $subgrupo) {
-        $consulta.= " OR miembro.grupo_idgrupo = " . $subgrupo['idgrupo'];
+        $consulta.= " OR miembro.grupo_idgrupo = " . $subgrupo;
     }
 
-    $consulta .= " ORDER BY RAND() LIMIT " . escape($nmuestra);
+    $consulta.= " GROUP BY miembro.usuario_idusuario";
+    
+    $consulta .= " ORDER BY RAND()";
+    
+
+    $consulta.= " LIMIT " . escape($nmuestra);
+
+
+
+    //echo "<br>consulta = " . $consulta;
 
     $res = ejecutar($consulta);
 
@@ -1371,12 +1392,12 @@ function checkVotaciones() {
               echo "<br>$sumano votos para el 'No', el " . ($pno * 100) . "%";
               echo "<br>$sumadep votos para el 'Depende', el " . ($pdep * 100) . "%";
               echo "<br>Que juntos suman " . ($sumasi + $sumano + $sumadep) . ", el " . (($psi + $pno + $pdep) * 100) . "%";
-*/
-              //Y ahora ya podemos calcular el apoyo a las diferentes opciones y los errores
-              //Para cada una comprobamos si ha terminado o la ampliamos
-              //TODO a ver qué hacemos si se abstiene todo cristo
-              $resultado = 0;
-             
+             */
+            //Y ahora ya podemos calcular el apoyo a las diferentes opciones y los errores
+            //Para cada una comprobamos si ha terminado o la ampliamos
+            //TODO a ver qué hacemos si se abstiene todo cristo
+            $resultado = 0;
+
 
 
             //Calculamos ahora el porcentaje de votos que se prevén para cada opción
