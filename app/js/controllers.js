@@ -152,6 +152,21 @@ angular.module('puredemocracyapp.controllers', [])
                     }
 
                 };
+
+                $scope.activo = function() {
+
+                    //Comprobamos si el grupo debería estar activo para este usuario
+                    var respuesta = false;
+
+                    //Está activo si tiene 3 miembros o más y el usuario es uno de ellos
+                    if ($scope.grupo.nmiembros >= 3
+                            && ($scope.grupo.es_miembro == 1
+                                    || $scope.grupo.es_nato == 1)) {
+                        respuesta = true;
+                    }
+                    
+                    return respuesta;
+                };
             }])
         .controller('controladorgrupos', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login

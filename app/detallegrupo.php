@@ -43,7 +43,7 @@ $id = filter_input(INPUT_GET, 'id');
             </div>
             <!-- Añadir subgrupo -->
             <input type="text"
-                   ng-hide="grupo.es_miembro == 0 && grupo.es_nato == 0"
+                   ng-show="activo()"
                    class="form-control"
                    ng-model="nuevosupergrupo.nombre" 
                    typeahead="g as (g.nombre + '_' +  g.idgrupo) for g in grupos | filter:{nombre:$viewValue}"
@@ -66,7 +66,7 @@ $id = filter_input(INPUT_GET, 'id');
             </div>
             <!-- Añadir subgrupo -->
             <input type="text"
-                   ng-hide="grupo.es_miembro == 0 && grupo.es_nato == 0"
+                   ng-show="activo()"
                    class="form-control" 
                    placeholder="filtrar/añadir..."
                    ng-model="filtro.nombre"
@@ -92,7 +92,8 @@ $id = filter_input(INPUT_GET, 'id');
             </div>
 
             <!-- Generar decisión -->
-            <input type="text" 
+            <input type="text"
+                   ng-show="activo()"
                    class="form-control" 
                    ng-model="nuevadecision.enunciado"
                    placeholder="Pregunta al grupo"

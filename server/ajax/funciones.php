@@ -1283,7 +1283,7 @@ function checkVotaciones() {
         $nindividuos = getNTotalMiembrosDeGrupo($id_grupo);
 
         echo "<hr>";
-        echo "<br>Votación: $id_votacion";
+        echo "<br>Votación: $id_votacion - ".$votacion['enunciado'];
 
         //Si el número de individuos es cero anulamos la votación
         if ($nindividuos > 0) {
@@ -1561,7 +1561,7 @@ function checkVotaciones() {
                 }
                 //Contamos una ampliación más y definimos el nuevo checktime
                 $res = ejecutar("UPDATE votacionsnd SET"
-                        . " ampliaciones=ampliaciones+1" . $resultado
+                        . " ampliaciones=ampliaciones+1"
                         . ", timein=NOW()"
                         . ", checktime=NOW() + INTERVAL " . Constantes::checktime_minutos . " MINUTE"
                         . ", activa=1"
@@ -1571,6 +1571,7 @@ function checkVotaciones() {
 
                 $res = ejecutar("UPDATE votacionsnd SET"
                         . " resultado=" . $resultado
+                        . ", fecha_finalizacion=NOW()"
                         . ", finalizada=1"
                         . ", activa=0"
                         . ", error=" . $error_actual
