@@ -18,15 +18,16 @@ include dirname(__FILE__) . "./head.php";
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
                 <li><a href="<?php echo direcciones::index ?>">Inicio</a></li>
-                <li><a href="<?php echo direcciones::objetivos ?>">Objetivos</a></li>
+                <!--<li><a href="<?php echo direcciones::objetivos ?>">Objetivos</a></li>-->
                 <li><a href="<?php echo direcciones::grupos ?>">Grupos</a></li>
+                <!--
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Cosas <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         <li><a href="<?php echo direcciones::index ?>">Coso</a></li>
                         <li><a href="<?php echo direcciones::index ?>">Cosocoso</a></li>
                     </ul>
-                </li>
+                </li> -->
                 <li><a href="<?php echo direcciones::logout ?>">Salir</a></li>
             </ul>
         </div><!--/.nav-collapse -->

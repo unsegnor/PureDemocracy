@@ -7,7 +7,7 @@ angular.module('puredemocracyapp.controllers', [])
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 checkLogin($http);
             }])
-        .controller('controladordetallegrupo', ['$scope', '$http', '$interval', function($scope, $http, $interval) {
+        .controller('controladordetallegrupo', ['$scope', '$http', '$interval', '$modal', function($scope, $http, $interval, $modal) {
                 checkLogin($http);
 
                 //Cargar la información del grupo
@@ -118,11 +118,26 @@ angular.module('puredemocracyapp.controllers', [])
                 };
 
                 $scope.votar = function(idvotacion, valor) {
-                    allamar($http, 'emitirVoto', [idvotacion, valor], function(res) {
-                        //TODO Recargar la información sobre la votación en concreto
 
-                    });
+                    //Si el voto es "Depende" pedimos un enunciado que condicione el sentido voto
+                    if (valor == 2) {
+                        introducirEnunciado($modal, function(resultado) {
+                            $scope.votarDepende(idvotacion, resultado);
+                        }, function() {
+                            alert("Se cancela el enunciado");
+                        });
+                    } else {
+                        allamar($http, 'emitirVoto', [idvotacion, valor], function(res) {
+                            //TODO Recargar la información sobre la votación en concreto
+                        });
+                    }
                 };
+
+                $scope.votarDepende = function(idvotacion, enunciado) {
+                    alert("Votar depende con el enunciado " + JSON.stringify(enunciado) + " a la votación " + idvotacion);
+                };
+
+
 
                 $scope.actualizartiempotranscurrido = function() {
 
@@ -158,13 +173,16 @@ angular.module('puredemocracyapp.controllers', [])
                     //Comprobamos si el grupo debería estar activo para este usuario
                     var respuesta = false;
 
-                    //Está activo si tiene 3 miembros o más y el usuario es uno de ellos
-                    if ($scope.grupo.nmiembros >= 3
-                            && ($scope.grupo.es_miembro == 1
-                                    || $scope.grupo.es_nato == 1)) {
-                        respuesta = true;
+                    //Si ya se han cargado los datos del grupo vamos
+                    if ($scope.grupo != null) {
+
+                        //Está activo si tiene 3 miembros o más y el usuario es uno de ellos
+                        if ($scope.grupo.nmiembros >= 3
+                                && ($scope.grupo.es_miembro == 1
+                                        || $scope.grupo.es_nato == 1)) {
+                            respuesta = true;
+                        }
                     }
-                    
                     return respuesta;
                 };
             }])
@@ -334,5 +352,42 @@ function cargarGrupos(servicioScope, servicioHttp) {
     });
 
 
+}
+;
+
+function introducirEnunciado(modal, success, error) {
+    var modalInstance = modal.open({
+        templateUrl: 'introducirenunciado.php',
+        controller: controladorintroducirenunciado
+    });
+
+    modalInstance.result.then(function(resultado) {
+        success(resultado);
+    }, function() {
+        error();
+    });
+}
+;
+
+function controladorintroducirenunciado($scope, $http, $modalInstance) {
+    
+    $scope.grupos_y = [{"enunciados":[{"nombre":""}]}];
+    
+    $scope.addGrupoY = function(){
+        $scope.grupos_y.push({"enunciados":[{"nombre":""}]});
+    };
+    
+    $scope.addEnunciado = function(grupo_y){
+        //alert(JSON.stringify(grupo_y));
+        grupo_y.enunciados.push({'nombre':''});
+    };
+    
+    $scope.ok = function() {
+        $modalInstance.close($scope.grupos_y);
+    };
+
+    $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+    };
 }
 ;

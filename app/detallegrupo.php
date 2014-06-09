@@ -88,21 +88,21 @@ $id = filter_input(INPUT_GET, 'id');
         <!-- Crear votación, hacer pregunta -->
         <div class="panel panel-default">
             <div class="panel-heading">
-                Decisiones
+                Votaciones en curso
             </div>
 
             <!-- Generar decisión -->
             <input type="text"
                    ng-show="activo()"
                    class="form-control" 
-                   ng-model="nuevadecision.enunciado"
+                   ng-model="nuevoenunciado.enunciado"
                    placeholder="Pregunta al grupo"
-                   ng-enter="addPregunta(nuevadecision.enunciado)">
+                   ng-enter="addPregunta(nuevoenunciado.enunciado)">
 
             <div class="list-group">
-                <!-- Listamos las decisiones pendientes del grupo -->
+                <!-- Listamos los enunciados pendientes del grupo -->
                 <div class="list-group-item"
-                     ng-repeat="votacion in votaciones">
+                     ng-repeat="votacion in votaciones| filter:{'finalizada':0}">
                     <div class="row">
                         <div class="col-sm-8">
                             {{votacion.enunciado}}     
@@ -127,6 +127,41 @@ $id = filter_input(INPUT_GET, 'id');
                 </div>
             </div>            
         </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Votaciones finalizadas
+            </div>
+
+            <div class="list-group">
+                <!-- Listamos los enunciados pendientes del grupo -->
+                <div class="list-group-item"
+                     ng-repeat="votacion in votaciones| filter:{'finalizada':1}">
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <span ng-show="votacion.resultado == 1"
+                                  class="glyphicon glyphicon-remove pull-left"></span>
+                            <span ng-show="votacion.resultado == 2"
+                                  class="glyphicon glyphicon-question-sign pull-left"></span>
+                            <span ng-show="votacion.resultado == 3"
+                                  class="glyphicon glyphicon-ok pull-left"></span>
+                            <span ng-show="votacion.resultado == 4"
+                                  class="glyphicon glyphicon-exclamation-sign pull-left"></span>
+                            {{votacion.enunciado}}     
+                        </div>
+                        <div class="col-sm-4">
+                            <progress max="1">
+                                <bar value="votacion.minimosi" type="success"><span>{{(votacion.minimosi * 100).toFixed(2)}}%</span></bar>
+                                <bar value="votacion.minimodep" type="warning"><span>{{(votacion.minimodep * 100).toFixed(2)}}%</span></bar>
+                                <bar value="votacion.minimono" type="danger"><span>{{(votacion.minimono * 100).toFixed(2)}}%</span></bar>
+                                <bar value="votacion.error" type="default"><span>{{(votacion.error * 100).toFixed(2)}}%</span></bar>
+                            </progress>
+                        </div>
+                    </div>
+                </div>
+            </div>            
+        </div>
+
     </div>
 </div>
 <?php include dirname(__FILE__) . "./footer.php"; ?>

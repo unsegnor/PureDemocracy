@@ -1241,11 +1241,77 @@ function emitirVoto($id_votacion, $valor) {
     }
 }
 
+/**
+ * Crear una decisión nueva en el grupo con id $id_grupo y enunciado $enunciado
+ * @param type $id_grupo
+ * @param type $enunciado
+ */
+function crearDecision($id_grupo, $enunciado) {
+    if (miembrode($id_grupo)) {
+        //Creamos la votación
+        $id_votacion = crearVotacionDeGrupo($id_grupo, $enunciado);
+
+        //Creamos la decisión asociada a la votación
+        $consulta = "INSERT INTO `pdbdd`.`enunciadosnd` "
+                . "(`enunciado`, `votacionsnd_idvotacionsnd`) "
+                . "VALUES ('" . escape($enunciado) . "', " . escape($id_votacion) . ")";
+
+        ejecutar($consulta);
+    }
+}
+
 function checkTime() {
 
     checkVotaciones();
 
+    checkDecisiones();
+
     //checkObjetivos();
+}
+
+function getEnunciados() {
+    $consulta = "SELECT * FROM enunciadosnd";
+
+    $res = ejecutar($consulta);
+
+    $enunciados = toArray($res);
+
+    return $enunciados;
+}
+
+function checkDecisiones() {
+    //Repasamos los enunciados para ver qué ha sucedido con sus respectivas votaciones y llevar a cabo las acciones necesarias
+    //Obtenemos los enunciados cuyo resultado es null porque son los únicos que pueden cambiar
+    //junto con los resultados de sus votaciones relacionadas que no sean null, es decir que hayan cambiado
+    $consulta = "SELECT enunciadosnd.*"
+            . ", votacionsnd.resultado as resultado_votacion"
+            . " FROM enunciadosnd"
+            . " LEFT JOIN votacionsnd ON enunciadosnd.votacionsnd_idvotacionsnd = votacionsnd.idvotacionsnd"
+            . " WHERE enunciadosnd.resultado IS NULL"
+            . " AND votacionsnd.resultado IS NOT NULL";
+
+    $res = ejecutar($consulta);
+    $enunciados = toArray($res);
+
+    foreach ($enunciados as $enunciado) {
+        //Comprobamos los resultados de las votaciones relacionadas para ver si tenemos que actualizar el resultado de la decisión
+
+        $resultado = $enunciado['resultado_votacion'];
+
+        //Si el enunciado está aprobada y tiene una ejecución asociada se ejecuta
+        if ($resultado == 3) {
+            if (isset($enunciado['ejecucionsys_idejecucionsys'])) {
+                $id_ejecucion = $enunciado['ejecucionsys_idejecucionsys'];
+
+                //Mandamos ejecutar la ejecución
+                ejecutarEjecucion($id_ejecucion);
+            }
+            
+            //Luego comprobamos si la aprobación de este enunciado afecta a los enunciados superiores
+            //¿Cuándo un "Depende" se convierte en un "Sí" o un "No"?
+        }
+        //En cualquier caso trasladamos el resultado de la votación a la decisión
+    }
 }
 
 function checkVotaciones() {
@@ -1283,7 +1349,7 @@ function checkVotaciones() {
         $nindividuos = getNTotalMiembrosDeGrupo($id_grupo);
 
         echo "<hr>";
-        echo "<br>Votación: $id_votacion - ".$votacion['enunciado'];
+        echo "<br>Votación: $id_votacion - " . $votacion['enunciado'];
 
         //Si el número de individuos es cero anulamos la votación
         if ($nindividuos > 0) {
@@ -1349,8 +1415,8 @@ function checkVotaciones() {
             //el error será igual o mayor de lo que inicialmente se calculó.
             $representantes_activos = $nrepresentantes - $abstencion_rep;
             $error_actual = getErrorDeMuestra($nindividuos, $representantes_activos);
-            
-            echo "<br>El error que podemos cometer con $representantes_activos representantes activos es del ".($error_actual * 100)."%";
+
+            echo "<br>El error que podemos cometer con $representantes_activos representantes activos es del " . ($error_actual * 100) . "%";
 
             /*
               //Los representantes representan a la abstención si los hay
@@ -1451,18 +1517,17 @@ function checkVotaciones() {
             $maximo_dep = $porcentaje_dep_rep + $error_actual;
 
             //TODO si el número de votos reales es mayor que el máximo previsto entonces ha fallado la representación
+            //Truncamos los máximos para que sean más reales
+            $invariable = $minimo_si + $minimo_no + $minimo_dep;
+            $variable = 1 - $invariable;
 
-             //Truncamos los máximos para que sean más reales
-              $invariable = $minimo_si + $minimo_no + $minimo_dep;
-              $variable = 1 - $invariable;
+            if ($maximo_no > $minimo_no + $variable) {
+                $maximo_no = $minimo_no + $variable;
+            }
 
-              if ($maximo_no > $minimo_no + $variable) {
-              $maximo_no = $minimo_no + $variable;
-              }
-
-              if ($maximo_si > $minimo_si + $variable) {
-              $maximo_si = $minimo_si + $variable;
-              }
+            if ($maximo_si > $minimo_si + $variable) {
+                $maximo_si = $minimo_si + $variable;
+            }
 
             echo "<br>Según los datos obtenidos las predicciones son las siguientes:";
             echo "<br>'Sí' obtendrá entre un " . ($minimo_si * 100) . "% y un " . ($maximo_si * 100) . "% del total de votos.";
@@ -1545,6 +1610,10 @@ function checkVotaciones() {
                     //De momento opción 1
                     $muestra_real_actual = $nrepresentantes;
 
+                    //TODO penalizar a los representantes que no se han pronunciado
+                    //TODO comprobar cuántos representantes quedan en el grupo después de la penalización
+                    //TODO y entonces nombrar a los representantes necesarios
+
                     echo "<br>Ahora mismo tenemos una muestra de $muestra_real_actual representantes.";
 
                     //Suponiendo que descartáramos a los representantes actuales
@@ -1582,6 +1651,10 @@ function checkVotaciones() {
                         . ", votossirep=" . $vsi_rep
                         . ", votosnorep=" . $vno_rep
                         . ", votosdeprep=" . $vdep_rep
+                        . ", minimosi=" . $minimo_si
+                        . ", minimono=" . $minimo_no
+                        . ", minimodep=" . $minimo_dep
+                        . ", nindividuos=" . $nindividuos
                         . " WHERE idvotacionsnd=" . $id_votacion);
             }
         } else {
