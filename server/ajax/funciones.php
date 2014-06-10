@@ -1252,7 +1252,7 @@ function crearDecision($id_grupo, $enunciado) {
         $id_votacion = crearVotacionDeGrupo($id_grupo, $enunciado);
 
         //Creamos la decisión asociada a la votación
-        $consulta = "INSERT INTO `pdbdd`.`enunciadosnd` "
+        $consulta = "INSERT INTO `pdbdd`.`decisionsnd` "
                 . "(`enunciado`, `votacionsnd_idvotacionsnd`) "
                 . "VALUES ('" . escape($enunciado) . "', " . escape($id_votacion) . ")";
 
@@ -1283,25 +1283,25 @@ function checkDecisiones() {
     //Repasamos los enunciados para ver qué ha sucedido con sus respectivas votaciones y llevar a cabo las acciones necesarias
     //Obtenemos los enunciados cuyo resultado es null porque son los únicos que pueden cambiar
     //junto con los resultados de sus votaciones relacionadas que no sean null, es decir que hayan cambiado
-    $consulta = "SELECT enunciadosnd.*"
+    $consulta = "SELECT decisionsnd.*"
             . ", votacionsnd.resultado as resultado_votacion"
-            . " FROM enunciadosnd"
-            . " LEFT JOIN votacionsnd ON enunciadosnd.votacionsnd_idvotacionsnd = votacionsnd.idvotacionsnd"
-            . " WHERE enunciadosnd.resultado IS NULL"
+            . " FROM decisionsnd"
+            . " LEFT JOIN votacionsnd ON decisionsnd.votacionsnd_idvotacionsnd = votacionsnd.idvotacionsnd"
+            . " WHERE decisionsnd.resultado IS NULL"
             . " AND votacionsnd.resultado IS NOT NULL";
 
     $res = ejecutar($consulta);
-    $enunciados = toArray($res);
+    $decisiones = toArray($res);
 
-    foreach ($enunciados as $enunciado) {
+    foreach ($decisiones as $decision) {
         //Comprobamos los resultados de las votaciones relacionadas para ver si tenemos que actualizar el resultado de la decisión
 
-        $resultado = $enunciado['resultado_votacion'];
+        $resultado = $decision['resultado_votacion'];
 
         //Si el enunciado está aprobada y tiene una ejecución asociada se ejecuta
         if ($resultado == 3) {
-            if (isset($enunciado['ejecucionsys_idejecucionsys'])) {
-                $id_ejecucion = $enunciado['ejecucionsys_idejecucionsys'];
+            if (isset($decision['ejecucionsys_idejecucionsys'])) {
+                $id_ejecucion = $decision['ejecucionsys_idejecucionsys'];
 
                 //Mandamos ejecutar la ejecución
                 ejecutarEjecucion($id_ejecucion);
@@ -1765,4 +1765,10 @@ function combinaciones($n, $k) {
         $t1 *= $i;
     }
     return $t1 / $otro;
+}
+
+function getEnunciadosDeGrupo($id_grupo){
+    if(checkLogin()){
+        $consulta = "SELECT * FROM enunciadosnd";
+    }
 }

@@ -125,7 +125,7 @@ angular.module('puredemocracyapp.controllers', [])
                             $scope.votarDepende(idvotacion, resultado);
                         }, function() {
                             alert("Se cancela el enunciado");
-                        });
+                        }, $scope.id);
                     } else {
                         allamar($http, 'emitirVoto', [idvotacion, valor], function(res) {
                             //TODO Recargar la información sobre la votación en concreto
@@ -355,12 +355,19 @@ function cargarGrupos(servicioScope, servicioHttp) {
 }
 ;
 
-function introducirEnunciado(modal, success, error) {
+function cargarEnunciadosDeGrupo(servicioScope, servicioHttp, idgrupo) {
+    allamar(servicioHttp, 'getEnunciadosDeGrupo', [idgrupo], function(res) {
+        servicioScope.enunciados = res.resultado;
+    });
+}
+;
+
+function introducirEnunciado(modal, success, error, idgrupo) {
     var modalInstance = modal.open({
         templateUrl: 'introducirenunciado.php',
-        controller: controladorintroducirenunciado
+        controller: controladorintroducirenunciado,
+        resolve: {idgrupo: function(){return idgrupo;}}
     });
-
     modalInstance.result.then(function(resultado) {
         success(resultado);
     }, function() {
@@ -369,19 +376,23 @@ function introducirEnunciado(modal, success, error) {
 }
 ;
 
-function controladorintroducirenunciado($scope, $http, $modalInstance) {
-    
-    $scope.grupos_y = [{"enunciados":[{"nombre":""}]}];
-    
-    $scope.addGrupoY = function(){
-        $scope.grupos_y.push({"enunciados":[{"nombre":""}]});
+function controladorintroducirenunciado($scope, $http, $modalInstance, idgrupo) {
+
+    $scope.idgrupo = idgrupo;
+
+    $scope.grupos_y = [{"enunciados": [{"nombre": ""}]}];
+
+    cargarEnunciadosDeGrupo($scope, $http, idgrupo);
+
+    $scope.addGrupoY = function() {
+        $scope.grupos_y.push({"enunciados": [{"nombre": ""}]});
     };
-    
-    $scope.addEnunciado = function(grupo_y){
+
+    $scope.addEnunciado = function(grupo_y) {
         //alert(JSON.stringify(grupo_y));
-        grupo_y.enunciados.push({'nombre':''});
+        grupo_y.enunciados.push({'nombre': ''});
     };
-    
+
     $scope.ok = function() {
         $modalInstance.close($scope.grupos_y);
     };
