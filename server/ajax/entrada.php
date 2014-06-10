@@ -33,6 +33,7 @@ try {
         , 'addPregunta'
         , 'emitirVoto'
         , 'getEnunciadosDeGrupo'
+        , 'votarDepende'
     );
     
     $funcionesProhibidas = array(

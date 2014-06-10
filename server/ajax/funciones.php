@@ -1264,7 +1264,7 @@ function checkTime() {
 
     checkVotaciones();
 
-    checkDecisiones();
+    //checkDecisiones();
 
     //checkObjetivos();
 }
@@ -1771,4 +1771,7 @@ function getEnunciadosDeGrupo($id_grupo){
     if(checkLogin()){
         $consulta = "SELECT * FROM enunciadosnd";
     }
+}
+function votarDepende($idvotacion, $enunciado){
+    //Votar depende en la votación y asociar a la votación el enunciado lógico que se le pasa (hay que traducirlo)
 }

@@ -134,7 +134,9 @@ angular.module('puredemocracyapp.controllers', [])
                 };
 
                 $scope.votarDepende = function(idvotacion, enunciado) {
-                    alert("Votar depende con el enunciado " + JSON.stringify(enunciado) + " a la votación " + idvotacion);
+                    allamar($http, 'votarDepende', [idvotacion, enunciado], function(res){
+                       alert(JSON.stringify(res));
+                    });
                 };
 
 
