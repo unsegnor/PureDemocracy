@@ -104,7 +104,10 @@ $id = filter_input(INPUT_GET, 'id');
                 <div class="list-group-item"
                      ng-repeat="votacion in votaciones| filter:{'finalizada':0}">
                     <div class="row">
-                        <div class="col-sm-8">
+                        <div class="col-sm-1">
+                            {{votacion.ampliaciones}}     
+                        </div>
+                        <div class="col-sm-7">
                             {{votacion.enunciado}}     
                         </div>
                         <div class="col-sm-2">

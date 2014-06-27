@@ -424,7 +424,7 @@ function addPregunta($id_grupo, $enunciado) {
 
 function getVotacionesSNDDeGrupo($id_grupo) {
 
-    $supergrupos = getSuperGruposID($id_grupo, 0);
+    $supergrupos = getSupergruposID($id_grupo, 0);
 
     //Obtener las votaciones del grupo y sus supergrupos
     $consulta = "SELECT votacionsnd.* FROM votacionsnd WHERE ";
@@ -707,8 +707,71 @@ function getSupergruposID($id_grupo, $nivel) {
     return $res;
 }
 
+function getSupergruposIDConRuta($id_grupo, $nivel) {
+    //Obtenemos todos los grupos de los que foma parte el grupo indicado así como sus supergrupos hasta el nivel especificado
+    if ($nivel == 1) {
+        //Si el nivel es uno la consulta es sencilla
+        $res = ejecutar("SELECT grupo.idgrupo FROM grupo, subgrupo WHERE subgrupo.idsubgrupo = " . escape($id_grupo)
+                . " AND subgrupo.idgrupo = grupo.idgrupo");
+
+        $res = toArray($res);
+    } else {
+        //Sino pues ya tenemos que obtener toda la tabla e ir seleccionando
+        //Obtenemos toda la tabla de subgrupos
+        $mapaGrupos = getMapaGruposConNombre();
+
+        if ($nivel == 0) {
+            //Obtenemos todos los hijos
+            //Vamos recorriendo y añadiendo los hijos a la respuesta
+
+            $respuesta = array();
+
+            $supernivel = array();
+            $supernivel[$id_grupo] = $id_grupo;
+            $nextnivel = array();
+
+            //Mientras hay superiores
+            while (count($supernivel) > 0) {
+                //Recorrer el mapa y anotar los padres
+                foreach ($mapaGrupos as $relacion) {
+                    //Si el grupo es hijo anotamos al padre
+                    if (isset($supernivel[$relacion['idsubgrupo']])) {
+                        $id_padre = $relacion['idgrupo'];
+                        $nombre_padre = $relacion['nombregrupo'];
+                        //Si no estaba ya en la respuesta lo añadimos (evitamos ciclos)
+                        if (!isset($respuesta[$id_padre])) {
+                            $nextnivel[$id_padre] = $id_padre;
+                            $respuesta[$id_padre] = array($id_padre, $nombre_padre);
+                        }
+                    }
+                }
+                //Ahora actualizamos el subnivel
+                $supernivel = $nextnivel;
+                $nextnivel = array();
+            }
+
+            //Aquí ya hemos recorrido todos los hijos hasta que ya están todos en el vector respuesta
+            $res = $respuesta;
+        }
+    }
+
+    return $res;
+}
+
 function getMapaGrupos() {
     $consulta = "SELECT * FROM subgrupo";
+    $res = ejecutar($consulta);
+    $res = toArray($res);
+    return $res;
+}
+
+function getMapaGruposConNombre() {
+    $consulta = "SELECT subgrupo.*"
+            . ", g_grupo.nombre as nombregrupo"
+            . ", g_subgrupo.nombre as nombresubgrupo"
+            . " FROM subgrupo, grupo as g_grupo, grupo as g_subgrupo"
+            . " WHERE subgrupo.idgrupo = g_grupo.idgrupo"
+            . " AND subgrupo.idsubgrupo = g_subgrupo.idgrupo";
     $res = ejecutar($consulta);
     $res = toArray($res);
     return $res;
@@ -1253,8 +1316,8 @@ function crearDecision($id_grupo, $enunciado) {
 
         //Creamos la decisión asociada a la votación
         $consulta = "INSERT INTO `pdbdd`.`decisionsnd` "
-                . "(`enunciado`, `votacionsnd_idvotacionsnd`) "
-                . "VALUES ('" . escape($enunciado) . "', " . escape($id_votacion) . ")";
+                . "(`enunciado`, `votacionsnd_idvotacionsnd`, `grupo_idgrupo`) "
+                . "VALUES ('" . escape($enunciado) . "', " . escape($id_votacion) . ", " . escape($id_grupo) . ")";
 
         ejecutar($consulta);
     }
@@ -1264,7 +1327,7 @@ function checkTime() {
 
     checkVotaciones();
 
-    //checkDecisiones();
+    checkDecisiones();
 
     //checkObjetivos();
 }
@@ -1298,19 +1361,48 @@ function checkDecisiones() {
 
         $resultado = $decision['resultado_votacion'];
 
-        //Si el enunciado está aprobada y tiene una ejecución asociada se ejecuta
-        if ($resultado == 3) {
+        $id_decision = $decision['iddecisionsnd'];
+
+        if ($resultado == 1) {
+            //Si es rechazada no se hace nada, se deja en el histórico de votaciones rechazadas (si a caso)
+        } else if ($resultado == 2) {
+
+            //Si sale "Depende" se crea un nuevo supergrupo con el nombre: "Discusión sobre" o "Debate:" + enunciado de la votación.    
+            $enunciado = $decision['enunciado'];
+            $nombre_grupo = "Debate: " . $enunciado;
+
+            $id_supergrupo = addGrupo($nombre_grupo);
+
+            $id_subgrupo = $decision['grupo_idgrupo'];
+
+            hacerSuperGrupo($id_subgrupo, $id_supergrupo);
+        } else if ($resultado == 3) {
+
+            //Si es aprobada se crea un nuevo supergrupo con el nombre de la votación
+
+            $enunciado = $decision['enunciado'];
+            $nombre_grupo = $enunciado;
+
+            $id_supergrupo = addGrupo($nombre_grupo);
+
+            $id_subgrupo = $decision['grupo_idgrupo'];
+
+            hacerSuperGrupo($id_subgrupo, $id_supergrupo);
+
+            //Si el enunciado está aprobada y tiene una ejecución asociada se ejecuta
             if (isset($decision['ejecucionsys_idejecucionsys'])) {
                 $id_ejecucion = $decision['ejecucionsys_idejecucionsys'];
 
                 //Mandamos ejecutar la ejecución
                 ejecutarEjecucion($id_ejecucion);
             }
-            
+
             //Luego comprobamos si la aprobación de este enunciado afecta a los enunciados superiores
             //¿Cuándo un "Depende" se convierte en un "Sí" o un "No"?
         }
-        //En cualquier caso trasladamos el resultado de la votación a la decisión
+
+        //En cualquier caso actualizamos el valor del resultado de la decisión
+        ejecutar("UPDATE decisionsnd SET resultado=" . escape($resultado) . " WHERE iddecisionsnd = " . escape($id_decision));
     }
 }
 
@@ -1767,11 +1859,12 @@ function combinaciones($n, $k) {
     return $t1 / $otro;
 }
 
-function getEnunciadosDeGrupo($id_grupo){
-    if(checkLogin()){
+function getEnunciadosDeGrupo($id_grupo) {
+    if (checkLogin()) {
         $consulta = "SELECT * FROM enunciadosnd";
     }
 }
-function votarDepende($idvotacion, $enunciado){
+
+function votarDepende($idvotacion, $enunciado) {
     //Votar depende en la votación y asociar a la votación el enunciado lógico que se le pasa (hay que traducirlo)
 }

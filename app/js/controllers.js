@@ -111,7 +111,7 @@ angular.module('puredemocracyapp.controllers', [])
                 };
 
                 $scope.addPregunta = function(enunciado) {
-                    allamar($http, 'addPregunta', [$scope.id, enunciado], function(res) {
+                    allamar($http, 'crearDecision', [$scope.id, enunciado], function(res) {
                         $scope.cargarVotaciones();
                     });
 
@@ -120,7 +120,7 @@ angular.module('puredemocracyapp.controllers', [])
                 $scope.votar = function(idvotacion, valor) {
 
                     //Si el voto es "Depende" pedimos un enunciado que condicione el sentido voto
-                    if (valor == 2) {
+                    if (false){//valor == 2) {
                         introducirEnunciado($modal, function(resultado) {
                             $scope.votarDepende(idvotacion, resultado);
                         }, function() {

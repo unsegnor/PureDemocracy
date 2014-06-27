@@ -30,7 +30,7 @@ try {
         , 'addNuevoSuperGrupo'
         , 'hacerSuperGrupo'
         , 'getVotacionesSNDDeGrupo'
-        , 'addPregunta'
+        , 'crearDecision'
         , 'emitirVoto'
         , 'getEnunciadosDeGrupo'
         , 'votarDepende'
