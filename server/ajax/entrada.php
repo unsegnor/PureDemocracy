@@ -30,6 +30,7 @@ try {
         , 'addNuevoSuperGrupo'
         , 'hacerSuperGrupo'
         , 'getVotacionesSNDDeGrupoParaUsuarioActual'
+        , 'getVotacionesSNDPendientesDeUsuarioActualComoRepresentante'
         , 'crearDecision'
         , 'emitirVoto'
         , 'getEnunciadosDeGrupo'

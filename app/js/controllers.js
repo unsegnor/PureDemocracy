@@ -119,7 +119,7 @@ angular.module('puredemocracyapp.controllers', [])
                 $scope.votar = function(idvotacion, valor) {
 
                     //Si el voto es "Depende" pedimos un enunciado que condicione el sentido voto
-                    if (false){//valor == 2) {
+                    if (false) {//valor == 2) {
                         introducirEnunciado($modal, function(resultado) {
                             $scope.votarDepende(idvotacion, resultado);
                         }, function() {
@@ -135,8 +135,8 @@ angular.module('puredemocracyapp.controllers', [])
                 };
 
                 $scope.votarDepende = function(idvotacion, enunciado) {
-                    allamar($http, 'votarDepende', [idvotacion, enunciado], function(res){
-                       alert(JSON.stringify(res));
+                    allamar($http, 'votarDepende', [idvotacion, enunciado], function(res) {
+                        alert(JSON.stringify(res));
                     });
                 };
 
@@ -292,7 +292,7 @@ angular.module('puredemocracyapp.controllers', [])
                 });
 
             }])
-        .controller('controladorprincipal', ['$scope', '$http', function($scope, $http) {
+        .controller('controladorprincipal', ['$scope', '$http', '$interval', function($scope, $http, $interval) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 checkLogin($http);
 
@@ -300,6 +300,60 @@ angular.module('puredemocracyapp.controllers', [])
                 allamar($http, 'getSession', null, function(res) {
                     $scope.session = res.resultado;
                 });
+
+                $scope.cargarVotaciones = function() {
+                    //Cargamos las votaciones del usuario actual
+                    allamar($http, 'getVotacionesSNDPendientesDeUsuarioActualComoRepresentante', null, function(res) {
+                        //alert(JSON.stringify(res)); 
+                        $scope.votaciones = res.resultado;
+                    });
+                };
+
+                $scope.cargarVotaciones();
+
+                $scope.actualizartiempotranscurrido = function() {
+
+                    //Recorremos las votaciones y actualizamos el tiempo transcurrido desde que inició y hasta que le toque otro checktime  
+                    var ahora = new Date().getTime();
+                    for (var nvotacion in $scope.votaciones) {
+                        var votacion = $scope.votaciones[nvotacion];
+                        //Obtenemos las fechas
+                        var f_ini = new Date(votacion.timein).getTime();
+                        var f_fin = new Date(votacion.checktime).getTime();
+
+                        //Calculamos los valores máximo y actual
+                        var max = f_fin - f_ini;
+                        var actual = ahora - f_ini;
+
+                        //Calculamos el porcentaje completado
+                        var transcurrido = actual / max;
+
+                        //Anotamos el valor
+                        //Si está entre 0 y 1
+                        if (transcurrido < 0) {
+                            transcurrido = 0;
+                        } else if (transcurrido > 1) {
+                            transcurrido = 1;
+                        }
+                        votacion.transcurrido = transcurrido;
+                    }
+
+                };
+
+                //Llamamos una vez para inicializar
+                $scope.actualizartiempotranscurrido();
+
+                //Activamos el interval para actualizar los valores de las votaciones
+                $interval($scope.actualizartiempotranscurrido, 1000);
+
+                $scope.votar = function(idvotacion, valor) {
+
+                    allamar($http, 'emitirVoto', [idvotacion, valor], function(res) {
+                        //TODO Recargar la información sobre la votación en concreto
+                        //De momento recargamos todas las votaciones
+                        $scope.cargarVotaciones();
+                    });
+                };
             }])
         .controller('controladorlogin', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y a principal
@@ -369,7 +423,9 @@ function introducirEnunciado(modal, success, error, idgrupo) {
     var modalInstance = modal.open({
         templateUrl: 'introducirenunciado.php',
         controller: controladorintroducirenunciado,
-        resolve: {idgrupo: function(){return idgrupo;}}
+        resolve: {idgrupo: function() {
+                return idgrupo;
+            }}
     });
     modalInstance.result.then(function(resultado) {
         success(resultado);

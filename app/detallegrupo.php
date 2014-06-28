@@ -107,7 +107,7 @@ $id = filter_input(INPUT_GET, 'id');
                         <div class="col-sm-1">
                             {{votacion.ampliaciones}}     
                         </div>
-                        <div class="col-sm-7">
+                        <div class="col-sm-6">
                             {{votacion.enunciado}}     
                         </div>
                         <div class="col-sm-2">
@@ -124,6 +124,12 @@ $id = filter_input(INPUT_GET, 'id');
                                 <button class="btn btn-danger"
                                         ng-click="votar(votacion.idvotacionsnd, 1)"
                                         ng-disabled="votacion.valor == 1"><span class="glyphicon glyphicon-remove-sign"></span></button>
+                            </div>
+                        </div>
+                        <div class="col-sm-1">
+                            <div ng-show="votacion.valor == null">
+                            <span class="badge alert-info" ng-show="votacion.representante == null || votacion.representante == 0">+5</span>
+                            <span class="badge alert-info" ng-show="votacion.representante == 1">+100</span>
                             </div>
                         </div>
                     </div>

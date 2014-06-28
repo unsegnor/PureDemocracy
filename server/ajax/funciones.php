@@ -433,6 +433,7 @@ function getVotacionesSNDDeGrupoParaUsuarioActual($id_grupo) {
         //Obtener las votaciones del grupo y sus supergrupos
         $consulta = "SELECT votacionsnd.*"
                 . ", votosnd.valor as valor"
+                . ", votosnd.representante as representante"
                 . " FROM votacionsnd LEFT JOIN votosnd"
                 . " ON votosnd.votacionsnd_idvotacionsnd = votacionsnd.idvotacionsnd"
                 . " AND votosnd.usuario_idusuario = ".  escape($id_usuario)
@@ -451,6 +452,32 @@ function getVotacionesSNDDeGrupoParaUsuarioActual($id_grupo) {
         return $res;
     }
 }
+
+//Debe devolver todas las votaciones en las que el usuario es representante
+function getVotacionesSNDPendientesDeUsuarioActualComoRepresentante() {
+
+    if (checkLogin()) {
+        
+        $id_usuario = $_SESSION['idusuario'];
+
+        //Obtener las votaciones del grupo y sus supergrupos
+        $consulta = "SELECT votacionsnd.*"
+                . ", votosnd.valor as valor"
+                . ", votosnd.representante as representante"
+                . " FROM votacionsnd,votosnd"
+                . " WHERE votosnd.votacionsnd_idvotacionsnd = votacionsnd.idvotacionsnd"
+                . " AND votosnd.usuario_idusuario = ".  escape($id_usuario)
+                . " AND votosnd.representante = 1"
+                . " AND votosnd.valor IS NULL";
+
+        $res = ejecutar($consulta);
+
+        $res = toArray($res);
+
+        return $res;
+    }
+}
+
 
 function getVotacionesSNDDeGrupo($id_grupo) {
 
