@@ -29,7 +29,7 @@ try {
         , 'getSuperGrupos'
         , 'addNuevoSuperGrupo'
         , 'hacerSuperGrupo'
-        , 'getVotacionesSNDDeGrupo'
+        , 'getVotacionesSNDDeGrupoParaUsuarioActual'
         , 'crearDecision'
         , 'emitirVoto'
         , 'getEnunciadosDeGrupo'

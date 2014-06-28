@@ -103,8 +103,7 @@ angular.module('puredemocracyapp.controllers', [])
                 };
 
                 $scope.cargarVotaciones = function() {
-
-                    allamar($http, 'getVotacionesSNDDeGrupo', [$scope.id], function(res) {
+                    allamar($http, 'getVotacionesSNDDeGrupoParaUsuarioActual', [$scope.id], function(res) {
                         //alert(JSON.stringify(res));
                         $scope.votaciones = res.resultado;
                     });
@@ -129,6 +128,8 @@ angular.module('puredemocracyapp.controllers', [])
                     } else {
                         allamar($http, 'emitirVoto', [idvotacion, valor], function(res) {
                             //TODO Recargar la información sobre la votación en concreto
+                            //De momento recargamos todas las votaciones
+                            $scope.cargarVotaciones();
                         });
                     }
                 };

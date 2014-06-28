@@ -117,13 +117,13 @@ $id = filter_input(INPUT_GET, 'id');
                             <div class="btn-group">
                                 <button class="btn btn-success"
                                         ng-click="votar(votacion.idvotacionsnd, 3)"
-                                        ng-disabled="objetivo.voto == 3"><span class="glyphicon glyphicon-ok-sign"></span></button>
+                                        ng-disabled="votacion.valor == 3"><span class="glyphicon glyphicon-ok-sign"></span></button>
                                 <button class="btn btn-warning"
                                         ng-click="votar(votacion.idvotacionsnd, 2)"
-                                        ng-disabled="objetivo.voto == 2"><span class="glyphicon glyphicon-question-sign"></span></button>
+                                        ng-disabled="votacion.valor == 2"><span class="glyphicon glyphicon-question-sign"></span></button>
                                 <button class="btn btn-danger"
                                         ng-click="votar(votacion.idvotacionsnd, 1)"
-                                        ng-disabled="objetivo.voto == 1"><span class="glyphicon glyphicon-remove-sign"></span></button>
+                                        ng-disabled="votacion.valor == 1"><span class="glyphicon glyphicon-remove-sign"></span></button>
                             </div>
                         </div>
                     </div>

@@ -422,6 +422,36 @@ function addPregunta($id_grupo, $enunciado) {
     }
 }
 
+function getVotacionesSNDDeGrupoParaUsuarioActual($id_grupo) {
+
+    if (checkLogin()) {
+        
+        $id_usuario = $_SESSION['idusuario'];
+
+        $supergrupos = getSupergruposID($id_grupo, 0);
+
+        //Obtener las votaciones del grupo y sus supergrupos
+        $consulta = "SELECT votacionsnd.*"
+                . ", votosnd.valor as valor"
+                . " FROM votacionsnd LEFT JOIN votosnd"
+                . " ON votosnd.votacionsnd_idvotacionsnd = votacionsnd.idvotacionsnd"
+                . " AND votosnd.usuario_idusuario = ".  escape($id_usuario)
+                . " WHERE ";
+
+        $consulta .= " votacionsnd.censo = " . escape($id_grupo);
+
+        foreach ($supergrupos as $supergrupo) {
+            $consulta .= " OR votacionsnd.censo = " . $supergrupo;
+        }
+
+        $res = ejecutar($consulta);
+
+        $res = toArray($res);
+
+        return $res;
+    }
+}
+
 function getVotacionesSNDDeGrupo($id_grupo) {
 
     $supergrupos = getSupergruposID($id_grupo, 0);
