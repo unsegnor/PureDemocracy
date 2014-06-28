@@ -434,9 +434,11 @@ function getVotacionesSNDDeGrupoParaUsuarioActual($id_grupo) {
         $consulta = "SELECT votacionsnd.*"
                 . ", votosnd.valor as valor"
                 . ", votosnd.representante as representante"
+                . ", grupo.nombre as nombregrupo"
                 . " FROM votacionsnd LEFT JOIN votosnd"
                 . " ON votosnd.votacionsnd_idvotacionsnd = votacionsnd.idvotacionsnd"
                 . " AND votosnd.usuario_idusuario = ".  escape($id_usuario)
+                . " LEFT JOIN grupo ON votacionsnd.censo = grupo.idgrupo"
                 . " WHERE ";
 
         $consulta .= " votacionsnd.censo = " . escape($id_grupo);
@@ -464,11 +466,13 @@ function getVotacionesSNDPendientesDeUsuarioActualComoRepresentante() {
         $consulta = "SELECT votacionsnd.*"
                 . ", votosnd.valor as valor"
                 . ", votosnd.representante as representante"
-                . " FROM votacionsnd,votosnd"
+                . ", grupo.nombre as nombregrupo"
+                . " FROM votacionsnd,votosnd,grupo"
                 . " WHERE votosnd.votacionsnd_idvotacionsnd = votacionsnd.idvotacionsnd"
                 . " AND votosnd.usuario_idusuario = ".  escape($id_usuario)
                 . " AND votosnd.representante = 1"
-                . " AND votosnd.valor IS NULL";
+                . " AND votosnd.valor IS NULL"
+                . " AND votacionsnd.censo = grupo.idgrupo";
 
         $res = ejecutar($consulta);
 
