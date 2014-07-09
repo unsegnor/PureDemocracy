@@ -16,9 +16,11 @@ $id = filter_input(INPUT_GET, 'id');
             </div>
             <div class="col-sm-2">
                 <span class="glyphicon glyphicon-user">{{grupo.nmiembros}}</span>
+                <!--
                 <div ng-hide="grupo.nmiembros >= 3">
                     El grupo no tiene suficientes miembros
                 </div>
+                -->
             </div>
             <div class="col-sm-2">
                 <div ng-hide="grupo.es_miembro || grupo.es_nato">

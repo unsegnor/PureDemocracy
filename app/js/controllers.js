@@ -180,8 +180,8 @@ angular.module('puredemocracyapp.controllers', [])
                     if ($scope.grupo != null) {
 
                         //Está activo si tiene 3 miembros o más y el usuario es uno de ellos
-                        if ($scope.grupo.nmiembros >= 3
-                                && ($scope.grupo.es_miembro == 1
+                        if (//$scope.grupo.nmiembros >= 3 && 
+                                ($scope.grupo.es_miembro == 1
                                         || $scope.grupo.es_nato == 1)) {
                             respuesta = true;
                         }
