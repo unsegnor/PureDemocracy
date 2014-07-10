@@ -107,3 +107,6 @@ function checkLogin(servicio) {
         }
     });
 }
+
+var siguienteposicion = 0;
+
