@@ -23,8 +23,8 @@
 
         </div>
 
-
-        <div class="row">
+        <!-- y ahora el resto de grupos -->
+        <div class="row" ng-show="misGrupos.length > 2">
             <div class="col-sm-4">
                 <a class="thumbnail">
                     <img class="peque" src="img/add.jpg" alt="...">
@@ -35,50 +35,40 @@
                         -->
                     </div>
                 </a>
+                <a href="detallegrupo.php?id={{migrupo.idgrupo}}"
+                   class="thumbnail" ng-repeat="migrupo in misGrupos" ng-if="($index - 2) % 3 == 0">
+                    <img class="peque" src="img/grupo.jpg" alt="...">
+                    <div class="caption">
+                        <h3>{{migrupo.nombre}}</h3>
+                    </div>
+                </a>
             </div>
             <div class="col-sm-4">
                 <a ng-show="misGrupos.length > 0" href="detallegrupo.php?id={{misGrupos[0].idgrupo}}"
-                    class="thumbnail">
+                   class="thumbnail">
                     <img class="peque" src="img/grupo.jpg" alt="img/grupo.jpg">
                     <div class="caption">
                         <h3>{{misGrupos[0].nombre}}</h3>
                     </div>
                 </a>
+                <a href="detallegrupo.php?id={{migrupo.idgrupo}}"
+                   class="thumbnail" ng-repeat="migrupo in misGrupos" ng-if="($index - 2) % 3 == 1">
+                    <img class="peque" src="img/grupo.jpg" alt="...">
+                    <div class="caption">
+                        <h3>{{migrupo.nombre}}</h3>
+                    </div>
+                </a>
             </div>
             <div class="col-sm-4">
                 <a ng-show="misGrupos.length > 1" href="detallegrupo.php?id={{misGrupos[1].idgrupo}}"
-                    class="thumbnail">
+                   class="thumbnail">
                     <img class="peque" src="img/grupo.jpg" alt="img/grupo.jpg">
                     <div class="caption">
                         <h3>{{misGrupos[1].nombre}}</h3>
                     </div>
                 </a>
-            </div>
-        </div>
-
-        <!-- y ahora el resto de grupos -->
-        <div class="row" ng-show="misGrupos.length > 2">
-            <div class="col-sm-4">
                 <a href="detallegrupo.php?id={{migrupo.idgrupo}}"
-                    class="thumbnail" ng-repeat="migrupo in misGrupos" ng-if="($index-2) % 3 == 0">
-                    <img class="peque" src="img/grupo.jpg" alt="...">
-                    <div class="caption">
-                        <h3>{{migrupo.nombre}}</h3>
-                    </div>
-                </a>
-            </div>
-            <div class="col-sm-4">
-                <a href="detallegrupo.php?id={{migrupo.idgrupo}}"
-                    class="thumbnail" ng-repeat="migrupo in misGrupos" ng-if="($index-2) % 3 == 1">
-                    <img class="peque" src="img/grupo.jpg" alt="...">
-                    <div class="caption">
-                        <h3>{{migrupo.nombre}}</h3>
-                    </div>
-                </a>
-            </div>
-            <div class="col-sm-4">
-                <a href="detallegrupo.php?id={{migrupo.idgrupo}}"
-                    class="thumbnail" ng-repeat="migrupo in misGrupos" ng-if="($index-2) % 3 == 2">
+                   class="thumbnail" ng-repeat="migrupo in misGrupos" ng-if="($index - 2) % 3 == 2">
                     <img class="peque" src="img/grupo.jpg" alt="...">
                     <div class="caption">
                         <h3>{{migrupo.nombre}}</h3>
