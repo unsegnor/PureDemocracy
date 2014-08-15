@@ -192,44 +192,28 @@ angular.module('puredemocracyapp.controllers', [])
         .controller('controladorgrupos', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 checkLogin($http);
-
                 //Cargar grupos
                 $scope.cargarGrupos = function() {
-
                     allamar($http, 'getGrupos', null, function(res) {
                         //alert(JSON.stringify(res));
                         $scope.grupos = res.resultado;
-
                     });
-
                 };
-
                 //Cargar los grupos del usuario
                 $scope.cargarMisGrupos = function() {
-
                     allamar($http, 'getGruposDeUsuarioActual', null, function(res) {
                         //alert(JSON.stringify(res));
                         $scope.misGrupos = res.resultado;
                     });
                 };
-
                 $scope.cargarMisGrupos();
-
                 $scope.cargarGrupos();
-
                 //Añadir grupos
                 $scope.addGrupo = function(nombre) {
-
                     allamar($http, 'addGrupo', [nombre], function(res) {
-
                         $scope.cargarGrupos();
-
                     });
-
                 };
-
-
-
             }])
         .controller('controladorobjetivos', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login

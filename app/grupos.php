@@ -23,8 +23,7 @@
 
         </div>
 
-        <!-- y ahora el resto de grupos -->
-        <div class="row" ng-show="misGrupos.length > 2">
+        <div class="row" ng-show="misGrupos.length > 0">
             <div class="col-sm-4">
                 <a class="thumbnail">
                     <img class="peque" src="img/add.jpg" alt="...">

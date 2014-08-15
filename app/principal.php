@@ -33,7 +33,6 @@
                 </div>
 
                 <div class="list-group">
-
                     <div class="list-group-item"
                          ng-repeat="votacion in votaciones| filter:{'finalizada':0}">
                         <div class="row">

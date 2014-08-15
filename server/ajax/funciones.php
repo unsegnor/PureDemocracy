@@ -1342,7 +1342,7 @@ function emitirVoto($id_votacion, $valor) {
         if (miembrode($id_censo)) {
 
             //Estamos logueados y pertenecemos al censo de la votación
-            //
+            
             //Utilizamos el id de usuario del usuario en cuestión
             $id_usuario = $_SESSION['idusuario'];
 
@@ -1706,6 +1706,24 @@ function checkVotaciones() {
 
                 if ($abstencion_rep > 0) {
                     echo "<br>$abstencion_rep representantes se han abstenido, no se puede continuar hasta que se pronuncien";
+                    
+                    //Aquellos representantes que se abstengan perderán X puntos lo que posiblemenre les lleve a ser expulsados del grupo por lo que habrá que obtener otros representantes
+                    
+                    //Identificamos a los representantes que se han abstenido en esta votación
+                    $consulta = "SELECT usuario_idusuario FROM votosnd WHERE"
+                            . " votacionsnd_idvotacionsnd = $id_votacion" //en esta votación
+                            . " AND representante = 1" //representantes
+                            . " AND valor IS NOT NULL"; //que no hayan votado
+                    
+                    $malos_representantes = toArray(ejecutar($consulta));
+                    
+                    //Les restamos los puntos pertinentes
+                    
+                    
+                    //Les restamos los puntos
+                    
+                    
+                    
                 } else {
 
 
