@@ -1705,6 +1705,8 @@ function checkVotaciones() {
                 echo "<br>Aún no se han descartado suficientes opciones.";
 
                 if ($abstencion_rep > 0) {
+                    
+                    //Aquí sabemos que hay representantes que se han abstenido
                     echo "<br>$abstencion_rep representantes se han abstenido, no se puede continuar hasta que se pronuncien";
                     
                     //Aquellos representantes que se abstengan perderán X puntos lo que posiblemenre les lleve a ser expulsados del grupo por lo que habrá que obtener otros representantes
@@ -1718,9 +1720,16 @@ function checkVotaciones() {
                     $malos_representantes = toArray(ejecutar($consulta));
                     
                     //Les restamos los puntos pertinentes
+                    modificarPuntos($id_grupo, $malos_representantes, -100);
+                    
+                    //Ahora comprobamos cuántos representantes nos quedan
                     
                     
-                    //Les restamos los puntos
+                    //Necesitamos saber cuántos miembros activos hay en el grupo del censo
+                    $n_miembros_activos = nMiembrosActivos($id_grupo);
+                    
+                    
+                    
                     
                     
                     
@@ -1946,4 +1955,34 @@ function getEnunciadosDeGrupo($id_grupo) {
 
 function votarDepende($idvotacion, $enunciado) {
     //Votar depende en la votación y asociar a la votación el enunciado lógico que se le pasa (hay que traducirlo)
+}
+
+//Modifica los puntos de los miembros que se le pasan para el grupo indicado
+function modificarPuntos($id_grupo, $v_miembros, $puntos){
+    
+    $consulta = "UPDATE miembros SET puntos_participacion = puntos_participacion ";
+    if($puntos >= 0){
+        $consulta.= " + ".escape($puntos);
+    }else{
+        $consulta.= " - ".escape(abs($puntos));
+    }
+    $consulta.= " WHERE grupo_idgrupo = ".  escape($id_grupo);
+    $consulta.= " AND ( 0";
+    foreach($v_miembros as $id_miembro){
+        $consulta.= " OR usuario_idusuario = ".escape($id_miembro);
+    }
+    $consulta.= ")";
+    
+    return ejecutar($consulta);
+}
+
+//Devuelve el número de miembros activos del grupo
+function nMiembrosActivos($id_grupo){
+    
+    $consulta = "SELECT COUNT(*) as nmiembros FROM miembros WHERE "
+            . " voluntad = 1 AND puntos_participacion > 0";
+    
+    $array_num = toArray(ejecutar($consulta));
+    
+    return $array_num['nmiembros'];
 }
