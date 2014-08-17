@@ -21,6 +21,7 @@ include dirname(__FILE__) . "./head.php";
                 <li><a title="Notificaciones" href="<?php echo direcciones::index ?>"><span class="glyphicon glyphicon-bell"> Notificaciones</span></a></li>
                 <!--<li><a href="<?php echo direcciones::objetivos ?>">Objetivos</a></li>-->
                 <li><a title="Grupos" href="<?php echo direcciones::grupos ?>"><span class="glyphicon glyphicon-record"> Grupos</span></a></li>
+                <li><a title="Mi Perfil" href="<?php echo direcciones::perfil ?>"><span class="glyphicon glyphicon-user"> Perfil</span></a></li>
                 <!--
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Cosas <b class="caret"></b></a>

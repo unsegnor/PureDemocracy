@@ -13,6 +13,13 @@ function checkLogin() {
     return $res;
 }
 
+//Necesita estar logueado para pasar a la siguiente línea
+function nl() {
+    if (!checkLogin()) {
+        throw new Exception("Necesita estar logueado en el sistema.");
+    }
+}
+
 function doLogin($email, $pass) {
     //Logeamos con el id y la contraseña
     //Codificamos la contraseña
@@ -116,6 +123,33 @@ function getSession() {
     }
 
     return $res;
+}
+
+function getUsuarioActual() {
+
+    if (checkLogin()) {
+
+        $id_usuario = $_SESSION['idusuario'];
+
+        $r = ejecutar("SELECT nombre, apellidos FROM usuario WHERE idusuario = " . escape($id_usuario));
+
+        return toArray($r);
+    } else {
+        throw new Exception("No esta logueado.");
+    }
+}
+
+function setUsuarioActual($datos) {
+    nl();
+
+    $id_usuario = $_SESSION['idusuario'];
+
+    $r = ejecutar("UPDATE usuario SET "
+            . " nombre = '" . escape($datos->nombre)."'"
+            . ", apellidos = '" . escape($datos->apellidos)."'"
+            . " WHERE idusuario = " . escape($id_usuario));
+
+    return $r;
 }
 
 function getGrupos() {
@@ -425,7 +459,7 @@ function addPregunta($id_grupo, $enunciado) {
 function getVotacionesSNDDeGrupoParaUsuarioActual($id_grupo) {
 
     if (checkLogin()) {
-        
+
         $id_usuario = $_SESSION['idusuario'];
 
         $supergrupos = getSupergruposID($id_grupo, 0);
@@ -437,7 +471,7 @@ function getVotacionesSNDDeGrupoParaUsuarioActual($id_grupo) {
                 . ", grupo.nombre as nombregrupo"
                 . " FROM votacionsnd LEFT JOIN votosnd"
                 . " ON votosnd.votacionsnd_idvotacionsnd = votacionsnd.idvotacionsnd"
-                . " AND votosnd.usuario_idusuario = ".  escape($id_usuario)
+                . " AND votosnd.usuario_idusuario = " . escape($id_usuario)
                 . " LEFT JOIN grupo ON votacionsnd.censo = grupo.idgrupo"
                 . " WHERE ";
 
@@ -459,7 +493,7 @@ function getVotacionesSNDDeGrupoParaUsuarioActual($id_grupo) {
 function getVotacionesSNDPendientesDeUsuarioActualComoRepresentante() {
 
     if (checkLogin()) {
-        
+
         $id_usuario = $_SESSION['idusuario'];
 
         //Obtener las votaciones del grupo y sus supergrupos
@@ -469,7 +503,7 @@ function getVotacionesSNDPendientesDeUsuarioActualComoRepresentante() {
                 . ", grupo.nombre as nombregrupo"
                 . " FROM votacionsnd,votosnd,grupo"
                 . " WHERE votosnd.votacionsnd_idvotacionsnd = votacionsnd.idvotacionsnd"
-                . " AND votosnd.usuario_idusuario = ".  escape($id_usuario)
+                . " AND votosnd.usuario_idusuario = " . escape($id_usuario)
                 . " AND votosnd.representante = 1"
                 . " AND votosnd.valor IS NULL"
                 . " AND votacionsnd.censo = grupo.idgrupo";
@@ -481,7 +515,6 @@ function getVotacionesSNDPendientesDeUsuarioActualComoRepresentante() {
         return $res;
     }
 }
-
 
 function getVotacionesSNDDeGrupo($id_grupo) {
 
@@ -1342,7 +1375,6 @@ function emitirVoto($id_votacion, $valor) {
         if (miembrode($id_censo)) {
 
             //Estamos logueados y pertenecemos al censo de la votación
-            
             //Utilizamos el id de usuario del usuario en cuestión
             $id_usuario = $_SESSION['idusuario'];
 
@@ -1705,34 +1737,26 @@ function checkVotaciones() {
                 echo "<br>Aún no se han descartado suficientes opciones.";
 
                 if ($abstencion_rep > 0) {
-                    
+
                     //Aquí sabemos que hay representantes que se han abstenido
                     echo "<br>$abstencion_rep representantes se han abstenido, no se puede continuar hasta que se pronuncien";
-                    
+
                     //Aquellos representantes que se abstengan perderán X puntos lo que posiblemenre les lleve a ser expulsados del grupo por lo que habrá que obtener otros representantes
-                    
                     //Identificamos a los representantes que se han abstenido en esta votación
                     $consulta = "SELECT usuario_idusuario FROM votosnd WHERE"
                             . " votacionsnd_idvotacionsnd = $id_votacion" //en esta votación
                             . " AND representante = 1" //representantes
                             . " AND valor IS NOT NULL"; //que no hayan votado
-                    
+
                     $malos_representantes = toArray(ejecutar($consulta));
-                    
+
                     //Les restamos los puntos pertinentes
                     modificarPuntos($id_grupo, $malos_representantes, -100);
-                    
+
                     //Ahora comprobamos cuántos representantes nos quedan
-                    
-                    
                     //Necesitamos saber cuántos miembros activos hay en el grupo del censo
+                    //TODO y qué pasa con los miembros natos? no se cuentan? qué puntos se le restan?
                     $n_miembros_activos = nMiembrosActivos($id_grupo);
-                    
-                    
-                    
-                    
-                    
-                    
                 } else {
 
 
@@ -1958,31 +1982,31 @@ function votarDepende($idvotacion, $enunciado) {
 }
 
 //Modifica los puntos de los miembros que se le pasan para el grupo indicado
-function modificarPuntos($id_grupo, $v_miembros, $puntos){
-    
+function modificarPuntos($id_grupo, $v_miembros, $puntos) {
+
     $consulta = "UPDATE miembros SET puntos_participacion = puntos_participacion ";
-    if($puntos >= 0){
-        $consulta.= " + ".escape($puntos);
-    }else{
-        $consulta.= " - ".escape(abs($puntos));
+    if ($puntos >= 0) {
+        $consulta.= " + " . escape($puntos);
+    } else {
+        $consulta.= " - " . escape(abs($puntos));
     }
-    $consulta.= " WHERE grupo_idgrupo = ".  escape($id_grupo);
+    $consulta.= " WHERE grupo_idgrupo = " . escape($id_grupo);
     $consulta.= " AND ( 0";
-    foreach($v_miembros as $id_miembro){
-        $consulta.= " OR usuario_idusuario = ".escape($id_miembro);
+    foreach ($v_miembros as $id_miembro) {
+        $consulta.= " OR usuario_idusuario = " . escape($id_miembro);
     }
     $consulta.= ")";
-    
+
     return ejecutar($consulta);
 }
 
 //Devuelve el número de miembros activos del grupo
-function nMiembrosActivos($id_grupo){
-    
+function nMiembrosActivos($id_grupo) {
+
     $consulta = "SELECT COUNT(*) as nmiembros FROM miembros WHERE "
             . " voluntad = 1 AND puntos_participacion > 0";
-    
+
     $array_num = toArray(ejecutar($consulta));
-    
+
     return $array_num['nmiembros'];
 }

@@ -35,6 +35,8 @@ try {
         , 'emitirVoto'
         , 'getEnunciadosDeGrupo'
         , 'votarDepende'
+        , 'getUsuarioActual'
+        , 'setUsuarioActual'
     );
     
     $funcionesProhibidas = array(

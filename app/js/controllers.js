@@ -7,6 +7,30 @@ angular.module('puredemocracyapp.controllers', [])
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 checkLogin($http);
             }])
+        .controller('controladorperfil', ['$scope', '$http', function($scope, $http) {
+                //Comprobar si el usuario tiene sesión y redirigir a login
+                checkLogin($http);
+
+                $scope.user = {};
+
+                $scope.getUsuarioActual = function() {
+                    allamar($http, 'getUsuarioActual', null, function(res) {
+                        //alert(JSON.stringify(res));
+                        $scope.user = res.resultado[0];
+                    });
+                };
+
+
+                $scope.setUsuarioActual = function() {
+                    allamar($http, 'setUsuarioActual', [$scope.user], function(res){
+                        
+                    });
+                };
+                
+                $scope.getUsuarioActual();
+
+
+            }])
         .controller('controladordetallegrupo', ['$scope', '$http', '$interval', '$modal', function($scope, $http, $interval, $modal) {
                 checkLogin($http);
 

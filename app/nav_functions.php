@@ -6,5 +6,6 @@ class Direcciones {
     const logout = "logout.php";
     const objetivos = "objetivos.php";
     const grupos = "grupos.php";
+    const perfil = "perfil.php";
 
 }
