@@ -145,8 +145,8 @@ function setUsuarioActual($datos) {
     $id_usuario = $_SESSION['idusuario'];
 
     $r = ejecutar("UPDATE usuario SET "
-            . " nombre = '" . escape($datos->nombre)."'"
-            . ", apellidos = '" . escape($datos->apellidos)."'"
+            . " nombre = '" . escape($datos->nombre) . "'"
+            . ", apellidos = '" . escape($datos->apellidos) . "'"
             . " WHERE idusuario = " . escape($id_usuario));
 
     return $r;
@@ -1746,20 +1746,28 @@ function checkVotaciones() {
                     $consulta = "SELECT usuario_idusuario FROM votosnd WHERE"
                             . " votacionsnd_idvotacionsnd = $id_votacion" //en esta votación
                             . " AND representante = 1" //representantes
-                            . " AND valor IS NOT NULL"; //que no hayan votado
+                            . " AND valor IS NULL"; //que no hayan votado
 
                     $malos_representantes = toArray(ejecutar($consulta));
 
-                    //Les restamos los puntos pertinentes
-                    modificarPuntos($id_grupo, $malos_representantes, -100);
+                    echo "<br> Los malos representantes son: $malos_representantes";
 
+                    //Les restamos los puntos pertinentes
+                    modificarPuntos($id_grupo, $malos_representantes, 'usuario_idusuario', -100);
+                    
                     //Ahora comprobamos cuántos representantes nos quedan
                     //Necesitamos saber cuántos miembros activos hay en el grupo del censo
+                    //
                     //TODO y qué pasa con los miembros natos? no se cuentan? qué puntos se le restan?
+                    //Se restan puntos del grupo en el que se hace la pregunta y de todos los subgrupos
+
+                    //Necesitamos saber cuántos miembros quedan y cuántos representantes
+                    
                     $n_miembros_activos = nMiembrosActivos($id_grupo);
+                    
+                    
+                    
                 } else {
-
-
 
                     //Si seguimos sin tener una respuesta tenemos que ampliar la muestra
                     //Calculamos las diferencias en el error necesarias para cambiar de escenario
@@ -1792,7 +1800,8 @@ function checkVotaciones() {
 
 
                     //Calculamos el tamaño de la muestra en función de la abstención
-                    //porque los que ya han votado no se pueden abstener
+                    //porque los que ya han votado no se pueden abstener 
+                    //sin embargo también están siendo representados
                     $muestra_necesaria = getTamanioMuestra($abstencion, $error_deseado);
 
                     echo "<br>Para poder representar a $abstencion individuos (la abstención)"
@@ -1860,6 +1869,44 @@ function checkVotaciones() {
                         . ", minimodep=" . $minimo_dep
                         . ", nindividuos=" . $nindividuos
                         . " WHERE idvotacionsnd=" . $id_votacion);
+
+                //TODO podemos sumar aquí los puntos que sabremos los representantes y votantes que han habido al final
+                //o irlo haciendo conforme se va votando/añadiendo/quitando representantes
+
+                if ($res) {
+                    //Identificamos a los representantes que han votado
+                    $consulta = "SELECT usuario_idusuario FROM votosnd"
+                            . " WHERE votacionsnd_idvotacionsnd = $id_votacion" //en esta votación
+                            . " AND representante = 1" //representantes
+                            . " AND valor IS NOT NULL"; //que hayan votado
+
+                    $buenos_representantes = toArray(ejecutar($consulta));
+
+                    //Sumamos los puntos a los buenos representantes
+                    modificarPuntos($id_grupo, $buenos_representantes, 'usuario_idusuario', Constantes::puntos_por_pregunta_importante);
+
+
+                    //Identificamos a los votantes normales
+                    $consulta = "SELECT usuario_idusuario FROM votosnd"
+                            . " WHERE votacionsnd_idvotacionsnd = $id_votacion" //en esta votación
+                            . " AND representante = 0" //representantes
+                            . " AND valor IS NOT NULL"; //que hayan votado
+
+                    $votantes = toArray(ejecutar($consulta));
+                    //Les sumamos los puntos
+                    modificarPuntos($id_grupo, $votantes, 'usuario_idusuario', Constantes::puntos_por_pregunta_normal);
+
+                    //Castigamos a los malos representantes
+                    $consulta = "SELECT usuario_idusuario FROM votosnd"
+                            . " WHERE votacionsnd_idvotacionsnd = $id_votacion" //en esta votación
+                            . " AND representante = 1" //representantes
+                            . " AND valor IS NULL"; //que hayan votado
+
+                    $malos_representantes = toArray(ejecutar($consulta));
+
+                    //Restamos los puntos a los malos representantes
+                    modificarPuntos($id_grupo, $malos_representantes, 'usuario_idusuario', Constantes::puntos_por_mal_representante);
+                }
             }
         } else {
             //No hay votantes, anulamos la votación
@@ -1981,32 +2028,50 @@ function votarDepende($idvotacion, $enunciado) {
     //Votar depende en la votación y asociar a la votación el enunciado lógico que se le pasa (hay que traducirlo)
 }
 
-//Modifica los puntos de los miembros que se le pasan para el grupo indicado
-function modificarPuntos($id_grupo, $v_miembros, $puntos) {
+//Modifica los puntos de los miembros que se le pasan para el grupo indicado y de todos sus subgrupos
+function modificarPuntos($id_grupo, $v_miembros, $nombre_campo, $puntos) {
 
-    $consulta = "UPDATE miembros SET puntos_participacion = puntos_participacion ";
-    if ($puntos >= 0) {
-        $consulta.= " + " . escape($puntos);
+    $subgrupos = getSubGruposID($id_grupo, 0);
+
+    if (count($v_miembros) > 0) {
+        $consulta = "UPDATE miembros SET puntos_participacion = puntos_participacion ";
+        if ($puntos >= 0) {
+            $consulta.= " + " . escape($puntos);
+        } else {
+            $consulta.= " - " . escape(abs($puntos));
+        }
+        $consulta.= " WHERE ( grupo_idgrupo = " . escape($id_grupo);
+        foreach ($subgrupos as $subgrupo) {
+            $consulta.= " OR grupo_idgrupo = " . escape($subgrupo);
+        }
+        $consulta.= ") AND ( 0";
+        foreach ($v_miembros as $id_miembro) {
+            $consulta.= " OR usuario_idusuario = " . escape($id_miembro[$nombre_campo]);
+        }
+        $consulta.= ")";
+
+        return ejecutar($consulta);
     } else {
-        $consulta.= " - " . escape(abs($puntos));
+        return true;
     }
-    $consulta.= " WHERE grupo_idgrupo = " . escape($id_grupo);
-    $consulta.= " AND ( 0";
-    foreach ($v_miembros as $id_miembro) {
-        $consulta.= " OR usuario_idusuario = " . escape($id_miembro);
-    }
-    $consulta.= ")";
-
-    return ejecutar($consulta);
 }
 
-//Devuelve el número de miembros activos del grupo
+//Devuelve el número de miembros activos del grupo y sus subgrupos
 function nMiembrosActivos($id_grupo) {
 
     $consulta = "SELECT COUNT(*) as nmiembros FROM miembros WHERE "
-            . " voluntad = 1 AND puntos_participacion > 0";
+            . " grupo_idgrupo = " . escape($id_grupo)
+            . " AND voluntad = 1"
+            . " AND puntos_participacion > 0";
 
     $array_num = toArray(ejecutar($consulta));
 
     return $array_num['nmiembros'];
+}
+
+function sumarPuntos() {
+    global $delta_puntos_tiempo;
+    $consulta = "UPDATE miembros SET puntos_participacion = puntos_participacion + " . Constantes::delta_puntos_tiempo;
+
+    return ejecutar($consulta);
 }
