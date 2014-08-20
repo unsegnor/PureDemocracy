@@ -6,7 +6,7 @@ include_once dirname(__FILE__) . "./conexionbdd.php";
 
 function checkLogin() {
     $res = false;
-    //Comprobamos en la sesión si el usuario actual está identificado
+//Comprobamos en la sesión si el usuario actual está identificado
     if (isset($_SESSION['pd_identificado']) && $_SESSION['pd_identificado']) {
         $res = true;
     }
@@ -21,11 +21,11 @@ function nl() {
 }
 
 function doLogin($email, $pass) {
-    //Logeamos con el id y la contraseña
-    //Codificamos la contraseña
+//Logeamos con el id y la contraseña
+//Codificamos la contraseña
     $pass_sha = sha1($pass);
 
-    //Comprobamos si existe alguna cuenta con ese email y contraseña
+//Comprobamos si existe alguna cuenta con ese email y contraseña
     $res = ejecutar("SELECT usuario.nombre"
             . ", usuario.idusuario"
             . ", usuario.apellidos"
@@ -35,7 +35,7 @@ function doLogin($email, $pass) {
             . " usuario.email = '" . escape($email) . "'"
             . " AND usuario.pass = '" . escape($pass_sha) . "'");
 
-    //Si receibimos algún resultado lo logueamos
+//Si receibimos algún resultado lo logueamos
     if ($res->num_rows > 0) {
         $fila = $res->fetch_assoc();
 
@@ -65,7 +65,7 @@ function doLogout() {
 
 function registrarUsuario($nombre, $apellidos, $email, $pass) {
 
-    //Comprobamos si ya existe la dirección de email
+//Comprobamos si ya existe la dirección de email
     $res = existeEmail($email);
 
 
@@ -95,7 +95,7 @@ function existeEmail($email) {
     $res = ejecutar("SELECT COUNT(*) as existe FROM usuario WHERE email='" . escape($email) . "'");
 
 
-    //Recogemos el resultado
+//Recogemos el resultado
     $fila = $res->fetch_assoc();
 
     $existe = $fila['existe'];
@@ -111,14 +111,14 @@ function existeEmail($email) {
 }
 
 function getSession() {
-    //Comprobamos que estemos logueados
+//Comprobamos que estemos logueados
 
     if (checkLogin()) {
-        //Estamos logueados
-        //Devolvemos los datos de la sesión
+//Estamos logueados
+//Devolvemos los datos de la sesión
         $res = $_SESSION;
     } else {
-        //No estamos logueados
+//No estamos logueados
         throw new Exception("No hay sesión iniciada.");
     }
 
@@ -153,7 +153,7 @@ function setUsuarioActual($datos) {
 }
 
 function getGrupos() {
-    //Comprobamos que estemos logueados
+//Comprobamos que estemos logueados
     if (checkLogin()) {
 
         $consulta = "SELECT * FROM grupo";
@@ -197,7 +197,7 @@ function getDetalleDeGrupo($id_grupo) {
         $res = ejecutar($consulta);
         $res = $res->fetch_assoc();
 
-        //Determinamos si es un miembro nato
+//Determinamos si es un miembro nato
         $es_nato = esNato($id_usuario, $id_grupo);
 
         $res['es_nato'] = $es_nato;
@@ -211,10 +211,10 @@ function getDetalleDeGrupo($id_grupo) {
 }
 
 function esNato($id_usuario, $id_grupo) {
-    //Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
+//Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
     $subgrupos = getSubgruposID($id_grupo, 0);
 
-    //Componemos la consulta y contamos sólo los miembros natos o no de los grupos componentes de éste
+//Componemos la consulta y contamos sólo los miembros natos o no de los grupos componentes de éste
     $consulta = "SELECT COUNT(*) as es_nato"
             . " FROM usuario,miembro WHERE "
             . " miembro.usuario_idusuario = usuario.idusuario "
@@ -242,10 +242,10 @@ function esNato($id_usuario, $id_grupo) {
  * @return type devuelve 1 si es miembro original o nato
  */
 function esMiembro($id_usuario, $id_grupo) {
-    //Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
+//Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
     $subgrupos = getSubgruposID($id_grupo, 0);
 
-    //Componemos la consulta y contamos sólo los miembros natos o no de los grupos componentes de éste
+//Componemos la consulta y contamos sólo los miembros natos o no de los grupos componentes de éste
     $consulta = "SELECT COUNT(*) as es_miembro"
             . " FROM usuario,miembro WHERE "
             . " miembro.usuario_idusuario = usuario.idusuario "
@@ -272,7 +272,7 @@ function solicitarIngresoEnGrupo($id_grupo) {
 
         $id_usuario = $_SESSION['idusuario'];
 
-        //Ingresar al usuario directamente en el grupo
+//Ingresar al usuario directamente en el grupo
         addMiembro($id_usuario, $id_grupo);
     }
 }
@@ -307,7 +307,7 @@ function addMiembro($id_usuario, $id_grupo) {
 
         try {
 
-            //Añadimos el miembro
+//Añadimos el miembro
             ejecutar("INSERT INTO `pdbdd`.`miembro` (`grupo_idgrupo`, `usuario_idusuario`) "
                     . "VALUES (" . escape($id_grupo) . ", " . escape($id_usuario) . ")");
 
@@ -315,7 +315,7 @@ function addMiembro($id_usuario, $id_grupo) {
 
             validar_transaccion();
         } catch (Exception $e) {
-            //Si hay algún error cancelamos la transacción y seguimos propagándola
+//Si hay algún error cancelamos la transacción y seguimos propagándola
             cancelar_transaccion();
             throw $e;
         }
@@ -323,18 +323,18 @@ function addMiembro($id_usuario, $id_grupo) {
 }
 
 function getSubGrupos($id_grupo, $nivel) {
-    //Comprobamos que esté logueado
+//Comprobamos que esté logueado
     if (checkLogin()) {
 
-        //Obtenemos todos los grupos que componen el grupo indicado así como sus subgrupos hasta el nivel especificado
+//Obtenemos todos los grupos que componen el grupo indicado así como sus subgrupos hasta el nivel especificado
         if ($nivel == 1) {
-            //Si el nivel es uno la consulta es sencilla
+//Si el nivel es uno la consulta es sencilla
             $res = ejecutar("SELECT grupo.* FROM grupo, subgrupo WHERE subgrupo.idgrupo = " . escape($id_grupo)
                     . " AND subgrupo.idsubgrupo = grupo.idgrupo");
 
             $res = toArray($res);
         } else {
-            //Sino pues ya tenemos que obtener toda la tabla e ir seleccionando
+//Sino pues ya tenemos que obtener toda la tabla e ir seleccionando
         }
 
         return $res;
@@ -345,25 +345,25 @@ function addSubGrupo($id_supergrupo, $nombre) {
     if (checkLogin()) {
         $id_subgrupo = addGrupo($nombre);
 
-        //Ahora añadimos el grupo al supergrupo
+//Ahora añadimos el grupo al supergrupo
         hacerSubGrupo($id_supergrupo, $id_subgrupo);
     }
 }
 
 function hacerSuperGrupo($id_subgrupo, $id_supergrupo) {
-    //Se añade directamente
+//Se añade directamente
     hacerSubGrupo($id_supergrupo, $id_subgrupo);
 }
 
 function addNuevoSuperGrupo($id_subgrupo, $nombre) {
-    //Se añade directamente
+//Se añade directamente
     $id_supergrupo = addGrupo($nombre);
 
     hacerSuperGrupo($id_subgrupo, $id_supergrupo);
 }
 
 function proponerSuperGrupo($id_subgrupo, $id_supergrupo) {
-    //Se crea una propuesta que se votará para determinar si se convierte en supergrupo o no
+//Se crea una propuesta que se votará para determinar si se convierte en supergrupo o no
     if (checkLogin()) {
         
     }
@@ -372,7 +372,7 @@ function proponerSuperGrupo($id_subgrupo, $id_supergrupo) {
 function miembrode($id_grupo) {
     $res = false;
     if (checkLogin()) {
-        //Si estamos logueados comprobamos si el usuario actual es miembro del grupo indicado
+//Si estamos logueados comprobamos si el usuario actual es miembro del grupo indicado
         $id_usuario = $_SESSION['idusuario'];
         $res = esMiembro($id_usuario, $id_grupo);
     }
@@ -381,27 +381,27 @@ function miembrode($id_grupo) {
 
 function crearVotacionDeGrupo($id_grupo, $enunciado) {
 
-    //Tenemos que generar una votación que será gestionada por el check-script
-    //Tenemos que determinar de algún modo las personas a las que va dirigida la votación, con el grupo
-    //Obtenemos el número total de personas del grupo
+//Tenemos que generar una votación que será gestionada por el check-script
+//Tenemos que determinar de algún modo las personas a las que va dirigida la votación, con el grupo
+//Obtenemos el número total de personas del grupo
     $total_censo = getNTotalMiembrosDeGrupo($id_grupo);
 
-    //Calculamos el número de representantes que tocan
+//Calculamos el número de representantes que tocan
     $tmuestra = getTamanioMuestra($total_censo, 0.5);
 
-    //echo "<br>tmuestra = ".$tmuestra;
-    //Si salen más representantes que la mitad del censo cogemos la mitad más uno ya que el error que queremos es menor del 0.5
+//echo "<br>tmuestra = ".$tmuestra;
+//Si salen más representantes que la mitad del censo cogemos la mitad más uno ya que el error que queremos es menor del 0.5
     /* if ($tmuestra > $total_censo / 2) {
       $tmuestra = floor($total_censo / 2) + 1;
       } */
 
-    //Obtenemos las ids de los representantes
+//Obtenemos las ids de los representantes
     $representantes = getRepresentantesDeGrupo($tmuestra, $id_grupo);
 
     try {
         iniciar_transaccion();
 
-        //Toda votación necesita un censo así que es lógico que toda votación tenga que obligatoriamente tener asignado un grupo
+//Toda votación necesita un censo así que es lógico que toda votación tenga que obligatoriamente tener asignado un grupo
         $consulta = "INSERT INTO `pdbdd`.`votacionsnd` SET "
                 . " fecha_creacion = NOW()"
                 . ", timein = NOW()"
@@ -413,7 +413,7 @@ function crearVotacionDeGrupo($id_grupo, $enunciado) {
 
         $id_votacion = insert_id($consulta);
 
-        //Añadimos los representantes a la votación
+//Añadimos los representantes a la votación
         $consulta = "INSERT INTO `pdbdd`.`votosnd` "
                 . "(`usuario_idusuario`, `votacionsnd_idvotacionsnd`"
                 . ", `representante`) VALUES ";
@@ -435,23 +435,23 @@ function crearVotacionDeGrupo($id_grupo, $enunciado) {
 
         $res = ejecutar($consulta);
 
-        //Si hemos llegado hasta aquí es que todo ha ido bien
-        //Ya tenemos la votación creada con censo y representantes asignados
+//Si hemos llegado hasta aquí es que todo ha ido bien
+//Ya tenemos la votación creada con censo y representantes asignados
         validar_transaccion();
 
-        //Devolvemos el id de la nueva votación
+//Devolvemos el id de la nueva votación
         return $id_votacion;
     } catch (Exception $e) {
         cancelar_transaccion();
         throw $e;
     }
 
-    //Si se aprueba o se rechaza pos yasta, si queda "depende" se abre un espacio de debate sobre la pregunta, si queda desierta se penaliza al grupo, si queda denunciada se penaliza al promotor
+//Si se aprueba o se rechaza pos yasta, si queda "depende" se abre un espacio de debate sobre la pregunta, si queda desierta se penaliza al grupo, si queda denunciada se penaliza al promotor
 }
 
 function addPregunta($id_grupo, $enunciado) {
     if (miembrode($id_grupo)) {
-        //Creamos la votación
+//Creamos la votación
         crearVotacionDeGrupo($id_grupo, $enunciado);
     }
 }
@@ -464,7 +464,7 @@ function getVotacionesSNDDeGrupoParaUsuarioActual($id_grupo) {
 
         $supergrupos = getSupergruposID($id_grupo, 0);
 
-        //Obtener las votaciones del grupo y sus supergrupos
+//Obtener las votaciones del grupo y sus supergrupos
         $consulta = "SELECT votacionsnd.*"
                 . ", votosnd.valor as valor"
                 . ", votosnd.representante as representante"
@@ -496,7 +496,7 @@ function getVotacionesSNDPendientesDeUsuarioActualComoRepresentante() {
 
         $id_usuario = $_SESSION['idusuario'];
 
-        //Obtener las votaciones del grupo y sus supergrupos
+//Obtener las votaciones del grupo y sus supergrupos
         $consulta = "SELECT votacionsnd.*"
                 . ", votosnd.valor as valor"
                 . ", votosnd.representante as representante"
@@ -520,7 +520,7 @@ function getVotacionesSNDDeGrupo($id_grupo) {
 
     $supergrupos = getSupergruposID($id_grupo, 0);
 
-    //Obtener las votaciones del grupo y sus supergrupos
+//Obtener las votaciones del grupo y sus supergrupos
     $consulta = "SELECT votacionsnd.* FROM votacionsnd WHERE ";
 
     $consulta .= " votacionsnd.censo = " . escape($id_grupo);
@@ -541,18 +541,18 @@ function hacerSubGrupo($id_supergrupo, $id_subgrupo) {
 }
 
 function getSuperGrupos($id_grupo, $nivel) {
-    //Comprobamos que esté logueado
+//Comprobamos que esté logueado
     if (checkLogin()) {
 
-        //Obtenemos todos los grupos de los que forma parte el grupo especificado hasta un nivel concreto
+//Obtenemos todos los grupos de los que forma parte el grupo especificado hasta un nivel concreto
         if ($nivel == 1) {
-            //Si el nivel es uno la consulta es sencilla
+//Si el nivel es uno la consulta es sencilla
             $res = ejecutar("SELECT grupo.* FROM grupo, subgrupo WHERE subgrupo.idsubgrupo = " . escape($id_grupo)
                     . " AND subgrupo.idgrupo = grupo.idgrupo");
 
             $res = toArray($res);
         } else {
-            //Sino pues ya tenemos que obtener toda la tabla e ir seleccionando
+//Sino pues ya tenemos que obtener toda la tabla e ir seleccionando
         }
 
         return $res;
@@ -561,11 +561,11 @@ function getSuperGrupos($id_grupo, $nivel) {
 
 //Función no permitida desde fuera
 function delMiembro($id_usuario, $id_grupo) {
-    //Borramos el usuario y reducimos el número de miembros del grupo
+//Borramos el usuario y reducimos el número de miembros del grupo
 
     iniciar_transaccion();
     try {
-        //Borramos al miembro
+//Borramos al miembro
         ejecutar("DELETE FROM miembro WHERE miembro.usuario_idusuario=" . escape($id_usuario) . " AND miembro.grupo_idgrupo=" . escape($id_grupo));
 
         actualizarTotalMiembrosDeGrupo($id_grupo);
@@ -578,23 +578,23 @@ function delMiembro($id_usuario, $id_grupo) {
 }
 
 function actualizarMiembrosDeGrupo($id_grupo) {
-    //Actualizar el número de miembros del grupo
+//Actualizar el número de miembros del grupo
     ejecutar("UPDATE grupo SET nmiembros = "
             . "(SELECT COUNT(*) FROM miembro WHERE miembro.grupo_idgrupo=" . escape($id_grupo) . ")"
             . " WHERE grupo.idgrupo=" . escape($id_grupo));
 }
 
 function actualizarTotalMiembrosDeGrupo($id_grupo) {
-    //Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
+//Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
     $subgrupos = getSubgruposID($id_grupo, 0);
 
-    //Componemos la consulta que actualice directamente el valor del número de miembros
+//Componemos la consulta que actualice directamente el valor del número de miembros
     $consulta = "UPDATE grupo SET "
             . " nmiembros = (SELECT COUNT(DISTINCT(usuario.idusuario)) FROM usuario, miembro WHERE "
             . " miembro.usuario_idusuario = usuario.idusuario"
             . " AND (";
 
-    //Contamos también los miembros del propio grupo
+//Contamos también los miembros del propio grupo
     $consulta.=" miembro.grupo_idgrupo = " . escape($id_grupo);
 
     foreach ($subgrupos as $subgrupo) {
@@ -604,20 +604,20 @@ function actualizarTotalMiembrosDeGrupo($id_grupo) {
     $consulta.="))"
             . " WHERE grupo.idgrupo = " . escape($id_grupo);
 
-    //echo $consulta;
+//echo $consulta;
 
     ejecutar($consulta);
 }
 
 function getTotalMiembrosDeGrupo($id_grupo) {
-    //Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
+//Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
     $subgrupos = getSubgruposID($id_grupo, 0);
 
-    //Componemos la consulta
+//Componemos la consulta
     $consulta = "SELECT usuario.idusuario FROM usuario,miembro WHERE "
             . " miembro.usuario_idusuario = usuario.idusuario AND (";
 
-    //Contamos también los miembros del propio grupo
+//Contamos también los miembros del propio grupo
     $consulta.=" miembro.grupo_idgrupo = " . escape($id_grupo);
 
     foreach ($subgrupos as $subgrupo) {
@@ -634,16 +634,19 @@ function getTotalMiembrosDeGrupo($id_grupo) {
     return $res;
 }
 
+//Devuelve los miembros del grupo que pueden votar, activos y con voluntad de participar y puntos
 function getNTotalMiembrosDeGrupo($id_grupo) {
-    //Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
+//Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
     $subgrupos = getSubgruposID($id_grupo, 0);
 
-    //Componemos la consulta que actualice directamente el valor del número de miembros
+//Componemos la consulta que actualice directamente el valor del número de miembros
     $consulta = "SELECT COUNT(DISTINCT(usuario.idusuario)) as total FROM usuario, miembro WHERE "
             . " miembro.usuario_idusuario = usuario.idusuario"
+            . " AND miembro.voluntad = 2"
+            . " AND miembro.puntos_participacion >= 0"
             . " AND (";
 
-    //Contamos también los miembros del propio grupo
+//Contamos también los miembros del propio grupo
     $consulta.=" miembro.grupo_idgrupo = " . escape($id_grupo);
 
     foreach ($subgrupos as $subgrupo) {
@@ -662,10 +665,10 @@ function getNTotalMiembrosDeGrupo($id_grupo) {
 }
 
 function getMiembrosNatos($id_grupo) {
-    //Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
+//Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
     $subgrupos = getSubgruposID($id_grupo, 0);
 
-    //Componemos la consulta y contamos sólo los miembros natos o no de los grupos componentes de éste
+//Componemos la consulta y contamos sólo los miembros natos o no de los grupos componentes de éste
     $consulta = "SELECT usuario.idusuario FROM usuario,miembro WHERE "
             . " miembro.usuario_idusuario = usuario.idusuario AND (";
 
@@ -691,23 +694,23 @@ function getMiembrosNatos($id_grupo) {
 }
 
 function getSubgruposID($id_grupo, $nivel) {
-    //Obtenemos todos los grupos que componen el grupo indicado así como sus subgrupos hasta el nivel especificado
+//Obtenemos todos los grupos que componen el grupo indicado así como sus subgrupos hasta el nivel especificado
     $res = array();
     if ($nivel == 1) {
-        //Si el nivel es uno la consulta es sencilla
+//Si el nivel es uno la consulta es sencilla
         $res = ejecutar("SELECT grupo.idgrupo FROM grupo, subgrupo WHERE subgrupo.idgrupo = " . escape($id_grupo)
                 . " AND subgrupo.idsubgrupo = grupo.idgrupo");
 
         $res = toArray($res);
     } else {
-        //Sino pues ya tenemos que obtener toda la tabla e ir seleccionando
-        //Obtenemos toda la tabla de subgrupos
+//Sino pues ya tenemos que obtener toda la tabla e ir seleccionando
+//Obtenemos toda la tabla de subgrupos
         $mapaGrupos = getMapaGrupos();
 
         if ($nivel == 0) {
-            //Obtenemos todos los hijos
-            //Vamos recorriendo y añadiendo los hijos a la respuesta
-            //echo "Comenzamos recorrido del árbol";
+//Obtenemos todos los hijos
+//Vamos recorriendo y añadiendo los hijos a la respuesta
+//echo "Comenzamos recorrido del árbol";
 
             $respuesta = array();
 
@@ -715,58 +718,58 @@ function getSubgruposID($id_grupo, $nivel) {
             $subnivel[$id_grupo] = $id_grupo;
             $nextnivel = array();
 
-            //Mientras hay hijos
+//Mientras hay hijos
             while (count($subnivel) > 0) {
-                //Recorrer el mapa y anotar los hijos
-                //echo "<br>Tenemos grupos que observar";
-                //var_dump($subnivel);
-                //echo "<br>";
+//Recorrer el mapa y anotar los hijos
+//echo "<br>Tenemos grupos que observar";
+//var_dump($subnivel);
+//echo "<br>";
                 foreach ($mapaGrupos as $relacion) {
-                    //Si el grupo es padre anotamos al hijo
+//Si el grupo es padre anotamos al hijo
                     if (isset($subnivel[$relacion['idgrupo']])) {
-                        //echo "<br>El grupo " . $relacion['idgrupo'] . " se encuentra entre los que observar";
+//echo "<br>El grupo " . $relacion['idgrupo'] . " se encuentra entre los que observar";
                         $id_hijo = $relacion['idsubgrupo'];
-                        //echo "<br>Su subgrupo es " . $id_hijo;
-                        //Si no estaba ya en la respuesta lo añadimos (evitamos ciclos)
+//echo "<br>Su subgrupo es " . $id_hijo;
+//Si no estaba ya en la respuesta lo añadimos (evitamos ciclos)
                         if (!isset($respuesta[$id_hijo])) {
-                            //echo "<br>$id_hijo no estaba en la respuesta así que lo añadimos";
+//echo "<br>$id_hijo no estaba en la respuesta así que lo añadimos";
                             $nextnivel[$id_hijo] = $id_hijo;
                             $respuesta[$id_hijo] = $id_hijo;
-                            //echo "La respuesta queda así:";
-                            //var_dump($respuesta);
+//echo "La respuesta queda así:";
+//var_dump($respuesta);
                         }
                     }
                 }
-                //Ahora actualizamos el subnivel
+//Ahora actualizamos el subnivel
                 $subnivel = $nextnivel;
                 $nextnivel = array();
             }
 
-            //Aquí ya hemos recorrido todos los hijos hasta que ya están todos en el vector respuesta
+//Aquí ya hemos recorrido todos los hijos hasta que ya están todos en el vector respuesta
             $res = $respuesta;
         }
     }
-    //echo "Los subgrupos de $id_grupo son :";
-    //var_dump($res);
+//echo "Los subgrupos de $id_grupo son :";
+//var_dump($res);
     return $res;
 }
 
 function getSupergruposID($id_grupo, $nivel) {
-    //Obtenemos todos los grupos de los que foma parte el grupo indicado así como sus supergrupos hasta el nivel especificado
+//Obtenemos todos los grupos de los que foma parte el grupo indicado así como sus supergrupos hasta el nivel especificado
     if ($nivel == 1) {
-        //Si el nivel es uno la consulta es sencilla
+//Si el nivel es uno la consulta es sencilla
         $res = ejecutar("SELECT grupo.idgrupo FROM grupo, subgrupo WHERE subgrupo.idsubgrupo = " . escape($id_grupo)
                 . " AND subgrupo.idgrupo = grupo.idgrupo");
 
         $res = toArray($res);
     } else {
-        //Sino pues ya tenemos que obtener toda la tabla e ir seleccionando
-        //Obtenemos toda la tabla de subgrupos
+//Sino pues ya tenemos que obtener toda la tabla e ir seleccionando
+//Obtenemos toda la tabla de subgrupos
         $mapaGrupos = getMapaGrupos();
 
         if ($nivel == 0) {
-            //Obtenemos todos los hijos
-            //Vamos recorriendo y añadiendo los hijos a la respuesta
+//Obtenemos todos los hijos
+//Vamos recorriendo y añadiendo los hijos a la respuesta
 
             $respuesta = array();
 
@@ -774,26 +777,26 @@ function getSupergruposID($id_grupo, $nivel) {
             $supernivel[$id_grupo] = $id_grupo;
             $nextnivel = array();
 
-            //Mientras hay superiores
+//Mientras hay superiores
             while (count($supernivel) > 0) {
-                //Recorrer el mapa y anotar los padres
+//Recorrer el mapa y anotar los padres
                 foreach ($mapaGrupos as $relacion) {
-                    //Si el grupo es hijo anotamos al padre
+//Si el grupo es hijo anotamos al padre
                     if (isset($supernivel[$relacion['idsubgrupo']])) {
                         $id_padre = $relacion['idgrupo'];
-                        //Si no estaba ya en la respuesta lo añadimos (evitamos ciclos)
+//Si no estaba ya en la respuesta lo añadimos (evitamos ciclos)
                         if (!isset($respuesta[$id_padre])) {
                             $nextnivel[$id_padre] = $id_padre;
                             $respuesta[$id_padre] = $id_padre;
                         }
                     }
                 }
-                //Ahora actualizamos el subnivel
+//Ahora actualizamos el subnivel
                 $supernivel = $nextnivel;
                 $nextnivel = array();
             }
 
-            //Aquí ya hemos recorrido todos los hijos hasta que ya están todos en el vector respuesta
+//Aquí ya hemos recorrido todos los hijos hasta que ya están todos en el vector respuesta
             $res = $respuesta;
         }
     }
@@ -802,21 +805,21 @@ function getSupergruposID($id_grupo, $nivel) {
 }
 
 function getSupergruposIDConRuta($id_grupo, $nivel) {
-    //Obtenemos todos los grupos de los que foma parte el grupo indicado así como sus supergrupos hasta el nivel especificado
+//Obtenemos todos los grupos de los que foma parte el grupo indicado así como sus supergrupos hasta el nivel especificado
     if ($nivel == 1) {
-        //Si el nivel es uno la consulta es sencilla
+//Si el nivel es uno la consulta es sencilla
         $res = ejecutar("SELECT grupo.idgrupo FROM grupo, subgrupo WHERE subgrupo.idsubgrupo = " . escape($id_grupo)
                 . " AND subgrupo.idgrupo = grupo.idgrupo");
 
         $res = toArray($res);
     } else {
-        //Sino pues ya tenemos que obtener toda la tabla e ir seleccionando
-        //Obtenemos toda la tabla de subgrupos
+//Sino pues ya tenemos que obtener toda la tabla e ir seleccionando
+//Obtenemos toda la tabla de subgrupos
         $mapaGrupos = getMapaGruposConNombre();
 
         if ($nivel == 0) {
-            //Obtenemos todos los hijos
-            //Vamos recorriendo y añadiendo los hijos a la respuesta
+//Obtenemos todos los hijos
+//Vamos recorriendo y añadiendo los hijos a la respuesta
 
             $respuesta = array();
 
@@ -824,27 +827,27 @@ function getSupergruposIDConRuta($id_grupo, $nivel) {
             $supernivel[$id_grupo] = $id_grupo;
             $nextnivel = array();
 
-            //Mientras hay superiores
+//Mientras hay superiores
             while (count($supernivel) > 0) {
-                //Recorrer el mapa y anotar los padres
+//Recorrer el mapa y anotar los padres
                 foreach ($mapaGrupos as $relacion) {
-                    //Si el grupo es hijo anotamos al padre
+//Si el grupo es hijo anotamos al padre
                     if (isset($supernivel[$relacion['idsubgrupo']])) {
                         $id_padre = $relacion['idgrupo'];
                         $nombre_padre = $relacion['nombregrupo'];
-                        //Si no estaba ya en la respuesta lo añadimos (evitamos ciclos)
+//Si no estaba ya en la respuesta lo añadimos (evitamos ciclos)
                         if (!isset($respuesta[$id_padre])) {
                             $nextnivel[$id_padre] = $id_padre;
                             $respuesta[$id_padre] = array($id_padre, $nombre_padre);
                         }
                     }
                 }
-                //Ahora actualizamos el subnivel
+//Ahora actualizamos el subnivel
                 $supernivel = $nextnivel;
                 $nextnivel = array();
             }
 
-            //Aquí ya hemos recorrido todos los hijos hasta que ya están todos en el vector respuesta
+//Aquí ya hemos recorrido todos los hijos hasta que ya están todos en el vector respuesta
             $res = $respuesta;
         }
     }
@@ -872,13 +875,13 @@ function getMapaGruposConNombre() {
 }
 
 function getObjetivosConInfo() {
-    //Comprobamos que estemos logueados
+//Comprobamos que estemos logueados
     $res = checkLogin();
 
     if (!$res->hayerror) {
 
         if ($res->resultado) {
-            //Estamos logueados
+//Estamos logueados
 
             $id_usuario = $_SESSION['idusuario'];
 
@@ -901,7 +904,7 @@ function getObjetivosConInfo() {
             if (!$res->hayerror) {
                 $res->resultado = toArray($res->resultado);
 
-                //Convertimos los números
+//Convertimos los números
                 $array = $res->resultado;
 
                 $l = count($array);
@@ -920,7 +923,7 @@ function getObjetivosConInfo() {
                 $res->resultado = $array;
             }
         } else {
-            //No estamos logueados
+//No estamos logueados
         }
     }
 
@@ -928,20 +931,20 @@ function getObjetivosConInfo() {
 }
 
 function getObjetivos() {
-    //Comprobamos que estemos logueados
+//Comprobamos que estemos logueados
     $res = checkLogin();
 
     if (!$res->hayerror) {
 
         if ($res->resultado) {
-            //Estamos logueados
+//Estamos logueados
 
             $res = ejecutar("SELECT * FROM objetivo");
 
             if (!$res->hayerror) {
                 $res->resultado = toArray($res->resultado);
 
-                //Convertimos los números
+//Convertimos los números
                 $array = $res->resultado;
 
                 $l = count($array);
@@ -954,7 +957,7 @@ function getObjetivos() {
                 $res->resultado = $array;
             }
         } else {
-            //No estamos logueados
+//No estamos logueados
         }
     }
 
@@ -962,30 +965,30 @@ function getObjetivos() {
 }
 
 function addObjetivo($descripcion) {
-    //Comprobamos que estemos logueados
+//Comprobamos que estemos logueados
     $res = checkLogin();
 
     if (!$res->hayerror) {
 
         if ($res->resultado) {
-            //Estamos logueados
-            //Obtenemos el total de la población actual
+//Estamos logueados
+//Obtenemos el total de la población actual
             $total = getTotalIndividuos()->resultado;
 
-            //Determinamos el número de representantes necesarios en función de la población total y el error máximo
-            //La primera vez nos basta un error inferior al 0.5
+//Determinamos el número de representantes necesarios en función de la población total y el error máximo
+//La primera vez nos basta un error inferior al 0.5
             $nmuestra = getTamanioMuestra($total, 0.5);
 
-            //Ahora calculamos el error en el que incurrimos al utilizar la muestra
+//Ahora calculamos el error en el que incurrimos al utilizar la muestra
             $error = getErrorDeMuestra($total, $nmuestra);
 
-            //Seleccionamos a los representantes antes de comenzar la transacción
+//Seleccionamos a los representantes antes de comenzar la transacción
             $representantes = getRepresentantes($nmuestra)->resultado;
 
-            //Iniciamos la transacción
+//Iniciamos la transacción
             iniciar_transaccion();
 
-            //Añadimos el objetivo
+//Añadimos el objetivo
             $res = insert_id("INSERT INTO `pdbdd`.`objetivo` (`descripcion`) "
                     . "VALUES ('" . escape($descripcion) . "')");
 
@@ -994,7 +997,7 @@ function addObjetivo($descripcion) {
 
                 $id_objetivo = $res->resultado;
 
-                //Añadimos la votación 
+//Añadimos la votación 
                 $res = insert_id("INSERT INTO `pdbdd`.`votacionsnd` "
                         . "(`error`, `timein`, `checktime`, `timeout`, `ampliaciones`, `activa`, `finalizada`, `resultado`) "
                         . "VALUES "
@@ -1010,10 +1013,10 @@ function addObjetivo($descripcion) {
 
                 if (!$res->hayerror) {
 
-                    //Obtenemos el id de la votación
+//Obtenemos el id de la votación
                     $id_votacion = $res->resultado;
 
-                    //Asociamos la votación con el objetivo
+//Asociamos la votación con el objetivo
                     $res = ejecutar("INSERT INTO `pdbdd`.`objetivo_has_votacionsnd` "
                             . "(`objetivo_idobjetivo`, `votacionsnd_idvotacionsnd`, `nombre`) "
                             . "VALUES "
@@ -1025,8 +1028,8 @@ function addObjetivo($descripcion) {
                     if (!$res->hayerror) {
 
 
-                        //Añadimos los representantes a la votación
-                        //Seleccionamos y añadimos a los representantes
+//Añadimos los representantes a la votación
+//Seleccionamos y añadimos a los representantes
                         $consulta = "INSERT INTO `pdbdd`.`votosnd` "
                                 . "(`usuario_idusuario`, `votacionsnd_idvotacionsnd`"
                                 . ", `representante`) VALUES ";
@@ -1049,22 +1052,22 @@ function addObjetivo($descripcion) {
 
                         if (!$res->hayerror) {
 
-                            //Anotamos notificaciones para los representantes
-                            //TODO no es necesario, se pueden consultar luego
+//Anotamos notificaciones para los representantes
+//TODO no es necesario, se pueden consultar luego
                         }
                     }
                 }
             }
 
             if (!$res->hayerror) {
-                //Si todo ha ido bien comitamos
+//Si todo ha ido bien comitamos
                 commit();
             } else {
-                //Sino rollback
+//Sino rollback
                 rollback();
             }
         } else {
-            //No estamos logueados
+//No estamos logueados
         }
     }
 
@@ -1077,8 +1080,8 @@ function addNRepresentantesAVotacion($n, $id_votacion) {
 }
 
 function addRepresentantesAVotacion($representantes, $id_votacion) {
-    //Añadimos los representantes a la votación
-    //Seleccionamos y añadimos a los representantes
+//Añadimos los representantes a la votación
+//Seleccionamos y añadimos a los representantes
     $consulta = "INSERT INTO `pdbdd`.`votosnd` "
             . "(`usuario_idusuario`, `votacionsnd_idvotacionsnd`"
             . ", `representante`) VALUES ";
@@ -1097,7 +1100,7 @@ function addRepresentantesAVotacion($representantes, $id_votacion) {
                 . ",1)";
     }
 
-    //Si ya existían simplemente los marcamos como representantes
+//Si ya existían simplemente los marcamos como representantes
     $consulta.= " ON DUPLICATE KEY UPDATE "
             . " representante=1";
 
@@ -1107,25 +1110,25 @@ function addRepresentantesAVotacion($representantes, $id_votacion) {
 }
 
 function getTotalIndividuos() {
-    //Comprobamos que estemos logueados
+//Comprobamos que estemos logueados
     $res = checkLogin();
 
     if (!$res->hayerror) {
 
         if ($res->resultado) {
-            //Estamos logueados
+//Estamos logueados
 
             $res = ejecutar("SELECT COUNT(*) as total FROM usuario");
 
             if (!$res->hayerror) {
 
-                //Obtenemos la fila
+//Obtenemos la fila
                 $fila = $res->resultado->fetch_assoc();
 
                 $res->resultado = $fila['total'];
             }
         } else {
-            //No estamos logueados
+//No estamos logueados
         }
     }
 
@@ -1134,11 +1137,11 @@ function getTotalIndividuos() {
 
 function getErrorDeMuestra($total, $muestra) {
 
-    //Si la muestra es mayor o igual que el total el error es 0
+//Si la muestra es mayor o igual que el total el error es 0
     if ($muestra >= $total) {
         $result = 0;
     } else if ($muestra < 1) {
-        //Si la muestra es menor que 1 entonces el error es máximo: 1
+//Si la muestra es menor que 1 entonces el error es máximo: 1
         $result = 1;
     } else {
 
@@ -1156,7 +1159,7 @@ function getErrorDeMuestra($total, $muestra) {
 
 function getErrorDeMuestra2($total, $muestra) {
 
-    //Si la muestra es mayor o igual que el total el error es 0
+//Si la muestra es mayor o igual que el total el error es 0
     if ($muestra >= $total) {
         $result = 0;
     } else {
@@ -1194,9 +1197,9 @@ function calculaTamanioMuestra($total, $error) {
 function getTamanioMuestra($total, $error) {
     $muestra = calculaTamanioMuestra($total, $error);
 
-    //TODO esto es peligroso, es la corrección de la función según el error por el que preguntamos
+//TODO esto es peligroso, es la corrección de la función según el error por el que preguntamos
     if ($error == 0.5) {
-        //Si la muestra es mayor que la mitad entonces la muestra es la mitad mas uno
+//Si la muestra es mayor que la mitad entonces la muestra es la mitad mas uno
         if ($muestra > $total / 2) {
             $nmuestra = floor($total / 2) + 1;
         } else {
@@ -1239,17 +1242,19 @@ function getRepresentantes($nmuestra) {
 
 function getRepresentantesDeGrupo($nmuestra, $id_grupo) {
 
-    //Seleccionamos representantes de este o de cualquier subgrupo
+//Seleccionamos representantes de este o de cualquier subgrupo
     $subgrupos = getSubgruposID($id_grupo, 0);
 
     $consulta = "SELECT miembro.usuario_idusuario FROM miembro"
-            . " WHERE miembro.grupo_idgrupo = " . escape($id_grupo);
+            . " WHERE miembro.puntos_participacion >= 0"
+            . " AND miembro.voluntad = 2"
+            . " AND (miembro.grupo_idgrupo = " . escape($id_grupo);
 
     foreach ($subgrupos as $subgrupo) {
         $consulta.= " OR miembro.grupo_idgrupo = " . $subgrupo;
     }
 
-    $consulta.= " GROUP BY miembro.usuario_idusuario";
+    $consulta.= ") GROUP BY miembro.usuario_idusuario";
 
     $consulta .= " ORDER BY RAND()";
 
@@ -1258,7 +1263,7 @@ function getRepresentantesDeGrupo($nmuestra, $id_grupo) {
 
 
 
-    //echo "<br>consulta = " . $consulta;
+//echo "<br>consulta = " . $consulta;
 
     $res = ejecutar($consulta);
 
@@ -1268,7 +1273,7 @@ function getRepresentantesDeGrupo($nmuestra, $id_grupo) {
 }
 
 function getCensoDeVotacion($id_votacion) {
-    //Obtenemos el censo de la votación
+//Obtenemos el censo de la votación
     $res = ejecutar("SELECT votacionsnd.censo FROM votacionsnd WHERE votacionsnd.idvotacionsnd = " . escape($id_votacion));
     $fila = $res->fetch_assoc();
     return $fila['censo'];
@@ -1284,10 +1289,10 @@ function getNuevosRepresentantesDeVotacion($nmuestra, $id_votacion) {
 
     $id_grupo = getCensoDeVotacion($id_votacion);
 
-    //Seleccionamos representantes de este o de cualquier subgrupo
+//Seleccionamos representantes de este o de cualquier subgrupo
     $subgrupos = getSubgruposID($id_grupo, 0);
 
-    $consulta = "SELECT miembro.usuario_idusuario FROM miembro"
+    $consulta = "SELECT miembro.usuario_idusuario as idusuario FROM miembro"
             . " LEFT JOIN votosnd ON votosnd.usuario_idusuario = miembro.usuario_idusuario"
             . " AND votosnd.votacionsnd_idvotacionsnd = " . escape($id_votacion)
             . " WHERE miembro.grupo_idgrupo = " . escape($id_grupo);
@@ -1296,8 +1301,10 @@ function getNuevosRepresentantesDeVotacion($nmuestra, $id_votacion) {
         $consulta.= " OR miembro.grupo_idgrupo = " . $subgrupo;
     }
 
-    //Siempre que no sean ya representantes
-    $consulta.= " AND (votosnd.representante IS NULL OR votosnd.representante = 0) ";
+//Siempre que no sean ya representantes
+    $consulta.= " AND (votosnd.representante IS NULL OR votosnd.representante = 0) "
+            . " AND miembro.puntos_participacion >= 0" //tengan puntos
+            . " AND miembro.voluntad = 2"; //y quieran participar
 
     $consulta .= " ORDER BY RAND() LIMIT " . escape($nmuestra);
 
@@ -1308,27 +1315,9 @@ function getNuevosRepresentantesDeVotacion($nmuestra, $id_votacion) {
     return $res;
 }
 
-function getNuevosRepresentantesParaVotacion($nmuestra, $id_votacion) {
-    $res = ejecutar("SELECT usuario.idusuario FROM usuario "
-            . " LEFT JOIN votosnd ON votosnd.usuario_idusuario = usuario.idusuario"
-            . " AND votosnd.votacionsnd_idvotacionsnd =" . escape($id_votacion)
-            . " WHERE votosnd.representante IS NULL"
-            . " OR votosnd.representante = 0"
-            . " ORDER BY RAND() LIMIT " . $nmuestra);
-
-    if (!$res->hayerror) {
-
-        $array = toArray($res->resultado);
-
-        $res->resultado = $array;
-    }
-
-    return $res;
-}
-
 function votarAprobacionObjetivo($id_objetivo, $valor) {
 
-    //Obtenemos la votación correspondiente
+//Obtenemos la votación correspondiente
     $res = getVotacionAprobacionDeObjetivo($id_objetivo);
 
     if (!$res->hayerror) {
@@ -1365,20 +1354,20 @@ function getVotacionAprobacionDeObjetivo($id_objetivo) {
 }
 
 function emitirVoto($id_votacion, $valor) {
-    //Comprobamos que estemos logueados
+//Comprobamos que estemos logueados
     if (checkLogin()) {
 
-        //Obtenemos el censo de la votación
+//Obtenemos el censo de la votación
         $id_censo = getCensoDeVotacion($id_votacion);
 
-        //Comprobamos que el usuario sea miembro del censo        
+//Comprobamos que el usuario sea miembro del censo        
         if (miembrode($id_censo)) {
 
-            //Estamos logueados y pertenecemos al censo de la votación
-            //Utilizamos el id de usuario del usuario en cuestión
+//Estamos logueados y pertenecemos al censo de la votación
+//Utilizamos el id de usuario del usuario en cuestión
             $id_usuario = $_SESSION['idusuario'];
 
-            //Insertamos el voto y si existe lo actualizamos
+//Insertamos el voto y si existe lo actualizamos
             $res = ejecutar("INSERT INTO `pdbdd`.`votosnd` "
                     . "(`usuario_idusuario`, `votacionsnd_idvotacionsnd`, `valor`)"
                     . " VALUES"
@@ -1404,10 +1393,10 @@ function emitirVoto($id_votacion, $valor) {
  */
 function crearDecision($id_grupo, $enunciado) {
     if (miembrode($id_grupo)) {
-        //Creamos la votación
+//Creamos la votación
         $id_votacion = crearVotacionDeGrupo($id_grupo, $enunciado);
 
-        //Creamos la decisión asociada a la votación
+//Creamos la decisión asociada a la votación
         $consulta = "INSERT INTO `pdbdd`.`decisionsnd` "
                 . "(`enunciado`, `votacionsnd_idvotacionsnd`, `grupo_idgrupo`) "
                 . "VALUES ('" . escape($enunciado) . "', " . escape($id_votacion) . ", " . escape($id_grupo) . ")";
@@ -1421,8 +1410,10 @@ function checkTime() {
     checkVotaciones();
 
     checkDecisiones();
+    
+    sumarPuntos();
 
-    //checkObjetivos();
+//checkObjetivos();
 }
 
 function getEnunciados() {
@@ -1436,9 +1427,9 @@ function getEnunciados() {
 }
 
 function checkDecisiones() {
-    //Repasamos los enunciados para ver qué ha sucedido con sus respectivas votaciones y llevar a cabo las acciones necesarias
-    //Obtenemos los enunciados cuyo resultado es null porque son los únicos que pueden cambiar
-    //junto con los resultados de sus votaciones relacionadas que no sean null, es decir que hayan cambiado
+//Repasamos los enunciados para ver qué ha sucedido con sus respectivas votaciones y llevar a cabo las acciones necesarias
+//Obtenemos los enunciados cuyo resultado es null porque son los únicos que pueden cambiar
+//junto con los resultados de sus votaciones relacionadas que no sean null, es decir que hayan cambiado
     $consulta = "SELECT decisionsnd.*"
             . ", votacionsnd.resultado as resultado_votacion"
             . " FROM decisionsnd"
@@ -1450,17 +1441,17 @@ function checkDecisiones() {
     $decisiones = toArray($res);
 
     foreach ($decisiones as $decision) {
-        //Comprobamos los resultados de las votaciones relacionadas para ver si tenemos que actualizar el resultado de la decisión
+//Comprobamos los resultados de las votaciones relacionadas para ver si tenemos que actualizar el resultado de la decisión
 
         $resultado = $decision['resultado_votacion'];
 
         $id_decision = $decision['iddecisionsnd'];
 
         if ($resultado == 1) {
-            //Si es rechazada no se hace nada, se deja en el histórico de votaciones rechazadas (si a caso)
+//Si es rechazada no se hace nada, se deja en el histórico de votaciones rechazadas (si a caso)
         } else if ($resultado == 2) {
 
-            //Si sale "Depende" se crea un nuevo supergrupo con el nombre: "Discusión sobre" o "Debate:" + enunciado de la votación.    
+//Si sale "Depende" se crea un nuevo supergrupo con el nombre: "Discusión sobre" o "Debate:" + enunciado de la votación.    
             $enunciado = $decision['enunciado'];
             $nombre_grupo = "Debate: " . $enunciado;
 
@@ -1471,7 +1462,7 @@ function checkDecisiones() {
             hacerSuperGrupo($id_subgrupo, $id_supergrupo);
         } else if ($resultado == 3) {
 
-            //Si es aprobada se crea un nuevo supergrupo con el nombre de la votación
+//Si es aprobada se crea un nuevo supergrupo con el nombre de la votación
 
             $enunciado = $decision['enunciado'];
             $nombre_grupo = $enunciado;
@@ -1482,28 +1473,31 @@ function checkDecisiones() {
 
             hacerSuperGrupo($id_subgrupo, $id_supergrupo);
 
-            //Si el enunciado está aprobada y tiene una ejecución asociada se ejecuta
+//Si el enunciado está aprobada y tiene una ejecución asociada se ejecuta
             if (isset($decision['ejecucionsys_idejecucionsys'])) {
                 $id_ejecucion = $decision['ejecucionsys_idejecucionsys'];
 
-                //Mandamos ejecutar la ejecución
+//Mandamos ejecutar la ejecución
                 ejecutarEjecucion($id_ejecucion);
             }
 
-            //Luego comprobamos si la aprobación de este enunciado afecta a los enunciados superiores
-            //¿Cuándo un "Depende" se convierte en un "Sí" o un "No"?
+//Luego comprobamos si la aprobación de este enunciado afecta a los enunciados superiores
+//¿Cuándo un "Depende" se convierte en un "Sí" o un "No"?
         }
 
-        //En cualquier caso actualizamos el valor del resultado de la decisión
+//En cualquier caso actualizamos el valor del resultado de la decisión
         ejecutar("UPDATE decisionsnd SET resultado=" . escape($resultado) . " WHERE iddecisionsnd = " . escape($id_decision));
     }
 }
 
 function checkVotaciones() {
 
-    //TODO Desactivamos todas las votaciones 
-    //Comprobar votaciones
-    //Obtenemos las votaciones que deben ser controladas con toda la información necesaria
+    castigarMalosRepresentantes();
+
+
+//TODO Desactivamos todas las votaciones 
+//Comprobar votaciones
+//Obtenemos las votaciones que deben ser controladas con toda la información necesaria
     $res = ejecutar("SELECT votacionsnd.*"
             . ", SUM(CASE WHEN votosnd.representante = 1 THEN 1 ELSE 0 END) as representantes"
             . ", SUM(CASE WHEN votosnd.representante = 1 AND votosnd.valor = 1 THEN 1 ELSE 0 END) as votos_negativos_rep"
@@ -1521,26 +1515,26 @@ function checkVotaciones() {
 
     $votaciones = toArray($res);
 
-    //Recorremos las votaciones que ya deben ser controladas
+//Recorremos las votaciones que ya deben ser controladas
 
     foreach ($votaciones as $votacion) {
 
         $id_votacion = $votacion['idvotacionsnd'];
 
-        //Obtenemos el grupo que representa el censo
+//Obtenemos el grupo que representa el censo
         $id_grupo = $votacion['censo'];
 
-        //Obtenemos el total de individuos que pueden votar
+//Obtenemos el total de individuos que pueden votar
         $nindividuos = getNTotalMiembrosDeGrupo($id_grupo);
 
         echo "<hr>";
         echo "<br>Votación: $id_votacion - " . $votacion['enunciado'];
 
-        //Si el número de individuos es cero anulamos la votación
+//Si el número de individuos es cero anulamos la votación
         if ($nindividuos > 0) {
 
 
-            //Recogemos datos
+//Recogemos datos
             $nrepresentantes = $votacion['representantes'];
             $votos_emitidos = $votacion['votos_emitidos'];
             $vsi_ind = $votacion['votos_positivos_ind'];
@@ -1551,8 +1545,8 @@ function checkVotaciones() {
             $vdep_rep = $votacion['votos_depende_rep'];
             $id_votacion = $votacion['idvotacionsnd'];
 
-            //Sumamos a los votos individuales los votos de representantes 
-            //ya que los representantes también tienen voto individual
+//Sumamos a los votos individuales los votos de representantes 
+//ya que los representantes también tienen voto individual
             $vsi_ind += $vsi_rep;
             $vno_ind += $vno_rep;
             $vdep_ind += $vdep_rep;
@@ -1563,9 +1557,12 @@ function checkVotaciones() {
             echo "<br>$vsi_ind personas han votado 'Sí' (incluidos representantes), el " . (($vsi_ind / $nindividuos) * 100) . "% de los individuos";
             echo "<br>$vno_ind personas han votado 'No' (incluidos representantes), el " . (($vno_ind / $nindividuos) * 100) . "% de los individuos";
             echo "<br>$vdep_ind personas han votado 'Depende' (incluidos representantes), el " . (($vdep_ind / $nindividuos) * 100) . "% de los individuos";
-            echo "<br>$vsi_rep representantes han votado 'Sí', el " . (($vsi_rep / $nrepresentantes) * 100) . "% de los representantes";
-            echo "<br>$vno_rep representantes han votado 'No', el " . (($vno_rep / $nrepresentantes) * 100) . "% de los representantes";
-            echo "<br>$vdep_rep representantes han votado 'Depende', el " . (($vdep_rep / $nrepresentantes) * 100) . "% de los representantes";
+            $sirep = $nrepresentantes == 0 ? 0 : ($vsi_rep / $nrepresentantes) * 100;
+            $norep = $nrepresentantes == 0 ? 0 : ($vno_rep / $nrepresentantes) * 100;
+            $deprep = $nrepresentantes == 0 ? 0 : ($vdep_rep / $nrepresentantes) * 100;
+            echo "<br>$vsi_rep representantes han votado 'Sí', el " . $sirep . "% de los representantes";
+            echo "<br>$vno_rep representantes han votado 'No', el " . $norep . "% de los representantes";
+            echo "<br>$vdep_rep representantes han votado 'Depende', el " . $deprep . "% de los representantes";
 
             $total_ind = $vsi_ind + $vno_ind + $vdep_ind;
             $total_rep = $vsi_rep + $vno_rep + $vdep_rep;
@@ -1573,19 +1570,19 @@ function checkVotaciones() {
             echo "<br>En total se han emitido $total_ind votos";
             echo " de los cuales $total_rep son de representantes";
 
-            //Calculamos la abstención
+//Calculamos la abstención
             $abstencion = $nindividuos - $votos_emitidos;
             $abstencion_rep = $nrepresentantes - $total_rep;
 
             echo "<br>Se han abstenido $abstencion individuos";
 
-            //Calculamos el error_actual en función de la abstención
-            //ya que los votos de los representantes actúan sobre una población menor que la total
-            //si ha votado alguien por sí mismo el error disminuye
-            //TODO esto último no es cierto. Los representantes escogidos en un principio representan al total de la población
-            //si ahora pasaran a representar sólo la abstención estarían contando más los que han votado
-            //es decir que votar directamente sólo sirve si se supera el 50%, sino simplemente se estaría confirmando la estimación
-            //Si hay representantes y abstención mayor que una persona lo podemos calcular, sino no
+//Calculamos el error_actual en función de la abstención
+//ya que los votos de los representantes actúan sobre una población menor que la total
+//si ha votado alguien por sí mismo el error disminuye
+//TODO esto último no es cierto. Los representantes escogidos en un principio representan al total de la población
+//si ahora pasaran a representar sólo la abstención estarían contando más los que han votado
+//es decir que votar directamente sólo sirve si se supera el 50%, sino simplemente se estaría confirmando la estimación
+//Si hay representantes y abstención mayor que una persona lo podemos calcular, sino no
             /*
               if ($nrepresentantes > 0 && $abstencion > 1) {
               $error_actual = getErrorDeMuestra($abstencion, $nrepresentantes);
@@ -1594,10 +1591,10 @@ function checkVotaciones() {
               $error_actual = 0;
               echo "<br>No tenemos representantes o ha votado todo el mundo así que el error es $error_actual";
               } */
-            //Así que el error actual no ha variado pues es el que se calculó la última vez
-            //salvo que no contemos con los representantes que se han abstenido (que no deberíamos)
-            //así que volvemos a calcular el error en función de la participación de los representantes
-            //el error será igual o mayor de lo que inicialmente se calculó.
+//Así que el error actual no ha variado pues es el que se calculó la última vez
+//salvo que no contemos con los representantes que se han abstenido (que no deberíamos)
+//así que volvemos a calcular el error en función de la participación de los representantes
+//el error será igual o mayor de lo que inicialmente se calculó.
             $representantes_activos = $nrepresentantes - $abstencion_rep;
             $error_actual = getErrorDeMuestra($nindividuos, $representantes_activos);
 
@@ -1658,14 +1655,14 @@ function checkVotaciones() {
               echo "<br>$sumadep votos para el 'Depende', el " . ($pdep * 100) . "%";
               echo "<br>Que juntos suman " . ($sumasi + $sumano + $sumadep) . ", el " . (($psi + $pno + $pdep) * 100) . "%";
              */
-            //Y ahora ya podemos calcular el apoyo a las diferentes opciones y los errores
-            //Para cada una comprobamos si ha terminado o la ampliamos
-            //TODO a ver qué hacemos si se abstiene todo cristo
+//Y ahora ya podemos calcular el apoyo a las diferentes opciones y los errores
+//Para cada una comprobamos si ha terminado o la ampliamos
+//TODO a ver qué hacemos si se abstiene todo cristo
             $resultado = 0;
 
 
 
-            //Calculamos ahora el porcentaje de votos que se prevén para cada opción
+//Calculamos ahora el porcentaje de votos que se prevén para cada opción
             $porcentaje_si_rep = $total_rep > 0 ? $vsi_rep / $total_rep : 0;
             $porcentaje_no_rep = $total_rep > 0 ? $vno_rep / $total_rep : 0;
             $porcentaje_dep_rep = $total_rep > 0 ? $vdep_rep / $total_rep : 0;
@@ -1676,7 +1673,8 @@ function checkVotaciones() {
             echo "<br>Un " . ($porcentaje_dep_rep * 100) . "% del 'Depende'";
 
 
-            //Calculamos el porcentaje de votos individuales
+//Calculamos el porcentaje de votos individuales
+            //El voto de los representantes también cuenta como individual
             $porcentaje_si_ind = $vsi_ind / $nindividuos;
             $porcentaje_no_ind = $vno_ind / $nindividuos;
             $porcentaje_dep_ind = $vdep_ind / $nindividuos;
@@ -1686,23 +1684,23 @@ function checkVotaciones() {
             echo "<br>Un " . ($porcentaje_no_ind * 100) . "% del 'No'";
             echo "<br>Un " . ($porcentaje_dep_ind * 100) . "% del 'Depende'";
 
-            //Calculamos los mínimos de representación
+//Calculamos los mínimos de representación
             $minimo_rep_si = ($porcentaje_si_rep - $error_actual);
             $minimo_rep_no = ($porcentaje_no_rep - $error_actual);
             $minimo_rep_dep = ($porcentaje_dep_rep - $error_actual);
 
-            //El mínimo es el máximo entre lo real y la previsión mínima
+//El mínimo es el máximo entre lo real y la previsión mínima
             $minimo_si = max($minimo_rep_si, $porcentaje_si_ind);
             $minimo_no = max($minimo_rep_no, $porcentaje_no_ind);
             $minimo_dep = max($minimo_rep_dep, $porcentaje_dep_ind);
 
-            //El máximo es siempre el de la previsión
+//El máximo es siempre el de la previsión
             $maximo_si = $porcentaje_si_rep + $error_actual;
             $maximo_no = $porcentaje_no_rep + $error_actual;
             $maximo_dep = $porcentaje_dep_rep + $error_actual;
 
-            //TODO si el número de votos reales es mayor que el máximo previsto entonces ha fallado la representación
-            //Truncamos los máximos para que sean más reales
+//TODO si el número de votos reales es mayor que el máximo previsto entonces ha fallado la representación
+//Truncamos los máximos para que sean más reales
             $invariable = $minimo_si + $minimo_no + $minimo_dep;
             $variable = 1 - $invariable;
 
@@ -1717,17 +1715,17 @@ function checkVotaciones() {
             echo "<br>Según los datos obtenidos las predicciones son las siguientes:";
             echo "<br>'Sí' obtendrá entre un " . ($minimo_si * 100) . "% y un " . ($maximo_si * 100) . "% del total de votos.";
             echo "<br>'No' obtendrá entre un " . ($minimo_no * 100) . "% y un " . ($maximo_no * 100) . "% del total de votos.";
-            //echo "<br>'Depende' obtendrá entre un ".$minimo_si."% y un ".$maximo_si."% del total de votos.";
+//echo "<br>'Depende' obtendrá entre un ".$minimo_si."% y un ".$maximo_si."% del total de votos.";
 
             if ($minimo_si > 0.5) {
-                //Si el porcentaje de sí menos el error aún es mayor que la mitad entonces es la opción seleccionada
+//Si el porcentaje de sí menos el error aún es mayor que la mitad entonces es la opción seleccionada
                 $resultado = 3;
                 echo "<br>Como el mínimo del 'Sí' es mayor que la mitad podemos asegurar que éste será el resultado mayoritario.";
             } else if ($minimo_no > 0.5) {
                 $resultado = 1;
                 echo "<br>Como el mínimo del 'No' es mayor que la mitad podemos asegurar que éste será el resultado mayoritario.";
             } else if ($maximo_si <= 0.5 && $maximo_no <= 0.5) {
-                //Si ni "sí" ni "no" tienen opciones ya de alcanzar mayoría es un "depende"
+//Si ni "sí" ni "no" tienen opciones ya de alcanzar mayoría es un "depende"
                 $resultado = 2;
                 echo "<br>Ya que ninguna de las opciones extremas puede ya conseguir la mayoría 'Depende' es la opción seleccionada.";
             }
@@ -1738,11 +1736,11 @@ function checkVotaciones() {
 
                 if ($abstencion_rep > 0) {
 
-                    //Aquí sabemos que hay representantes que se han abstenido
+//Aquí sabemos que hay representantes que se han abstenido
                     echo "<br>$abstencion_rep representantes se han abstenido, no se puede continuar hasta que se pronuncien";
 
-                    //Aquellos representantes que se abstengan perderán X puntos lo que posiblemenre les lleve a ser expulsados del grupo por lo que habrá que obtener otros representantes
-                    //Identificamos a los representantes que se han abstenido en esta votación
+//Aquellos representantes que se abstengan perderán X puntos lo que posiblemenre les lleve a ser expulsados del grupo por lo que habrá que obtener otros representantes
+//Identificamos a los representantes que se han abstenido en esta votación
                     $consulta = "SELECT usuario_idusuario FROM votosnd WHERE"
                             . " votacionsnd_idvotacionsnd = $id_votacion" //en esta votación
                             . " AND representante = 1" //representantes
@@ -1752,96 +1750,90 @@ function checkVotaciones() {
 
                     echo "<br> Los malos representantes son: $malos_representantes";
 
-                    //Les restamos los puntos pertinentes
-                    modificarPuntos($id_grupo, $malos_representantes, 'usuario_idusuario', -100);
-                    
-                    //Ahora comprobamos cuántos representantes nos quedan
-                    //Necesitamos saber cuántos miembros activos hay en el grupo del censo
-                    //
-                    //TODO y qué pasa con los miembros natos? no se cuentan? qué puntos se le restan?
-                    //Se restan puntos del grupo en el que se hace la pregunta y de todos los subgrupos
+//Les restamos los puntos pertinentes
+                    //        modificarPuntos($id_grupo, $malos_representantes, 'usuario_idusuario', -100);
+//TODO y qué pasa con los miembros natos? no se cuentan? qué puntos se le restan?
+//Se restan puntos del grupo en el que se hace la pregunta y de todos los subgrupos
+//Necesitamos saber cuántos miembros quedan y cuántos representantes
+//Actualizamos nindividuos
+                    $nindividuos = getNTotalMiembrosDeGrupo($id_grupo);
 
-                    //Necesitamos saber cuántos miembros quedan y cuántos representantes
-                    
-                    $n_miembros_activos = nMiembrosActivos($id_grupo);
-                    
-                    
-                    
-                } else {
-
-                    //Si seguimos sin tener una respuesta tenemos que ampliar la muestra
-                    //Calculamos las diferencias en el error necesarias para cambiar de escenario
-                    //Nos interesa que el error sea tan pequeño que
-                    //haga que los resultados más/menos el error no traspasen
-                    //el 0.5, es decir, se queden en su lado, ya sea más allá o sin llegar a pasarlo
-                    //así que calcularemos las diferencias entre los porcentajes y el 0.5
-                    //estos son los errores deseados para las opciones y escogeremos de ellos
-                    //el mayor por ser más fácil de conseguir (molestamos a menos personas)
-
-                    $dsi = abs($psi - 0.5);
-                    $dno = abs($pno - 0.5);
-
-                    echo "<br>Para decidirnos tendríamos que reducir el error hasta el " . ($dsi * 100) . "% o el " . ($dno * 100) . "%";
-
-                    //Si alguno de los errores es mayor que el actual se descarta y se coge el otro
-                    if ($dsi > $error_actual && $dno <= $error_actual) {
-                        $error_deseado = $dno;
-                    } else if ($dno > $error_actual && $dsi <= $error_actual) {
-                        $error_deseado = $dsi;
-                    } else if ($dsi <= $error_actual && $dno <= $error_actual) {
-                        //Si los dos son menores cogemos el mayor de los dos, el que está más cerca
-                        $error_deseado = max($dsi, $dno);
-                    } else {
-                        //Si ninguno de los dos vale lo que hacemos es ignorar la ampliación ya que no podemos mejorar el error
-                        //lo que hace falta es que los representantes voten
-                    }
-
-                    echo "<br>El más cercano es " . ($error_deseado * 100) . "%.";
-
-
-                    //Calculamos el tamaño de la muestra en función de la abstención
-                    //porque los que ya han votado no se pueden abstener 
-                    //sin embargo también están siendo representados
-                    $muestra_necesaria = getTamanioMuestra($abstencion, $error_deseado);
-
-                    echo "<br>Para poder representar a $abstencion individuos (la abstención)"
-                    . " con un error inferior al " . ($error_deseado * 100) . "% necesitamos una muestra de $muestra_necesaria individuos.";
-
-                    //No contamos con que los representantes que se han abstenido vayan a votar
-                    //pero les seguimos dando la opción por si votan y así ayudan a disminuir el error más aún
-                    //Calculamos la diferencia entre la muestra que tenemos 
-                    //(los representantes que se han pronunciado) y la necesaria
-                    //aunque los representantes que se han abstenido siguen representando a mucha gente
-                    //así que este cálculo no servirá salvo que los que se han abstenido voten o 
-                    //se les revoque la condición de representantes...
-                    /*
-                     * Opción 1: Añadir más representantes y esperar a que todos voten para el siguiente checktime
-                     * Opción 2: Revocar la condición de representantes a los que se han abstenido y añadir los necesarios
-                     * Opción 3: Añadir representantes sin contar con los abstenidos pero no revocar la condición
-                     * Opción 4: Revocar la condición de representantes a todos y volver a nombrar representantes con la nueva muestra
-                     */
-                    //De momento opción 1
-                    $muestra_real_actual = $nrepresentantes;
-
-                    //TODO penalizar a los representantes que no se han pronunciado
-                    //TODO comprobar cuántos representantes quedan en el grupo después de la penalización
-                    //TODO y entonces nombrar a los representantes necesarios
-
-                    echo "<br>Ahora mismo tenemos una muestra de $muestra_real_actual representantes.";
-
-                    //Suponiendo que descartáramos a los representantes actuales
-                    $ampliacion_muestra = $muestra_necesaria - $muestra_real_actual;
-
-                    echo "<br>Añadimos $ampliacion_muestra representantes más.";
-
-                    //Ampliamos la muestra
-
-                    if ($ampliacion_muestra > 0) {
-                        $representantes = getNuevosRepresentantesDeVotacion($ampliacion_muestra, $id_votacion);
-                        $res = addRepresentantesAVotacion($representantes, $id_votacion);
-                    }
+//Limpiar votos: eliminar aquellos votos de usuarios que no tienen puntos
                 }
-                //Contamos una ampliación más y definimos el nuevo checktime
+
+//Si seguimos sin tener una respuesta tenemos que ampliar la muestra
+//Calculamos las diferencias en el error necesarias para cambiar de escenario
+//Nos interesa que el error sea tan pequeño que
+//haga que los resultados más/menos el error no traspasen
+//el 0.5, es decir, se queden en su lado, ya sea más allá o sin llegar a pasarlo
+//así que calcularemos las diferencias entre los porcentajes y el 0.5
+//estos son los errores deseados para las opciones y escogeremos de ellos
+//el mayor por ser más fácil de conseguir (molestamos a menos personas)
+
+                $dsi = abs($minimo_si - 0.5);
+                $dno = abs($minimo_no - 0.5);
+
+                echo "<br>Para decidirnos tendríamos que reducir el error hasta el " . ($dsi * 100) . "% o el " . ($dno * 100) . "%";
+
+//Si alguno de los errores es mayor que el actual se descarta y se coge el otro
+                if ($dsi > $error_actual && $dno <= $error_actual) {
+                    $error_deseado = $dno;
+                } else if ($dno > $error_actual && $dsi <= $error_actual) {
+                    $error_deseado = $dsi;
+                } else if ($dsi <= $error_actual && $dno <= $error_actual) {
+//Si los dos son menores cogemos el mayor de los dos, el que está más cerca
+                    $error_deseado = max($dsi, $dno);
+                } else {
+//Si ninguno de los dos vale lo que hacemos es ignorar la ampliación ya que no podemos mejorar el error
+//lo que hace falta es que los representantes voten
+                }
+
+                echo "<br>El más cercano es " . ($error_deseado * 100) . "%.";
+
+
+//Calculamos el tamaño de la muestra en función de la abstención
+//porque los que ya han votado no se pueden abstener 
+//sin embargo también están siendo representados
+//$muestra_necesaria = getTamanioMuestra($abstencion, $error_deseado);
+                $muestra_necesaria = getTamanioMuestra($nindividuos, $error_deseado);
+                echo "<br>Para poder representar a $nindividuos individuos "
+                . " con un error inferior al " . ($error_deseado * 100) . "% necesitamos una muestra de $muestra_necesaria individuos.";
+
+//No contamos con que los representantes que se han abstenido vayan a votar
+//pero les seguimos dando la opción por si votan y así ayudan a disminuir el error más aún
+//Calculamos la diferencia entre la muestra que tenemos 
+//(los representantes que se han pronunciado) y la necesaria
+//aunque los representantes que se han abstenido siguen representando a mucha gente
+//así que este cálculo no servirá salvo que los que se han abstenido voten o 
+//se les revoque la condición de representantes...
+                /*
+                 * Opción 1: Añadir más representantes y esperar a que todos voten para el siguiente checktime
+                 * Opción 2: Revocar la condición de representantes a los que se han abstenido y añadir los necesarios
+                 * Opción 3: Añadir representantes sin contar con los abstenidos pero no revocar la condición
+                 * Opción 4: Revocar la condición de representantes a todos y volver a nombrar representantes con la nueva muestra
+                 */
+//De momento opción 2
+                $muestra_real_actual = $nrepresentantes - $abstencion_rep;
+
+//TODO penalizar a los representantes que no se han pronunciado
+//TODO comprobar cuántos representantes quedan en el grupo después de la penalización
+//TODO y entonces nombrar a los representantes necesarios
+
+                echo "<br>Ahora mismo tenemos una muestra de $muestra_real_actual representantes.";
+
+//Suponiendo que descartáramos a los representantes actuales
+                $ampliacion_muestra = $muestra_necesaria - $muestra_real_actual;
+
+                echo "<br>Añadimos $ampliacion_muestra representantes más.";
+
+//Ampliamos la muestra
+
+                if ($ampliacion_muestra > 0) {
+                    $representantes = getNuevosRepresentantesDeVotacion($ampliacion_muestra, $id_votacion);
+                    $res = addRepresentantesAVotacion($representantes, $id_votacion);
+                }
+
+//Contamos una ampliación más y definimos el nuevo checktime
                 $res = ejecutar("UPDATE votacionsnd SET"
                         . " ampliaciones=ampliaciones+1"
                         . ", timein=NOW()"
@@ -1849,7 +1841,7 @@ function checkVotaciones() {
                         . ", activa=1"
                         . " WHERE idvotacionsnd=" . $id_votacion);
             } else {
-                //Si tenemos resultado, lo guardamos con los datos de votación y se finaliza la votación
+//Si tenemos resultado, lo guardamos con los datos de votación y se finaliza la votación
 
                 $res = ejecutar("UPDATE votacionsnd SET"
                         . " resultado=" . $resultado
@@ -1870,11 +1862,11 @@ function checkVotaciones() {
                         . ", nindividuos=" . $nindividuos
                         . " WHERE idvotacionsnd=" . $id_votacion);
 
-                //TODO podemos sumar aquí los puntos que sabremos los representantes y votantes que han habido al final
-                //o irlo haciendo conforme se va votando/añadiendo/quitando representantes
+//TODO podemos sumar aquí los puntos que sabremos los representantes y votantes que han habido al final
+//o irlo haciendo conforme se va votando/añadiendo/quitando representantes
 
                 if ($res) {
-                    //Identificamos a los representantes que han votado
+//Identificamos a los representantes que han votado
                     $consulta = "SELECT usuario_idusuario FROM votosnd"
                             . " WHERE votacionsnd_idvotacionsnd = $id_votacion" //en esta votación
                             . " AND representante = 1" //representantes
@@ -1882,34 +1874,35 @@ function checkVotaciones() {
 
                     $buenos_representantes = toArray(ejecutar($consulta));
 
-                    //Sumamos los puntos a los buenos representantes
+//Sumamos los puntos a los buenos representantes
                     modificarPuntos($id_grupo, $buenos_representantes, 'usuario_idusuario', Constantes::puntos_por_pregunta_importante);
 
 
-                    //Identificamos a los votantes normales
+//Identificamos a los votantes normales
                     $consulta = "SELECT usuario_idusuario FROM votosnd"
                             . " WHERE votacionsnd_idvotacionsnd = $id_votacion" //en esta votación
                             . " AND representante = 0" //representantes
                             . " AND valor IS NOT NULL"; //que hayan votado
 
                     $votantes = toArray(ejecutar($consulta));
-                    //Les sumamos los puntos
+//Les sumamos los puntos
                     modificarPuntos($id_grupo, $votantes, 'usuario_idusuario', Constantes::puntos_por_pregunta_normal);
+                    /*
+                      //Castigamos a los malos representantes
+                      $consulta = "SELECT usuario_idusuario FROM votosnd"
+                      . " WHERE votacionsnd_idvotacionsnd = $id_votacion" //en esta votación
+                      . " AND representante = 1" //representantes
+                      . " AND valor IS NULL"; //que no hayan votado
 
-                    //Castigamos a los malos representantes
-                    $consulta = "SELECT usuario_idusuario FROM votosnd"
-                            . " WHERE votacionsnd_idvotacionsnd = $id_votacion" //en esta votación
-                            . " AND representante = 1" //representantes
-                            . " AND valor IS NULL"; //que hayan votado
+                      $malos_representantes = toArray(ejecutar($consulta));
 
-                    $malos_representantes = toArray(ejecutar($consulta));
-
-                    //Restamos los puntos a los malos representantes
-                    modificarPuntos($id_grupo, $malos_representantes, 'usuario_idusuario', Constantes::puntos_por_mal_representante);
+                      //Restamos los puntos a los malos representantes
+                      modificarPuntos($id_grupo, $malos_representantes, 'usuario_idusuario', Constantes::puntos_por_mal_representante);
+                     */
                 }
             }
         } else {
-            //No hay votantes, anulamos la votación
+//No hay votantes, anulamos la votación
 
             echo "No hay votantes";
 
@@ -1917,14 +1910,6 @@ function checkVotaciones() {
                     . " resultado=4"
                     . ", finalizada=1"
                     . ", activa=0"
-                    . ", error=" . $error_actual
-                    . ", votossi=" . $vsi_ind
-                    . ", votosno=" . $vno_ind
-                    . ", votosdep=" . $vdep_ind
-                    . ", nrepresentantes=" . $nrepresentantes
-                    . ", votossirep=" . $vsi_rep
-                    . ", votosnorep=" . $vno_rep
-                    . ", votosdeprep=" . $vdep_rep
                     . " WHERE idvotacionsnd=" . $id_votacion);
         }
     }
@@ -1934,9 +1919,9 @@ function checkVotaciones() {
 
 function checkObjetivos() {
 
-    //Comprobamos los objetivos para ver si cambian de estado o qué pasa
-    //Aquellos objetivos en el estado 1 con sus votaciones de "Aprobación" finalizadas y con resultado 2 pasan a estar rechazados (estado 2)
-    //Seleccionamos los objetivos con estado 1 (aprobación) y votación finalizada
+//Comprobamos los objetivos para ver si cambian de estado o qué pasa
+//Aquellos objetivos en el estado 1 con sus votaciones de "Aprobación" finalizadas y con resultado 2 pasan a estar rechazados (estado 2)
+//Seleccionamos los objetivos con estado 1 (aprobación) y votación finalizada
     $res = ejecutar("SELECT objetivo.*"
             . ", votacionsnd.resultado as resultado"
             . " FROM objetivo "
@@ -1952,29 +1937,29 @@ function checkObjetivos() {
 
         foreach ($objetivos_finalizados as $objetivo) {
 
-            //En función de su resultado hacemos una u otra cosa
+//En función de su resultado hacemos una u otra cosa
 
             $resultado_aprobacion = $objetivo['resultado'];
 
             $id_objetivo = $objetivo['idobjetivo'];
 
             if ($resultado_aprobacion == 1) {
-                //Si ha sido rechazada
-                //Pasa al estado 2 (rechazada)
+//Si ha sido rechazada
+//Pasa al estado 2 (rechazada)
 
                 $res = ejecutar("UPDATE objetivo SET"
                         . " estado_objetivo_idestado_objetivo=2"
                         . " WHERE idobjetivo=" . escape($id_objetivo));
             } else if ($resultado_aprobacion == 3) {
-                //Si ha sido aprobada
-                //Pasa al estado 5 (asignación)
+//Si ha sido aprobada
+//Pasa al estado 5 (asignación)
 
                 $res = ejecutar("UPDATE objetivo SET"
                         . " estado_objetivo_idestado_objetivo=5"
                         . " WHERE idobjetivo=" . escape($id_objetivo));
             } else if ($resultado_aprobacion == 2) {
-                //Si ha ganado el "Depende"
-                //Pasa al estado 4 (definición)
+//Si ha ganado el "Depende"
+//Pasa al estado 4 (definición)
 
                 $res = ejecutar("UPDATE objetivo SET"
                         . " estado_objetivo_idestado_objetivo=4"
@@ -2003,7 +1988,7 @@ function combinaciones($n, $k) {
 
     $nk = $n - $k;
     if ($k > ($nk)) {
-        //Si k > (n-k) dividmos n por n-k
+//Si k > (n-k) dividmos n por n-k
         $ninicial = $k;
         $otro = factorial($nk);
     } else {
@@ -2025,7 +2010,7 @@ function getEnunciadosDeGrupo($id_grupo) {
 }
 
 function votarDepende($idvotacion, $enunciado) {
-    //Votar depende en la votación y asociar a la votación el enunciado lógico que se le pasa (hay que traducirlo)
+//Votar depende en la votación y asociar a la votación el enunciado lógico que se le pasa (hay que traducirlo)
 }
 
 //Modifica los puntos de los miembros que se le pasan para el grupo indicado y de todos sus subgrupos
@@ -2034,7 +2019,7 @@ function modificarPuntos($id_grupo, $v_miembros, $nombre_campo, $puntos) {
     $subgrupos = getSubGruposID($id_grupo, 0);
 
     if (count($v_miembros) > 0) {
-        $consulta = "UPDATE miembros SET puntos_participacion = puntos_participacion ";
+        $consulta = "UPDATE miembro SET puntos_participacion = puntos_participacion ";
         if ($puntos >= 0) {
             $consulta.= " + " . escape($puntos);
         } else {
@@ -2059,10 +2044,18 @@ function modificarPuntos($id_grupo, $v_miembros, $nombre_campo, $puntos) {
 //Devuelve el número de miembros activos del grupo y sus subgrupos
 function nMiembrosActivos($id_grupo) {
 
+    $subgrupos = getSubgruposID($id_grupo, 0);
+
+
     $consulta = "SELECT COUNT(*) as nmiembros FROM miembros WHERE "
-            . " grupo_idgrupo = " . escape($id_grupo)
-            . " AND voluntad = 1"
-            . " AND puntos_participacion > 0";
+            . "( grupo_idgrupo = " . escape($id_grupo);
+
+    foreach ($subgrupos as $subgrupo) {
+        $consulta.= " OR grupo_idgrupo = " . escape($subgrupo);
+    }
+
+    $consulta.= ") AND voluntad = 2"
+            . " AND puntos_participacion >= 0";
 
     $array_num = toArray(ejecutar($consulta));
 
@@ -2071,7 +2064,44 @@ function nMiembrosActivos($id_grupo) {
 
 function sumarPuntos() {
     global $delta_puntos_tiempo;
-    $consulta = "UPDATE miembros SET puntos_participacion = puntos_participacion + " . Constantes::delta_puntos_tiempo;
+    $consulta = "UPDATE miembro SET puntos_participacion = puntos_participacion + " . Constantes::delta_puntos_tiempo;
 
     return ejecutar($consulta);
+}
+
+function castigarMalosRepresentantes() {
+
+//Identificar votaciones terminadas
+    $consulta = "SELECT idvotacionsnd, censo FROM votacionsnd WHERE checktime <= NOW()";
+
+    $terminadas = toArray(ejecutar($consulta));
+
+    //Para cada votación terminada comprobamos qué representantes se han abstenido
+    foreach ($terminadas as $votacion) {
+        $id_votacion = $votacion['idvotacionsnd'];
+        $id_grupo = $votacion['censo'];
+
+        //Identificamos a los representantes de las votaciones terminadas que no han votado
+
+        $consulta = "SELECT usuario_idusuario FROM votosnd"
+                . " WHERE votacionsnd_idvotacionsnd = $id_votacion" //en esta votación
+                . " AND representante = 1" //representantes
+                . " AND valor IS NULL"; //que no hayan votado
+
+        $malos_representantes = toArray(ejecutar($consulta));
+
+        //Restamos los puntos a los malos representantes
+        modificarPuntos($id_grupo, $malos_representantes, 'usuario_idusuario', Constantes::puntos_por_mal_representante);
+
+
+        //Limpiamos los votos de los representantes abstenidos
+        $consulta = "DELETE FROM votosnd"
+                . " WHERE votacionsnd_idvotacionsnd = $id_votacion" //en esta votación
+                . " AND representante = 1" //representantes
+                . " AND valor IS NULL"; //que no hayan votado
+
+        ejecutar($consulta);
+    }
+
+    //TODO Eliminamos los votos de los miembros no activos
 }
