@@ -12,5 +12,7 @@ class Constantes {
     const puntos_por_pregunta_importante = 100;
     //Puntos que se pierden por responder una pregunta importante
     const puntos_por_mal_representante = -100;
+    //Tiempo de actualización de puntos
+    const minutos_actualizacion_puntos = 5;
 
 }

@@ -1407,12 +1407,12 @@ function crearDecision($id_grupo, $enunciado) {
 
 function checkTime() {
 
+    sumarPuntos();
+    
     checkVotaciones();
 
     checkDecisiones();
     
-    sumarPuntos();
-
 //checkObjetivos();
 }
 
@@ -2063,9 +2063,11 @@ function nMiembrosActivos($id_grupo) {
 }
 
 function sumarPuntos() {
-    global $delta_puntos_tiempo;
-    $consulta = "UPDATE miembro SET puntos_participacion = puntos_participacion + " . Constantes::delta_puntos_tiempo;
-
+    $consulta = "UPDATE miembro SET"
+            . " puntos_participacion = puntos_participacion + " . Constantes::delta_puntos_tiempo
+            .", ultima_actualizacion = now()"
+            ." WHERE ultima_actualizacion <= DATE_SUB(now(), INTERVAL ".Constantes::minutos_actualizacion_puntos." MINUTE)";
+    
     return ejecutar($consulta);
 }
 
