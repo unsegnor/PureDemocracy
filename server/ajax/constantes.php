@@ -14,5 +14,7 @@ class Constantes {
     const puntos_por_mal_representante = -100;
     //Tiempo de actualización de puntos
     const minutos_actualizacion_puntos = 5;
+    //Puntos iniciales al ingresar en un grupo
+    const puntos_iniciales = 5;
 
 }

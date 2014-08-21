@@ -308,8 +308,8 @@ function addMiembro($id_usuario, $id_grupo) {
         try {
 
 //Añadimos el miembro
-            ejecutar("INSERT INTO `pdbdd`.`miembro` (`grupo_idgrupo`, `usuario_idusuario`) "
-                    . "VALUES (" . escape($id_grupo) . ", " . escape($id_usuario) . ")");
+            ejecutar("INSERT INTO `pdbdd`.`miembro` (`grupo_idgrupo`, `usuario_idusuario`, `puntos_participacion`, `voluntad`, `ultima_actualizacion`) "
+                    . "VALUES (" . escape($id_grupo) . ", " . escape($id_usuario) .", " . Constantes::puntos_iniciales .", 2, now())");
 
             actualizarTotalMiembrosDeGrupo($id_grupo);
 
