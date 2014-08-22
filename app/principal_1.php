@@ -12,6 +12,26 @@
                     Votaciones pendientes importantes
                 </div>
 
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            Grupo   
+                        </div>
+                        <div class="col-sm-5">
+                            Votación   
+                        </div>
+                        <div class="col-sm-2">
+                            Finalización
+                        </div>
+                        <div class="col-sm-2">
+                            Mi voto
+                        </div>
+                        <div class="col-sm-1">
+                            Recompensa
+                        </div>
+                    </div>
+                </div>
+
                 <div class="list-group">
                     <div class="list-group-item"
                          ng-repeat="votacion in votaciones| filter:{'finalizada':0}">
