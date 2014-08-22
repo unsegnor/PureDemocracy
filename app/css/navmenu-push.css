@@ -24,8 +24,8 @@ body {
     padding: 0;
   }
   .navbar {
-    right: auto;
-    background: none;
-    border: none;
+    //right: auto;
+    //background: none;
+    //border: none;
   }
 }
