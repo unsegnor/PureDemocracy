@@ -1,10 +1,14 @@
 
 
+
+<!-- Se pega con el push menu -->
+<!--
 <div id="footer">
     <div class="container">
         <p class="text-muted">Proyecto de Fin de Carrera de Víctor Calatayud Asensio.</p>
     </div>
 </div>
+-->
 
 <!-- Cargamos los js al final para que cargue más rápido la página -->
 
@@ -39,5 +43,9 @@
 
 <!-- Incluimos los templates de angular para bootstrap -->
 <script src="./../dev_components/ui-bootstrap-tpls-0.10.0.min.js"></script>
+
+<!-- Incluimos Jasny Bootstrap -->
+<script src="./js/jasny-bootstrap.min.js"></script>
+
 </body>
 </html>

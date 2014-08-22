@@ -19,6 +19,12 @@
         <!-- Optional theme -->
         <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">-->
         <link rel="stylesheet" href="./css/bootstrap-theme.min.css">
+        
+        <!-- Importamos jasny bootstrap -->
+        <link rel="stylesheet" href="./css/jasny-bootstrap.min.css">
+        
+        <!-- Estilos del pushmenu -->
+        <link rel="stylesheet" href="./css/navmenu-push.css">
 
         <!-- Estilos propios -->
         <link rel="stylesheet" type="text/css" href="./css/app.css">

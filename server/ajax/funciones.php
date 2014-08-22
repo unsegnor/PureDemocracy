@@ -2066,7 +2066,8 @@ function sumarPuntos() {
     $consulta = "UPDATE miembro SET"
             . " puntos_participacion = puntos_participacion + " . Constantes::delta_puntos_tiempo
             .", ultima_actualizacion = now()"
-            ." WHERE ultima_actualizacion <= DATE_SUB(now(), INTERVAL ".Constantes::minutos_actualizacion_puntos." MINUTE)";
+            ." WHERE ultima_actualizacion <= DATE_SUB(now(), INTERVAL ".Constantes::minutos_actualizacion_puntos." MINUTE)"
+            . " AND puntos_participacion <=0"; //Sólo sumamos puntos a los que no tienen
     
     return ejecutar($consulta);
 }

@@ -207,12 +207,12 @@ function createAutoClosingAlert(selector, delay) {
 }
 
 function notificar(mensaje) {
-    $("body").append("<div class='alert alert-success notificacion'>" + mensaje + "</div>");
+    $("body").append("<div class='alert alert-success notificacion alert-fixed-top'>" + mensaje + "</div>");
     createAutoClosingAlert(".notificacion", 2000);
 }
 
 function notificar_error(mensaje) {
-    $("body").append("<div class='alert alert-danger alert-dismissable notificacion-error'><button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button><strong>Error:</strong> " + mensaje + "</div>");
+    $("body").append("<div class='alert alert-danger alert-dismissable notificacion-error alert-fixed-top'><button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button><strong>Error:</strong> " + mensaje + "</div>");
     //createAutoClosingAlert(".notificacion", 2000);
 }
 

@@ -29,17 +29,11 @@ body {
 }
 
 .notificacion{
-    position: fixed;
-    bottom: 10%;
-    width: 20%;
-    right: 1%;
+
 }
 
 .notificacion-error{
-    position: fixed;
-    top: 10%;
-    width: 20%;
-    right: 1%;
+
 }
 
 img.peque
