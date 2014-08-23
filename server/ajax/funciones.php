@@ -59,7 +59,7 @@ function loginfacebook($nombre, $apellidos, $email, $userID, $token, $expiresin,
     //Hay que validar la información para que nadie pueda suplantar a un usuario de facebook
     //Comprobamos si existe el userID en facebook
 
-    $respuesta = "";
+    $respuesta = "OK";
     
     $consulta = "SELECT idusuario, nombre, apellidos, email, verificado FROM usuario WHERE fbid = '" . escape($userID)."'";
     $res = ejecutar($consulta);
@@ -117,15 +117,12 @@ function loginfacebook($nombre, $apellidos, $email, $userID, $token, $expiresin,
         } else {
             //Si no lo encuentra lo creamos con contraseña aleatoria
 
-            $respuesta.= "Creando nueva. ";
             
             $pass = getRandomString(16);
 
-            $respuesta.= " Pass: $pass";
             
             $pass_sha = sha1($pass);
 
-            $respuesta.= " Pass_sha: $pass_sha";
             
             $idusuario = insert_id("INSERT INTO `pdbdd`.`usuario` "
                     . "(`nombre`, `apellidos`, `email`, `pass`"
@@ -140,7 +137,6 @@ function loginfacebook($nombre, $apellidos, $email, $userID, $token, $expiresin,
                     . "," . ($verificado ? 1 : 0) . ""
                     . ")");
             
-            $respuesta.= " Idusuario: $idusuario";
 
             //Rellenamos la sesión
             $_SESSION['pd_identificado'] = true;
