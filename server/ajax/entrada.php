@@ -37,6 +37,7 @@ try {
         , 'votarDepende'
         , 'getUsuarioActual'
         , 'setUsuarioActual'
+        , 'loginfacebook'
     );
     
     $funcionesProhibidas = array(

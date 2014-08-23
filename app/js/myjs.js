@@ -99,9 +99,54 @@ function mapear(vector, id_attr) {
     return respuesta;
 }
 
-function checkLogin(servicio) {
+function checkLogin(servicio, login, nologin) {
     //Comprobar si el usuario tiene sesión y redirigir a login
     allamar(servicio, 'checkLogin', null, function(res) {
+        //Si está logueado en la aplicación todo OK
+        //alert(JSON.stringify(res));
+        if (res.resultado) {
+            login();
+        } else {
+            //Si no está logueado comprobamos si está logueado en facebook
+            FB.getLoginStatus(function(response) {
+                //alert(JSON.stringify(response));
+                if (response.status === 'connected') {
+
+                    //Recogemos los últimos datos del usuario (nombre, apellidos, correo electrónico)
+                    FB.api('/me', function(usuario) {
+
+                        allamar(servicio
+                                , 'loginfacebook'
+                                ,[
+                                        usuario.first_name
+                                        , usuario.last_name
+                                        , usuario.email
+                                        , response.authResponse.userID
+                                        , response.authResponse.accessToken
+                                        , response.authResponse.expiresIn
+                                        , usuario.verified
+                                ]
+                                , function(res) {
+                                    //Si todo va bien continuamos
+                                    login();
+                                }, function(res){
+                                    //Sino nada
+                                    nologin();
+                                });
+                    });
+                } else {
+                    //Si no está logueado en facebook lo mandamos al login
+                    nologin();
+                }
+            });
+        }
+    });
+}
+
+function checkLoginSimple(servicio) {
+    //Comprobar si el usuario tiene sesión y redirigir a login
+    allamar(servicio, 'checkLogin', null, function(res) {
+        //Si está logueado en la aplicación todo OK
         if (!res.resultado) {
             redirect("login.php");
         }
@@ -110,3 +155,6 @@ function checkLogin(servicio) {
 
 var siguienteposicion = 0;
 
+function reload(){
+    $route.reload();
+}

@@ -18,7 +18,12 @@
                 </div>
                 <button type="submit" class="btn btn-primary"
                         ng-click="dologin(login.email, login.pass)">Entrar</button>
+                <div class="btn btn-default">
+                    <fb:login-button scope="public_profile,email" onlogin="redirect('principal.php');" class>
+                    </fb:login-button>
+                </div>
             </form>
+
         </div>
     </div>
 
@@ -36,6 +41,10 @@
             </div>
             <button type="submit" class="btn btn-primary"
                     ng-click="dologin(login.email, login.pass)">Entrar</button>
+            <div class="btn btn-default">
+                <fb:login-button scope="public_profile,email" onlogin="redirect('principal.php');" class>
+                </fb:login-button>
+            </div>
         </form>
         <div class="row">
             <div class="col-sm-6">
@@ -82,6 +91,10 @@
                     <button type="submit" class="btn btn-success"
                             ng-click="registernew(newuser.name, newuser.surname, newuser.email, newuser.pass)"
                             >Registrar nuevo usuario</button>
+                    <div class="btn btn-default">
+                        <fb:login-button scope="public_profile,email" onlogin="redirect('principal.php');" class>
+                        </fb:login-button>
+                    </div>
                 </form>
             </div>
         </div><!-- row -->

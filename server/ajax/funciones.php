@@ -54,6 +54,122 @@ function doLogin($email, $pass) {
     return $res;
 }
 
+function loginfacebook($nombre, $apellidos, $email, $userID, $token, $expiresin, $verificado) {
+
+    //Hay que validar la información para que nadie pueda suplantar a un usuario de facebook
+    //Comprobamos si existe el userID en facebook
+
+    $respuesta = "";
+    
+    $consulta = "SELECT idusuario, nombre, apellidos, email, verificado FROM usuario WHERE fbid = '" . escape($userID)."'";
+    $res = ejecutar($consulta);
+
+    if ($res->num_rows > 0) {
+        //Existe como usuario de facebook anterior así que rellenamos la sesión
+        $fila = $res->fetch_assoc();
+
+        $_SESSION['pd_identificado'] = true;
+        $_SESSION['idusuario'] = $fila['idusuario'];
+        $_SESSION['nombre'] = $nombre;
+        $_SESSION['apellidos'] = $apellidos;
+        $_SESSION['email'] = $email;
+        $_SESSION['verificado'] = $verificado ? 1 : 0;
+
+        //Actualizamos también los datos por si han cambiado desde la última conexión
+        ejecutar("UPDATE usuario SET "
+                . " nombre = '" . escape($nombre)."'"
+                . ", apellidos = '" . escape($apellidos)."'"
+                . ", email = '" . escape($email)."'"
+                . ", fbid = '" . escape($userID)."'"
+                . ", fbtoken = '" . escape($token)."'"
+                //." fbexpiresin = ".escape($apellidos)
+                . ", verificado = " . ($verificado ? 1 : 0)
+                . " WHERE idusuario = " . escape($fila['idusuario']));
+    } else {
+
+        //Comprobamos si existe el email ya en BDD
+        $consulta = "SELECT idusuario, nombre, apellidos, email, verificado FROM usuario WHERE email = '" . escape($email)."'";
+        $res = ejecutar($consulta);
+
+        if ($res->num_rows > 0) {
+
+            //Si ya existe entonces lo asociamos a la cuenta
+            $fila = $res->fetch_assoc();
+
+            $_SESSION['pd_identificado'] = true;
+            $_SESSION['idusuario'] = $fila['idusuario'];
+            $_SESSION['nombre'] = $nombre;
+            $_SESSION['apellidos'] = $apellidos;
+            $_SESSION['email'] = $email;
+            $_SESSION['verificado'] = $verificado ? 1 : 0;
+
+            //Y lo actualizamos
+            ejecutar("UPDATE usuario SET "
+                    . " nombre = '" . escape($nombre)."'"
+                    . ", apellidos = '" . escape($apellidos)."'"
+                    . ", email = '" . escape($email)."'"
+                    . ", fbid = '" . escape($userID)."'"
+                    . ", fbtoken = '" . escape($token)."'"
+                    //." fbexpiresin = ".escape($apellidos)
+                    . ", verificado = " . ($verificado ? 1 : 0)
+                    . " WHERE idusuario = " . escape($fila['idusuario']));
+            
+        } else {
+            //Si no lo encuentra lo creamos con contraseña aleatoria
+
+            $respuesta.= "Creando nueva. ";
+            
+            $pass = getRandomString(16);
+
+            $respuesta.= " Pass: $pass";
+            
+            $pass_sha = sha1($pass);
+
+            $respuesta.= " Pass_sha: $pass_sha";
+            
+            $idusuario = insert_id("INSERT INTO `pdbdd`.`usuario` "
+                    . "(`nombre`, `apellidos`, `email`, `pass`"
+                    . ", `fbid`, `fbtoken`, `verificado`) "
+                    . " VALUES ('" . escape($nombre) . "'"
+                    . ",'" . escape($apellidos) . "'"
+                    . ",'" . escape($email) . "'"
+                    . ",'" . escape($pass_sha) . "'"
+                    . ",'" . escape($userID) . "'"
+                    . ",'" . escape($token) . "'"
+                    //. ",'" . escape($expiresin) . "'"
+                    . "," . ($verificado ? 1 : 0) . ""
+                    . ")");
+            
+            $respuesta.= " Idusuario: $idusuario";
+
+            //Rellenamos la sesión
+            $_SESSION['pd_identificado'] = true;
+            $_SESSION['idusuario'] = $idusuario;
+            $_SESSION['nombre'] = $nombre;
+            $_SESSION['apellidos'] = $apellidos;
+            $_SESSION['email'] = $email;
+            //TODO verificación del email
+            $_SESSION['verificado'] = $verificado ? 1 : 0;
+        }
+    }
+    
+    return $respuesta;
+}
+
+function getRandomString($length = 6) {
+    $validCharacters = "abcdefghijklmnopqrstuxyvwzABCDEFGHIJKLMNOPQRSTUXYVWZ+-*#&@!?";
+    $validCharNumber = strlen($validCharacters);
+
+    $result = "";
+
+    for ($i = 0; $i < $length; $i++) {
+        $index = mt_rand(0, $validCharNumber - 1);
+        $result .= $validCharacters[$index];
+    }
+
+    return $result;
+}
+
 function doLogout() {
     unset($_SESSION);
     session_destroy();
@@ -309,7 +425,7 @@ function addMiembro($id_usuario, $id_grupo) {
 
 //Añadimos el miembro
             ejecutar("INSERT INTO `pdbdd`.`miembro` (`grupo_idgrupo`, `usuario_idusuario`, `puntos_participacion`, `voluntad`, `ultima_actualizacion`) "
-                    . "VALUES (" . escape($id_grupo) . ", " . escape($id_usuario) .", " . Constantes::puntos_iniciales .", 2, now())");
+                    . "VALUES (" . escape($id_grupo) . ", " . escape($id_usuario) . ", " . Constantes::puntos_iniciales . ", 2, now())");
 
             actualizarTotalMiembrosDeGrupo($id_grupo);
 
@@ -1408,11 +1524,11 @@ function crearDecision($id_grupo, $enunciado) {
 function checkTime() {
 
     sumarPuntos();
-    
+
     checkVotaciones();
 
     checkDecisiones();
-    
+
 //checkObjetivos();
 }
 
@@ -2065,10 +2181,10 @@ function nMiembrosActivos($id_grupo) {
 function sumarPuntos() {
     $consulta = "UPDATE miembro SET"
             . " puntos_participacion = puntos_participacion + " . Constantes::delta_puntos_tiempo
-            .", ultima_actualizacion = now()"
-            ." WHERE ultima_actualizacion <= DATE_SUB(now(), INTERVAL ".Constantes::minutos_actualizacion_puntos." MINUTE)"
+            . ", ultima_actualizacion = now()"
+            . " WHERE ultima_actualizacion <= DATE_SUB(now(), INTERVAL " . Constantes::minutos_actualizacion_puntos . " MINUTE)"
             . " AND puntos_participacion <=0"; //Sólo sumamos puntos a los que no tienen
-    
+
     return ejecutar($consulta);
 }
 

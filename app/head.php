@@ -19,10 +19,10 @@
         <!-- Optional theme -->
         <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">-->
         <link rel="stylesheet" href="./css/bootstrap-theme.min.css">
-        
+
         <!-- Importamos jasny bootstrap -->
         <link rel="stylesheet" href="./css/jasny-bootstrap.min.css">
-        
+
         <!-- Estilos del pushmenu -->
         <link rel="stylesheet" href="./css/navmenu-push.css">
 
@@ -31,3 +31,24 @@
 
     </head>
     <body>
+
+        <!-- Cargamos el api de facebook -->
+        <script>
+            window.fbAsyncInit = function() {
+                FB.init({
+                    appId: '605582532896240',
+                    xfbml: true,
+                    version: 'v2.0'
+                });
+            };
+
+            (function(d, s, id) {
+                var js, fjs = d.getElementsByTagName(s)[0];
+                if (d.getElementById(id))
+                    return;
+                js = d.createElement(s);
+                js.id = id;
+                js.src = "//connect.facebook.net/es_LA/sdk.js";
+                fjs.parentNode.insertBefore(js, fjs);
+            }(document, 'script', 'facebook-jssdk'));
+        </script>
