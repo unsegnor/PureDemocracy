@@ -54,46 +54,51 @@ function doLogin($email, $pass) {
     return $res;
 }
 
+function verificarloginfacebook($userID, $token) {
+
+    //Enviamos el token del usuario y el nuestro público a facebook para que nos devuelva los datos relacionados
+
+    $res = false;
+
+    $user_token_url = urlencode($token);
+    $app_id = '605582532896240';
+    $app_token = '605582532896240|fVsRDcw9D5z3yXIIG6eyvK0bakw';
+
+    //Hacemos una llamada a facebook para que nos verifique el token
+    $url = "https://graph.facebook.com/debug_token?input_token=$user_token_url&access_token=$app_token";
+
+    $respuesta = file_get_contents($url);
+
+    //Aquí hemos recibido la información de facebook para validarla
+    //Decodificamos el json
+    $r = json_decode($respuesta);
+    $datos = $r->data;
+
+    //comprobamos que sea válida la asociación
+    //y que coincidan los identificadores de usuario y aplicación
+    if ($datos->is_valid && $datos->app_id == $app_id & $datos->user_id == $userID) {
+        $res = true;
+    }
+    //Si no coinciden o falla algo sigue siendo false
+
+    return $res;
+}
+
 function loginfacebook($nombre, $apellidos, $email, $userID, $token, $expiresin, $verificado) {
 
     //Hay que validar la información para que nadie pueda suplantar a un usuario de facebook
-    //Comprobamos si existe el userID en facebook
 
-    $respuesta = "OK";
+    $respuesta = false;
     
-    $consulta = "SELECT idusuario, nombre, apellidos, email, verificado FROM usuario WHERE fbid = '" . escape($userID)."'";
-    $res = ejecutar($consulta);
+    if (verificarloginfacebook($userID, $token)) {
 
-    if ($res->num_rows > 0) {
-        //Existe como usuario de facebook anterior así que rellenamos la sesión
-        $fila = $res->fetch_assoc();
+        //Comprobamos si existe el userID en facebook
 
-        $_SESSION['pd_identificado'] = true;
-        $_SESSION['idusuario'] = $fila['idusuario'];
-        $_SESSION['nombre'] = $nombre;
-        $_SESSION['apellidos'] = $apellidos;
-        $_SESSION['email'] = $email;
-        $_SESSION['verificado'] = $verificado ? 1 : 0;
-
-        //Actualizamos también los datos por si han cambiado desde la última conexión
-        ejecutar("UPDATE usuario SET "
-                . " nombre = '" . escape($nombre)."'"
-                . ", apellidos = '" . escape($apellidos)."'"
-                . ", email = '" . escape($email)."'"
-                . ", fbid = '" . escape($userID)."'"
-                . ", fbtoken = '" . escape($token)."'"
-                //." fbexpiresin = ".escape($apellidos)
-                . ", verificado = " . ($verificado ? 1 : 0)
-                . " WHERE idusuario = " . escape($fila['idusuario']));
-    } else {
-
-        //Comprobamos si existe el email ya en BDD
-        $consulta = "SELECT idusuario, nombre, apellidos, email, verificado FROM usuario WHERE email = '" . escape($email)."'";
+        $consulta = "SELECT idusuario, nombre, apellidos, email, verificado FROM usuario WHERE fbid = '" . escape($userID) . "'";
         $res = ejecutar($consulta);
 
         if ($res->num_rows > 0) {
-
-            //Si ya existe entonces lo asociamos a la cuenta
+            //Existe como usuario de facebook anterior así que rellenamos la sesión
             $fila = $res->fetch_assoc();
 
             $_SESSION['pd_identificado'] = true;
@@ -103,52 +108,85 @@ function loginfacebook($nombre, $apellidos, $email, $userID, $token, $expiresin,
             $_SESSION['email'] = $email;
             $_SESSION['verificado'] = $verificado ? 1 : 0;
 
-            //Y lo actualizamos
-            ejecutar("UPDATE usuario SET "
-                    . " nombre = '" . escape($nombre)."'"
-                    . ", apellidos = '" . escape($apellidos)."'"
-                    . ", email = '" . escape($email)."'"
-                    . ", fbid = '" . escape($userID)."'"
-                    . ", fbtoken = '" . escape($token)."'"
+            //Actualizamos también los datos por si han cambiado desde la última conexión
+            $respuesta = ejecutar("UPDATE usuario SET "
+                    . " nombre = '" . escape($nombre) . "'"
+                    . ", apellidos = '" . escape($apellidos) . "'"
+                    . ", email = '" . escape($email) . "'"
+                    . ", fbid = '" . escape($userID) . "'"
+                    . ", fbtoken = '" . escape($token) . "'"
                     //." fbexpiresin = ".escape($apellidos)
                     . ", verificado = " . ($verificado ? 1 : 0)
                     . " WHERE idusuario = " . escape($fila['idusuario']));
             
         } else {
-            //Si no lo encuentra lo creamos con contraseña aleatoria
 
-            
-            $pass = getRandomString(16);
+            //Comprobamos si existe el email ya en BDD
+            $consulta = "SELECT idusuario, nombre, apellidos, email, verificado FROM usuario WHERE email = '" . escape($email) . "'";
+            $res = ejecutar($consulta);
 
-            
-            $pass_sha = sha1($pass);
+            if ($res->num_rows > 0) {
 
-            
-            $idusuario = insert_id("INSERT INTO `pdbdd`.`usuario` "
-                    . "(`nombre`, `apellidos`, `email`, `pass`"
-                    . ", `fbid`, `fbtoken`, `verificado`) "
-                    . " VALUES ('" . escape($nombre) . "'"
-                    . ",'" . escape($apellidos) . "'"
-                    . ",'" . escape($email) . "'"
-                    . ",'" . escape($pass_sha) . "'"
-                    . ",'" . escape($userID) . "'"
-                    . ",'" . escape($token) . "'"
-                    //. ",'" . escape($expiresin) . "'"
-                    . "," . ($verificado ? 1 : 0) . ""
-                    . ")");
-            
+                //Si ya existe entonces lo asociamos a la cuenta
+                $fila = $res->fetch_assoc();
 
-            //Rellenamos la sesión
-            $_SESSION['pd_identificado'] = true;
-            $_SESSION['idusuario'] = $idusuario;
-            $_SESSION['nombre'] = $nombre;
-            $_SESSION['apellidos'] = $apellidos;
-            $_SESSION['email'] = $email;
-            //TODO verificación del email
-            $_SESSION['verificado'] = $verificado ? 1 : 0;
+                $_SESSION['pd_identificado'] = true;
+                $_SESSION['idusuario'] = $fila['idusuario'];
+                $_SESSION['nombre'] = $nombre;
+                $_SESSION['apellidos'] = $apellidos;
+                $_SESSION['email'] = $email;
+                $_SESSION['verificado'] = $verificado ? 1 : 0;
+
+                //Y lo actualizamos
+                $respuesta = ejecutar("UPDATE usuario SET "
+                        . " nombre = '" . escape($nombre) . "'"
+                        . ", apellidos = '" . escape($apellidos) . "'"
+                        . ", email = '" . escape($email) . "'"
+                        . ", fbid = '" . escape($userID) . "'"
+                        . ", fbtoken = '" . escape($token) . "'"
+                        //." fbexpiresin = ".escape($apellidos)
+                        . ", verificado = " . ($verificado ? 1 : 0)
+                        . " WHERE idusuario = " . escape($fila['idusuario']));
+            } else {
+                //Si no lo encuentra lo creamos con contraseña aleatoria
+
+
+                $pass = getRandomString(16);
+
+
+                $pass_sha = sha1($pass);
+
+
+                $idusuario = insert_id("INSERT INTO `pdbdd`.`usuario` "
+                        . "(`nombre`, `apellidos`, `email`, `pass`"
+                        . ", `fbid`, `fbtoken`, `verificado`) "
+                        . " VALUES ('" . escape($nombre) . "'"
+                        . ",'" . escape($apellidos) . "'"
+                        . ",'" . escape($email) . "'"
+                        . ",'" . escape($pass_sha) . "'"
+                        . ",'" . escape($userID) . "'"
+                        . ",'" . escape($token) . "'"
+                        //. ",'" . escape($expiresin) . "'"
+                        . "," . ($verificado ? 1 : 0) . ""
+                        . ")");
+
+
+                //Rellenamos la sesión
+                $_SESSION['pd_identificado'] = true;
+                $_SESSION['idusuario'] = $idusuario;
+                $_SESSION['nombre'] = $nombre;
+                $_SESSION['apellidos'] = $apellidos;
+                $_SESSION['email'] = $email;
+                //TODO verificación del email
+                $_SESSION['verificado'] = $verificado ? 1 : 0;
+                
+                $respuesta = true;
+            }
         }
+    } else {
+        throw new Exception("No se han podido validar los datos. 1.El token de cliente o de aplicación está caducado ó 2.no corresponde con sus identificadores de cliente y aplicación respectivamente ó 3.Facebook no responde correctamente.");
     }
-    
+
     return $respuesta;
 }
 

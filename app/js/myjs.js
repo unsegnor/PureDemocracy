@@ -99,6 +99,7 @@ function mapear(vector, id_attr) {
     return respuesta;
 }
 
+//comprueba si está logueado y conduce a login o nologin según el resultado
 function checkLogin(servicio, login, nologin) {
     //Comprobar si el usuario tiene sesión y redirigir a login
     allamar(servicio, 'checkLogin', null, function(res) {
