@@ -5,15 +5,13 @@
 angular.module('puredemocracyapp.controllers', [])
         .controller('controladorplantilla', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
-                checkLogin($http, function() {
-                }, function() {
+                checkLogin($http, nop, function() {
                     redirect("login.php");
                 });
             }])
         .controller('controladorperfil', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
-                checkLogin($http, function() {
-                }, function() {
+                checkLogin($http, nop, function() {
                     redirect("login.php");
                 });
 
@@ -39,8 +37,7 @@ angular.module('puredemocracyapp.controllers', [])
             }])
         .controller('controladordetallegrupo', ['$scope', '$http', '$interval', '$modal', function($scope, $http, $interval, $modal) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
-                checkLogin($http, function() {
-                }, function() {
+                checkLogin($http, nop, function() {
                     redirect("login.php");
                 });
 
@@ -225,8 +222,7 @@ angular.module('puredemocracyapp.controllers', [])
             }])
         .controller('controladorgrupos', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
-                checkLogin($http, function() {
-                }, function() {
+                checkLogin($http, nop, function() {
                     redirect("login.php");
                 });
                 //Cargar grupos
@@ -255,8 +251,7 @@ angular.module('puredemocracyapp.controllers', [])
         .controller('controladorobjetivos', ['$scope', '$http', function($scope, $http) {
 
                 //Comprobar si el usuario tiene sesión y redirigir a login
-                checkLogin($http, function() {
-                }, function() {
+                checkLogin($http, nop, function() {
                     redirect("login.php");
                 });
 
@@ -298,9 +293,7 @@ angular.module('puredemocracyapp.controllers', [])
         .controller('controladorlogout', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 allamar($http, 'doLogout', null, function(res) {
-                    if (res.resultado) {
-                        redirect("login.php");
-                    } else {
+                    if (!res.resultado) {
                         redirect("principal.php");
                     }
                 });
@@ -379,7 +372,7 @@ angular.module('puredemocracyapp.controllers', [])
                 };
 
                 //Comprobar si el usuario tiene sesión y redirigir a login
-                checkLogin($http, $scope.init(), function() {
+                checkLogin($http, $scope.init, function() {
                     redirect("login.php");
                 });
             }])
@@ -387,7 +380,7 @@ angular.module('puredemocracyapp.controllers', [])
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 checkLogin($http, function() {
                     redirect('principal.php');
-                }, function() {});
+                }, nop);
 
                 //Inicializamos la estructura login
                 $scope.login = {};
@@ -401,8 +394,6 @@ angular.module('puredemocracyapp.controllers', [])
                         //alert(JSON.stringify(res));
                         if (res.resultado) {
                             redirect("principal.php");
-                        } else {
-                            //Si no ha funcionado nos quedamos (se mostrará el mensaje de error)
                         }
                     });
                 };

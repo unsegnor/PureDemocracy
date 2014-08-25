@@ -117,22 +117,22 @@ function checkLogin(servicio, login, nologin) {
 
                         allamar(servicio
                                 , 'loginfacebook'
-                                ,[
-                                        usuario.first_name
-                                        , usuario.last_name
-                                        , usuario.email
-                                        , response.authResponse.userID
-                                        , response.authResponse.accessToken
-                                        , response.authResponse.expiresIn
-                                        , usuario.verified
+                                , [
+                                    usuario.first_name
+                                            , usuario.last_name
+                                            , usuario.email
+                                            , response.authResponse.userID
+                                            , response.authResponse.accessToken
+                                            , response.authResponse.expiresIn
+                                            , usuario.verified
                                 ]
                                 , function(res) {
                                     //Si todo va bien continuamos
-                                    login();
-                                }, function(res){
-                                    //Sino nada
-                                    nologin();
-                                });
+                                        login();
+                                }, function(res) {
+                            //Sino nada
+                            nologin();
+                        });
                     });
                 } else {
                     //Si no está logueado en facebook lo mandamos al login
@@ -155,6 +155,10 @@ function checkLoginSimple(servicio) {
 
 var siguienteposicion = 0;
 
-function reload(){
+function reload() {
     $route.reload();
+}
+
+function nop(){
+    //alert("NOP");
 }
