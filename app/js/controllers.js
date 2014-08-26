@@ -40,12 +40,8 @@ angular.module('puredemocracyapp.controllers', [])
                 checkLogin($http, nop, function() {
                     redirect("login.php");
                 });
-                
-                                //Componemos el menú
-                $scope.menuinferior = [];
-                $scope.menuinferior.push({"texto":"Chat", "link": "#"});
-                $scope.menuinferior.push({"texto":"Votaciones", "link": "#"});
-                $scope.menuinferior.push({"texto":"Nueva votación", "link": "#"});
+
+
 
                 //Cargar la información del grupo
                 $scope.cargarGrupo = function(id) {
@@ -54,6 +50,12 @@ angular.module('puredemocracyapp.controllers', [])
                         //alert(JSON.stringify(res));
                         $scope.grupo = res.resultado;
                     });
+
+                    //Componemos el menú
+                    $scope.menuinferior = [];
+                    $scope.menuinferior.push({"texto": "", "link": "chatgrupo.php?id=" + id, "icon": "comment"});
+                    $scope.menuinferior.push({"texto": "", "link": "#", "icon": "search"});
+                    $scope.menuinferior.push({"texto": "", "link": "#", "icon": "plus"});
 
                 };
 
@@ -231,13 +233,13 @@ angular.module('puredemocracyapp.controllers', [])
                 checkLogin($http, nop, function() {
                     redirect("login.php");
                 });
-                
+
                 //Componemos el menú
                 $scope.menuinferior = [];
-                $scope.menuinferior.push({"texto":"Mios", "link": "#"});
-                $scope.menuinferior.push({"texto":"Todos", "link": "#"});
-                
-                
+                $scope.menuinferior.push({"texto": "", "link": "#", "icon": "user"});
+                $scope.menuinferior.push({"texto": "", "link": "#", "icon": "asterisk"});
+
+
                 //Cargar grupos
                 $scope.cargarGrupos = function() {
                     allamar($http, 'getGrupos', null, function(res) {
@@ -490,3 +492,7 @@ function controladorintroducirenunciado($scope, $http, $modalInstance, idgrupo) 
     };
 }
 ;
+
+function pruebafuncion() {
+    alert("Prueba");
+}

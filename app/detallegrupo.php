@@ -179,10 +179,9 @@ $id = filter_input(INPUT_GET, 'id');
         <div class="navbar-inner">
             <ul class="nav navbar-nav">
                 <!-- un enlace por cada objeto del menu inferior -->
-                <li ng-repeat="item in menuinferior"><a href="{{item.link}}">{{item.texto}}</a></li>
+                <li ng-repeat="item in menuinferior"><a href="{{item.link}}"><span class="glyphicon glyphicon-{{item.icon}}"></span>{{item.texto}}</a></li>
             </ul>
         </div>
-
     </nav>
 </div>
 <?php include dirname(__FILE__) . "./footer.php"; ?>
