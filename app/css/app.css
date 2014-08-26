@@ -41,22 +41,53 @@ img.peque
     width: 100px;
 }
 
+//Para centrar los botones de la barra de navegación
+/*.navbar-nav{
+    float:none;
+    margin: 0 auto;
+    display: table;
+    table-layout: fixed;
+}*/
+
+//Para que el menú no colapse
+.navbar-collapse.collapse {
+    display: block!important;
+}
+
+.navbar-nav>li, .navbar-nav {
+    float: inherit !important;
+    margin: 0 auto;
+    display: flex;
+    table-layout: fixed;
+}
+
+
+.navbar-nav.navbar-right:last-child {
+    margin-right: -15px !important;
+}
+
+.navbar-right {
+    float: right!important;
+}
+
+
+
 /* Sticky footer styles
 -------------------------------------------------- */
-html {
-    position: relative;
-    min-height: 100%;
-}
-body {
-    /* Margin bottom by footer height */
-    margin-bottom: 60px;
-}
-#footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    /* Set the fixed height of the footer here */
-    height: 60px;
-    background-color: #f5f5f5;
-}
+//html {
+//    position: relative;
+//    min-height: 100%;
+//}
+//body {
+//    /* Margin bottom by footer height */
+//    margin-bottom: 60px;
+//}
+//#footer {
+//    position: absolute;
+//    bottom: 0;
+//    width: 100%;
+//    /* Set the fixed height of the footer here */
+//    height: 60px;
+//    background-color: #f5f5f5;
+//}
 /*-------------------------------------------------- */

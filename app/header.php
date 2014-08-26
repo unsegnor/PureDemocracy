@@ -39,6 +39,16 @@ include dirname(__FILE__) . "./head.php";
     </button>
 </div>
 
+<nav class="navbar navbar-default navbar-fixed-bottom">
+  <div class="navbar-inner">
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="#">Home</a></li>
+      <li><a href="#">Link</a></li>
+      <li><a href="#">Link</a></li>
+    </ul>
+  </div>
+</nav>
+
 
 
 
