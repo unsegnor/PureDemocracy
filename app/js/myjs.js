@@ -136,7 +136,6 @@ function checkLogin(servicio, login, nologin) {
                         });
                     });
                 } else {
-                    //Si no está logueado en facebook lo mandamos al login
                     nologin();
                 }
             });

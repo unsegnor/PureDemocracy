@@ -9,6 +9,24 @@ angular.module('puredemocracyapp.controllers', [])
                     redirect("login.php");
                 });
             }])
+        .controller('controladormisgrupos', ['$scope', '$http', function($scope, $http) {
+                //Comprobar si el usuario tiene sesión y redirigir a login
+                checkLogin($http, nop, function() {
+                    redirect("login.php");
+                });
+            }])
+        .controller('controladortodosgrupos', ['$scope', '$http', function($scope, $http) {
+                //Comprobar si el usuario tiene sesión y redirigir a login
+                checkLogin($http, nop, function() {
+                    redirect("login.php");
+                });
+            }])
+        .controller('controladornuevogrupo', ['$scope', '$http', function($scope, $http) {
+                //Comprobar si el usuario tiene sesión y redirigir a login
+                checkLogin($http, nop, function() {
+                    redirect("login.php");
+                });
+            }])
         .controller('controladorperfil', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 checkLogin($http, nop, function() {
