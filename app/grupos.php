@@ -101,5 +101,16 @@
         </div>
 
     </div>
+
+    <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="navbar-inner">
+            <ul class="nav navbar-nav">
+                <!-- un enlace por cada objeto del menu inferior -->
+                <li ng-repeat="item in menuinferior"><a href="{{item.link}}">{{item.texto}}</a></li>
+            </ul>
+        </div>
+
+    </nav>
+
 </div>
 <?php include dirname(__FILE__) . "./footer.php"; ?>

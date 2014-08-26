@@ -38,7 +38,7 @@ include dirname(__FILE__) . "./head.php";
         <span class="icon-bar"></span>
     </button>
 </div>
-
+<!--
 <nav class="navbar navbar-default navbar-fixed-bottom">
   <div class="navbar-inner">
     <ul class="nav navbar-nav">
@@ -48,7 +48,7 @@ include dirname(__FILE__) . "./head.php";
     </ul>
   </div>
 </nav>
-
+-->
 
 
 

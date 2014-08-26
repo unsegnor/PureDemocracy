@@ -40,6 +40,12 @@ angular.module('puredemocracyapp.controllers', [])
                 checkLogin($http, nop, function() {
                     redirect("login.php");
                 });
+                
+                                //Componemos el menú
+                $scope.menuinferior = [];
+                $scope.menuinferior.push({"texto":"Chat", "link": "#"});
+                $scope.menuinferior.push({"texto":"Votaciones", "link": "#"});
+                $scope.menuinferior.push({"texto":"Nueva votación", "link": "#"});
 
                 //Cargar la información del grupo
                 $scope.cargarGrupo = function(id) {
@@ -225,6 +231,13 @@ angular.module('puredemocracyapp.controllers', [])
                 checkLogin($http, nop, function() {
                     redirect("login.php");
                 });
+                
+                //Componemos el menú
+                $scope.menuinferior = [];
+                $scope.menuinferior.push({"texto":"Mios", "link": "#"});
+                $scope.menuinferior.push({"texto":"Todos", "link": "#"});
+                
+                
                 //Cargar grupos
                 $scope.cargarGrupos = function() {
                     allamar($http, 'getGrupos', null, function(res) {

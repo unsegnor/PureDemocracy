@@ -130,8 +130,8 @@ $id = filter_input(INPUT_GET, 'id');
                         </div>
                         <div class="col-sm-1">
                             <div ng-show="votacion.valor == null">
-                            <span class="badge alert-info" ng-show="votacion.representante == null || votacion.representante == 0">+5</span>
-                            <span class="badge alert-info" ng-show="votacion.representante == 1">+100</span>
+                                <span class="badge alert-info" ng-show="votacion.representante == null || votacion.representante == 0">+5</span>
+                                <span class="badge alert-info" ng-show="votacion.representante == 1">+100</span>
                             </div>
                         </div>
                     </div>
@@ -174,5 +174,15 @@ $id = filter_input(INPUT_GET, 'id');
         </div>
 
     </div>
+
+    <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="navbar-inner">
+            <ul class="nav navbar-nav">
+                <!-- un enlace por cada objeto del menu inferior -->
+                <li ng-repeat="item in menuinferior"><a href="{{item.link}}">{{item.texto}}</a></li>
+            </ul>
+        </div>
+
+    </nav>
 </div>
 <?php include dirname(__FILE__) . "./footer.php"; ?>
