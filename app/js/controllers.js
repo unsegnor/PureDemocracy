@@ -51,12 +51,6 @@ angular.module('puredemocracyapp.controllers', [])
                         $scope.grupo = res.resultado;
                     });
 
-                    //Componemos el menú
-                    $scope.menuinferior = [];
-                    $scope.menuinferior.push({"texto": "", "link": "chatgrupo.php?id=" + id, "icon": "comment"});
-                    $scope.menuinferior.push({"texto": "", "link": "#", "icon": "search"});
-                    $scope.menuinferior.push({"texto": "", "link": "#", "icon": "plus"});
-
                 };
 
                 $scope.init = function(id) {
@@ -233,11 +227,6 @@ angular.module('puredemocracyapp.controllers', [])
                 checkLogin($http, nop, function() {
                     redirect("login.php");
                 });
-
-                //Componemos el menú
-                $scope.menuinferior = [];
-                $scope.menuinferior.push({"texto": "", "link": "#", "icon": "user"});
-                $scope.menuinferior.push({"texto": "", "link": "#", "icon": "asterisk"});
 
 
                 //Cargar grupos

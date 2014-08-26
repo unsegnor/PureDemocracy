@@ -179,7 +179,10 @@ $id = filter_input(INPUT_GET, 'id');
         <div class="navbar-inner">
             <ul class="nav navbar-nav">
                 <!-- un enlace por cada objeto del menu inferior -->
-                <li ng-repeat="item in menuinferior"><a href="{{item.link}}"><span class="glyphicon glyphicon-{{item.icon}}"></span>{{item.texto}}</a></li>
+                <li ><a href="chatgrupo.php?id=<?php echo $id ?>" title="chat"><span class="glyphicon glyphicon-comment"></span></a></li>
+                <li ><a href="votaciones.php?id=<?php echo $id ?>" title="ver votaciones"><span class="glyphicon glyphicon-search"></span></a></li>
+                <li ><a href="nuevavotacion.php?id=<?php echo $id ?>" title="nueva votación"><span class="glyphicon glyphicon-plus"></span></a></li>
+                <li ><a href="arbolgrupo.php?id=<?php echo $id ?>" title="grupos relacionados"><span class="glyphicon glyphicon-sort"></span></a></li>
             </ul>
         </div>
     </nav>

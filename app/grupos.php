@@ -101,12 +101,22 @@
         </div>
 
     </div>
+    <!--
+        <nav class="navbar navbar-default navbar-fixed-bottom">
+            <div class="navbar-inner">
+                <ul class="nav navbar-nav">
+                    <li ng-repeat="item in menuinferior"><a href="{{item.link}}"><span class="glyphicon glyphicon-{{item.icon}}"></span>{{item.texto}}</a></li>
+                </ul>
+            </div>
+        </nav>
+    -->
 
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="navbar-inner">
             <ul class="nav navbar-nav">
-                <!-- un enlace por cada objeto del menu inferior -->
-                <li ng-repeat="item in menuinferior"><a href="{{item.link}}"><span class="glyphicon glyphicon-{{item.icon}}"></span>{{item.texto}}</a></li>
+                <li ><a href="misgrupos.php" title="mis grupos"><span class="glyphicon glyphicon-user"></span></a></li>
+                <li ><a href="todosgrupos.php" title="todos"><span class="glyphicon glyphicon-asterisk"></span></a></li>
+                <li ><a href="nuevogrupo.php" title="nuevo grupo"><span class="glyphicon glyphicon-plus"></span></a></li>
             </ul>
         </div>
     </nav>
