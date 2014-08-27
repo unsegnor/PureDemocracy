@@ -1,14 +1,6 @@
 <?php include dirname(__FILE__) . "./header.php"; ?>
 <div ng-controller="controladormisgrupos">
     <div class="container principal" ng-cloak>
-        <div class="panel panel-success">
-
-            <div class="panel-heading">
-                Mis grupos
-            </div>
-
-        </div>
-
         <div class="row" ng-show="misGrupos.length > 0">
             <div class="col-sm-4">
                 <a href="detallegrupo.php?id={{migrupo.idgrupo}}"

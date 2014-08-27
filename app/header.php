@@ -37,6 +37,13 @@ include dirname(__FILE__) . "./head.php";
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
     </button>
+    <div class="nav navbar-nav">
+        <ol class="breadcrumb list-inline mio">
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Library</a></li>
+            <li class="active">Data</li>
+        </ol>
+    </div>
 </div>
 <!--
 <nav class="navbar navbar-default navbar-fixed-bottom">
