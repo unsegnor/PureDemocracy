@@ -14,12 +14,33 @@ angular.module('puredemocracyapp.controllers', [])
                 checkLogin($http, nop, function() {
                     redirect("login.php");
                 });
+
+                //Cargar los grupos del usuario
+                $scope.cargarMisGrupos = function() {
+                    allamar($http, 'getGruposDeUsuarioActual', null, function(res) {
+                        //alert(JSON.stringify(res));
+                        $scope.misGrupos = res.resultado;
+                    });
+                };
+
+                $scope.cargarMisGrupos();
+
             }])
         .controller('controladortodosgrupos', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 checkLogin($http, nop, function() {
                     redirect("login.php");
                 });
+
+                //Cargar grupos
+                $scope.cargarGrupos = function() {
+                    allamar($http, 'getGrupos', null, function(res) {
+                        //alert(JSON.stringify(res));
+                        $scope.grupos = res.resultado;
+                    });
+                };
+                
+                $scope.cargarGrupos();
             }])
         .controller('controladornuevogrupo', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login

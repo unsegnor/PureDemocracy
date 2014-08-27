@@ -52,3 +52,11 @@
                 fjs.parentNode.insertBefore(js, fjs);
             }(document, 'script', 'facebook-jssdk'));
         </script>
+
+
+<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>-->
+        <script src="./../dev_components/jquery-1.11.0.min.js"></script>
+
+        <!-- Angular CDN -->
+<!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular.min.js "></script>-->
+        <script src="./../dev_components/angular.min.js "></script>

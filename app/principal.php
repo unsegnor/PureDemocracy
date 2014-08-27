@@ -1,6 +1,6 @@
 <?php include dirname(__FILE__) . "./header.php"; ?>
 <div ng-controller="controladorprincipal">
-    <div class="container principal">
+    <div class="container principal" ng-cloak>
         <!--<div class="page-header"><h3>Hola {{session.nombre}}!</h3></div>-->
 
         <div class="row">

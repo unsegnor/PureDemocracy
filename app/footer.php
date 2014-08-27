@@ -13,8 +13,7 @@
 <!-- Cargamos los js al final para que cargue más rápido la página -->
 
 <!-- Cargamos Jquery -->
-<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>-->
-<script src="./../dev_components/jquery-1.11.0.min.js"></script>
+
 
 <!-- Latest compiled and minified JavaScript -->
 <!--<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>-->
@@ -26,9 +25,7 @@
 <!-- Incluimos nuestras propias funciones js -->
 <script src="./js/myjs.js"></script>
 
-<!-- Angular CDN -->
-<!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular.min.js "></script>-->
-<script src="./../dev_components/angular.min.js "></script>
+
 
 <!-- Scroll infinito -->
 <!--<script src="../../dev_components/ng-infinite-scroll-min.js"></script>-->
