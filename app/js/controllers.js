@@ -9,6 +9,38 @@ angular.module('puredemocracyapp.controllers', [])
                     redirect("login.php");
                 });
             }])
+        .controller('controladorchatgrupo', ['$scope', '$http', function($scope, $http) {
+                //Comprobar si el usuario tiene sesión y redirigir a login
+                checkLogin($http, nop, function() {
+                    redirect("login.php");
+                });
+
+                $scope.refreshchat = function() {
+                    allamar($http, 'getChatGrupoNuevo', [$scope.idgrupo, $scope.ultima_actualizacion], function(res) {
+                        alert(JSON.stringify(res));
+                        //Añadir a los mensajes
+                        $scope.mensajes = $scope.mensajes.concat(res.resultado);
+                        $scope.ultima_actualizacion = dateToBDD(new Date());
+                    });
+                };
+
+                $scope.init = function(id) {
+                    $scope.idgrupo = id;
+                    var d = new Date(); // today!
+                    var x = 1; // go back 5 days!
+                    d.setDate(d.getDate() - x);
+                    $scope.ultima_actualizacion = dateToBDD(d);
+                    $scope.mensajes = [];
+                    $scope.refreshchat();
+                };
+
+                $scope.sendmsg = function(mensaje) {
+                    allamar($http, 'nuevoMensajeChatGrupo', [$scope.idgrupo, mensaje], function(res) {
+                        $scope.refreshchat();
+                    });
+                };
+
+            }])
         .controller('controladormisgrupos', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 checkLogin($http, nop, function() {
@@ -39,7 +71,7 @@ angular.module('puredemocracyapp.controllers', [])
                         $scope.grupos = res.resultado;
                     });
                 };
-                
+
                 $scope.cargarGrupos();
             }])
         .controller('controladornuevogrupo', ['$scope', '$http', function($scope, $http) {

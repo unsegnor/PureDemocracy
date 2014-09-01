@@ -89,7 +89,7 @@ function loginfacebook($nombre, $apellidos, $email, $userID, $token, $expiresin,
     //Hay que validar la información para que nadie pueda suplantar a un usuario de facebook
 
     $respuesta = false;
-    
+
     if (verificarloginfacebook($userID, $token)) {
 
         //Comprobamos si existe el userID en facebook
@@ -118,7 +118,6 @@ function loginfacebook($nombre, $apellidos, $email, $userID, $token, $expiresin,
                     //." fbexpiresin = ".escape($apellidos)
                     . ", verificado = " . ($verificado ? 1 : 0)
                     . " WHERE idusuario = " . escape($fila['idusuario']));
-            
         } else {
 
             //Comprobamos si existe el email ya en BDD
@@ -179,7 +178,7 @@ function loginfacebook($nombre, $apellidos, $email, $userID, $token, $expiresin,
                 $_SESSION['email'] = $email;
                 //TODO verificación del email
                 $_SESSION['verificado'] = $verificado ? 1 : 0;
-                
+
                 $respuesta = true;
             }
         }
@@ -2257,4 +2256,34 @@ function castigarMalosRepresentantes() {
     }
 
     //TODO Eliminamos los votos de los miembros no activos
+}
+
+/**
+ * Funciones de chat
+ */
+
+/**
+ * Devuelve todos los mensajes nuevos del chat del grupo posteriores a la ultima actualización
+ * @param type $id_grupo
+ * @param type $ultima_actualizacion
+ */
+function getChatGrupoNuevo($id_grupo, $ultima_actualizacion) {
+    //Comprobamos que sea miembro del grupo
+    if (miembrode($id_grupo)) {
+        $res = ejecutar("SELECT mensaje, usuario_idusuario, fecha"
+                . " FROM chatgrupo WHERE"
+                . " grupo_idgrupo = " . escape($id_grupo)
+                . " AND fecha > TIMESTAMP('" . escape($ultima_actualizacion)."')");
+
+        return toArray($res);
+    }
+}
+
+function nuevoMensajeChatGrupo($id_grupo, $mensaje) {
+    //Comprobamos que el usuario actual esté logado y sea miembro del grupo en cuestión
+    if (miembrode($id_grupo)) {
+        $id_usuario = $_SESSION['idusuario'];
+        ejecutar("INSERT INTO `pdbdd`.`chatgrupo` (`grupo_idgrupo`, `usuario_idusuario`, `mensaje`)"
+                . " VALUES (" . escape($id_grupo) . "," . escape($id_usuario) . ", '" . escape($mensaje) . "')");
+    }
 }

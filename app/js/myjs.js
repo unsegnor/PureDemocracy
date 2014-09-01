@@ -108,37 +108,46 @@ function checkLogin(servicio, login, nologin) {
         if (res.resultado) {
             login();
         } else {
-            //Si no está logueado comprobamos si está logueado en facebook
-            FB.getLoginStatus(function(response) {
-                //alert(JSON.stringify(response));
-                if (response.status === 'connected') {
 
-                    //Recogemos los últimos datos del usuario (nombre, apellidos, correo electrónico)
-                    FB.api('/me', function(usuario) {
+            //Si facebook no ha cargado o no responde nada
+            if (typeof FB !== 'undefined') {
 
-                        allamar(servicio
-                                , 'loginfacebook'
-                                , [
-                                    usuario.first_name
-                                            , usuario.last_name
-                                            , usuario.email
-                                            , response.authResponse.userID
-                                            , response.authResponse.accessToken
-                                            , response.authResponse.expiresIn
-                                            , usuario.verified
-                                ]
-                                , function(res) {
-                                    //Si todo va bien continuamos
+                //Si no está logueado comprobamos si está logueado en facebook
+                FB.getLoginStatus(function(response) {
+                    //alert(JSON.stringify(response));
+                    if (response.status === 'connected') {
+
+                        //Recogemos los últimos datos del usuario (nombre, apellidos, correo electrónico)
+                        FB.api('/me', function(usuario) {
+
+                            allamar(servicio
+                                    , 'loginfacebook'
+                                    , [
+                                        usuario.first_name
+                                                , usuario.last_name
+                                                , usuario.email
+                                                , response.authResponse.userID
+                                                , response.authResponse.accessToken
+                                                , response.authResponse.expiresIn
+                                                , usuario.verified
+                                    ]
+                                    , function(res) {
+                                        //Si todo va bien continuamos
                                         login();
-                                }, function(res) {
-                            //Sino nada
-                            nologin();
+                                    }, function(res) {
+                                //Sino nada
+                                nologin();
+                            });
                         });
-                    });
-                } else {
-                    nologin();
-                }
-            });
+
+                    } else {
+                        nologin();
+                    }
+                });
+            }else{
+                //Si facebook no responde sacabó
+                nologin();
+            }
         }
     });
 }
@@ -159,6 +168,10 @@ function reload() {
     $route.reload();
 }
 
-function nop(){
+function nop() {
     //alert("NOP");
+}
+
+function dateToBDD(fecha){
+    return fecha.toISOString().slice(0, 19).replace('T', ' ');
 }

@@ -38,6 +38,8 @@ try {
         , 'getUsuarioActual'
         , 'setUsuarioActual'
         , 'loginfacebook'
+        , 'nuevoMensajeChatGrupo'
+        , 'getChatGrupoNuevo'
     );
     
     $funcionesProhibidas = array(
