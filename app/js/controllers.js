@@ -25,10 +25,13 @@ angular.module('puredemocracyapp.controllers', [])
                 };
 
                 $scope.refreshchat = function() {
-                    allamar($http, 'getChatGrupoNuevo', [$scope.idgrupo, $scope.ultima_actualizacion], function(res) {
+                    //Actualizar fecha de ultima actualización
+                    //Si hay mensajes
+                    if($scope.mensajes.length > 0){
+                        $scope.ultimo_mensaje_visto = ($scope.mensajes[$scope.mensajes.length-1]).idchatgrupo;
+                    }
+                    allamar($http, 'getChatGrupoNuevoID', [$scope.idgrupo, $scope.ultimo_mensaje_visto], function(res) {
                         //alert(JSON.stringify(res));
-                        //Actualizar fecha de ultima actualización
-                        $scope.ultima_actualizacion = dateToBDD(new Date());
                         //Añadir a los mensajes si hay
                         if (res.resultado.length > 0) {
                             $scope.mensajes = $scope.mensajes.concat(res.resultado);
@@ -40,36 +43,23 @@ angular.module('puredemocracyapp.controllers', [])
 
                 $scope.init = function(id) {
                     $scope.idgrupo = id;
-                    var d = new Date(); // today!
-                    var x = 1; // go back 5 days!
-                    d.setDate(d.getDate() - x);
-                    $scope.ultima_actualizacion = dateToBDD(d);
+                    $scope.ultimo_mensaje_visto = 0;
                     $scope.mensajes = [];
                     $scope.refreshchat();
                     //Después de cargar por primera vez nos vamos abajo
-                    $scope.gotoBottom();
+                    setTimeout($scope.gotoBottom, 1000);
 
-                    $interval($scope.refreshchat, 10000);
+                    $interval($scope.refreshchat, 5000);
                 };
 
                 $scope.sendmsg = function(mensaje) {
                     allamar($http, 'nuevoMensajeChatGrupo', [$scope.idgrupo, mensaje], function(res) {
 
-                        allamar($http, 'getChatGrupoNuevo', [$scope.idgrupo, $scope.ultima_actualizacion], function(res) {
-                            //alert(JSON.stringify(res));
-                            //Actualizar fecha de ultima actualización
-                            $scope.ultima_actualizacion = dateToBDD(new Date());
-                            //Añadir a los mensajes si hay
-                            if (res.resultado.length > 0) {
-                                $scope.mensajes = $scope.mensajes.concat(res.resultado);
-                            }
-                            //Después de refrescar nos vamos abajo si así queríamos
-                            $scope.gotoBottom();
-                        });
+                        $scope.refreshchat();
 
                         $scope.nuevo_mensaje.texto = "";
                         //Mover a abajo
-                        //$scope.gotoBottom();
+                        $scope.gotoBottom();
                     });
                 };
 

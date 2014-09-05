@@ -5,11 +5,10 @@ include dirname(__FILE__) . "./header.php";
 $id = filter_input(INPUT_GET, 'id');
 ?>
 <div ng-controller="controladorchatgrupo" ng-init="init(<?php echo $id ?>)">
-    <div class="container chat" ng-cloack>
-        {{ultima_actualizacion}}
+    <div class="container chat">
 
         <ul class="media-list">
-            <li class="media" ng-repeat="mensaje in mensajes">
+            <li class="media" ng-repeat="mensaje in mensajes" ng-cloak="ng-cloack">
                 <!--<a class="pull-left" href="#">
                     <img class="media-object peque" src="./img/user.svg" alt="...">
                 </a>-->

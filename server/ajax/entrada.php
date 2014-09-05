@@ -40,6 +40,7 @@ try {
         , 'loginfacebook'
         , 'nuevoMensajeChatGrupo'
         , 'getChatGrupoNuevo'
+        , 'getChatGrupoNuevoID'
     );
     
     $funcionesProhibidas = array(

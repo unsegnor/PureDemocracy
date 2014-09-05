@@ -2270,13 +2270,28 @@ function castigarMalosRepresentantes() {
 function getChatGrupoNuevo($id_grupo, $ultima_actualizacion) {
     //Comprobamos que sea miembro del grupo
     if (miembrode($id_grupo)) {
-        $res = ejecutar("SELECT mensaje, usuario_idusuario, fecha"
+        $res = ejecutar("SELECT idchatgrupo, mensaje, usuario_idusuario, fecha"
                 . ", usuario.nombre as nombre_usuario"
                 . " FROM chatgrupo"
                 . " LEFT JOIN usuario ON chatgrupo.usuario_idusuario = usuario.idusuario"
                 . " WHERE"
                 . " grupo_idgrupo = " . escape($id_grupo)
                 . " AND fecha > TIMESTAMP('" . escape($ultima_actualizacion)."')");
+
+        return toArray($res);
+    }
+}
+
+function getChatGrupoNuevoID($id_grupo, $id_ultimo_mensaje_visto){
+        //Comprobamos que sea miembro del grupo
+    if (miembrode($id_grupo)) {
+        $res = ejecutar("SELECT idchatgrupo, mensaje, usuario_idusuario, fecha"
+                . ", usuario.nombre as nombre_usuario"
+                . " FROM chatgrupo"
+                . " LEFT JOIN usuario ON chatgrupo.usuario_idusuario = usuario.idusuario"
+                . " WHERE"
+                . " grupo_idgrupo = " . escape($id_grupo)
+                . " AND idchatgrupo > ".  escape($id_ultimo_mensaje_visto));
 
         return toArray($res);
     }
