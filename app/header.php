@@ -40,24 +40,16 @@ include dirname(__FILE__) . "./head.php";
         <span class="icon-bar"></span>
     </button>
     <div class="nav navbar-nav">
-        <ol class="breadcrumb list-inline mio">
-            <li><a href="#">Home</a></li>
+        <ol class="breadcrumb list-inline mio" id="migasdepan">
+            
+            
+            
+            <!--<li><a href="#">Home</a></li>
             <li><a href="#">Library</a></li>
-            <li class="active">Data</li>
+            <li class="active">Data</li>-->
         </ol>
     </div>
 </div>
-<!--
-<nav class="navbar navbar-default navbar-fixed-bottom">
-  <div class="navbar-inner">
-    <ul class="nav navbar-nav">
-      <li class="active"><a href="#">Home</a></li>
-      <li><a href="#">Link</a></li>
-      <li><a href="#">Link</a></li>
-    </ul>
-  </div>
-</nav>
--->
 
 
 

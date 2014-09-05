@@ -21,11 +21,17 @@ angular.module('puredemocracyapp.controllers', [])
                         $scope.votaciones = res.resultado;
                     });
                 };
-                
-                
-                $scope.init = function(id){
-                  $scope.id = id;
-                  $scope.cargarVotaciones();
+
+
+                $scope.init = function(id) {
+                    $scope.id = id;
+                    $scope.cargarVotaciones();
+
+                    setMenu([
+                        {'nombre': 'Grupo ' + $scope.id, 'enlace': '#'}
+                        , {'nombre': 'Votaciones', 'enlace': '#'}
+                    ]);
+
                 };
 
             }])
@@ -70,6 +76,11 @@ angular.module('puredemocracyapp.controllers', [])
                     setTimeout($scope.gotoBottom, 1000);
 
                     $interval($scope.refreshchat, 5000);
+
+                    setMenu([
+                        {'nombre': 'Grupo ' + $scope.idgrupo, 'enlace': '#'}
+                        , {'nombre': 'Discusión', 'enlace': '#'}
+                    ]);
                 };
 
                 $scope.sendmsg = function(mensaje) {
@@ -100,6 +111,10 @@ angular.module('puredemocracyapp.controllers', [])
 
                 $scope.cargarMisGrupos();
 
+                setMenu([
+                    {'nombre': 'Mis grupos', 'enlace': '#'}
+                ]);
+
             }])
         .controller('controladortodosgrupos', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
@@ -116,6 +131,10 @@ angular.module('puredemocracyapp.controllers', [])
                 };
 
                 $scope.cargarGrupos();
+
+                setMenu([
+                    {'nombre': 'Todos los grupos', 'enlace': '#'}
+                ]);
             }])
         .controller('controladornuevogrupo', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
@@ -147,6 +166,9 @@ angular.module('puredemocracyapp.controllers', [])
 
                 $scope.getUsuarioActual();
 
+                setMenu([
+                    {'nombre': 'Perfil de usuario', 'enlace': '#'}
+                ]);
 
             }])
         .controller('controladordetallegrupo', ['$scope', '$http', '$interval', '$modal', function($scope, $http, $interval, $modal) {
@@ -485,6 +507,11 @@ angular.module('puredemocracyapp.controllers', [])
 
                     //Activamos el interval para actualizar los valores de las votaciones
                     $interval($scope.actualizartiempotranscurrido, 1000);
+
+                    setMenu([
+                        {'nombre': 'Notificaciones', 'enlace': '#'}
+                    ]);
+
                 };
 
                 //Comprobar si el usuario tiene sesión y redirigir a login

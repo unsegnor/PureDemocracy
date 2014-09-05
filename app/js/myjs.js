@@ -192,3 +192,20 @@ function nop() {
 function dateToBDD(fecha) {
     return fecha.toISOString().slice(0, 19).replace('T', ' ');
 }
+
+function ponmenu() {
+    document.getElementById('migasdepan').innerHTML = '<a href="#">Home</a>';
+}
+
+//Espera un array de objetos {nombre, enlace} monta el menú según se indica en el array
+function setMenu(menu) {
+    
+    var textoainsertar = "";
+    var l = menu.length;
+    for (i = 0; i <l ; i++) {
+        var entrada = menu[i];
+        textoainsertar += '<li><a href="'+entrada.enlace+'" class="link">'+entrada.nombre+'</a></li>';
+    }
+    document.getElementById('migasdepan').innerHTML = textoainsertar;
+}
+
