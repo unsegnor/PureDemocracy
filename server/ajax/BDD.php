@@ -27,6 +27,7 @@ class BDD {
         }
         $this->mysqli->set_charset("UTF-8");
         $this->mysqli->query("SET NAMES utf8");
+        $this->mysqli->query("SET @@session.time_zone='+00:00'");
     }
 
     function checkConnection() {
