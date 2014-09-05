@@ -2271,7 +2271,10 @@ function getChatGrupoNuevo($id_grupo, $ultima_actualizacion) {
     //Comprobamos que sea miembro del grupo
     if (miembrode($id_grupo)) {
         $res = ejecutar("SELECT mensaje, usuario_idusuario, fecha"
-                . " FROM chatgrupo WHERE"
+                . ", usuario.nombre as nombre_usuario"
+                . " FROM chatgrupo"
+                . " LEFT JOIN usuario ON chatgrupo.usuario_idusuario = usuario.idusuario"
+                . " WHERE"
                 . " grupo_idgrupo = " . escape($id_grupo)
                 . " AND fecha > TIMESTAMP('" . escape($ultima_actualizacion)."')");
 

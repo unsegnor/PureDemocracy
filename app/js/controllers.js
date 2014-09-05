@@ -9,7 +9,7 @@ angular.module('puredemocracyapp.controllers', [])
                     redirect("login.php");
                 });
             }])
-        .controller('controladorchatgrupo', ['$scope', '$http', function($scope, $http) {
+        .controller('controladorchatgrupo', ['$scope', '$http', '$interval', function($scope, $http, $interval) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 checkLogin($http, nop, function() {
                     redirect("login.php");
@@ -17,10 +17,13 @@ angular.module('puredemocracyapp.controllers', [])
 
                 $scope.refreshchat = function() {
                     allamar($http, 'getChatGrupoNuevo', [$scope.idgrupo, $scope.ultima_actualizacion], function(res) {
-                        alert(JSON.stringify(res));
-                        //Añadir a los mensajes
-                        $scope.mensajes = $scope.mensajes.concat(res.resultado);
+                        //alert(JSON.stringify(res));
+                        //Actualizar fecha de ultima actualización
                         $scope.ultima_actualizacion = dateToBDD(new Date());
+                        //Añadir a los mensajes si hay
+                        if (res.resultado.length > 0) {
+                            $scope.mensajes = $scope.mensajes.concat(res.resultado);
+                        }
                     });
                 };
 
@@ -32,11 +35,14 @@ angular.module('puredemocracyapp.controllers', [])
                     $scope.ultima_actualizacion = dateToBDD(d);
                     $scope.mensajes = [];
                     $scope.refreshchat();
+
+                    $interval($scope.refreshchat, 10000);
                 };
 
                 $scope.sendmsg = function(mensaje) {
                     allamar($http, 'nuevoMensajeChatGrupo', [$scope.idgrupo, mensaje], function(res) {
                         $scope.refreshchat();
+                        $scope.nuevo_mensaje.texto = "";
                     });
                 };
 
