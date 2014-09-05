@@ -8,6 +8,29 @@ angular.module('puredemocracyapp.controllers', [])
                 checkLogin($http, nop, function() {
                     redirect("login.php");
                 });
+
+                setMenu([
+                    {'nombre': 'Anterior', 'enlace': '#'}
+                    , {'nombre': 'Plantilla', 'enlace': '#'}
+                ]);
+            }])
+        .controller('controladornuevavotacion', ['$scope', '$http', function($scope, $http) {
+                //Comprobar si el usuario tiene sesión y redirigir a login
+                checkLogin($http, nop, function() {
+                    redirect("login.php");
+                });
+
+                $scope.init = function(id) {
+                    $scope.idgrupo = id;
+
+                    setMenu([
+                        {'nombre': 'Grupos', 'enlace': 'todosgrupos.php'}
+                        ,{'nombre': 'Grupo ' + $scope.idgrupo, 'enlace': '#'}
+                        ,{'nombre': 'Nueva votación', 'enlace': '#'}
+                    ]);
+                };
+
+
             }])
         .controller('controladorvotaciones', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
@@ -28,8 +51,9 @@ angular.module('puredemocracyapp.controllers', [])
                     $scope.cargarVotaciones();
 
                     setMenu([
-                        {'nombre': 'Grupo ' + $scope.id, 'enlace': '#'}
-                        , {'nombre': 'Votaciones', 'enlace': '#'}
+                        {'nombre': 'Grupos', 'enlace': 'todosgrupos.php'}
+                        ,{'nombre': 'Grupo ' + $scope.id, 'enlace': '#'}
+                        ,{'nombre': 'Votaciones', 'enlace': '#'}
                     ]);
 
                 };
@@ -78,8 +102,9 @@ angular.module('puredemocracyapp.controllers', [])
                     $interval($scope.refreshchat, 5000);
 
                     setMenu([
-                        {'nombre': 'Grupo ' + $scope.idgrupo, 'enlace': '#'}
-                        , {'nombre': 'Discusión', 'enlace': '#'}
+                        {'nombre': 'Grupos', 'enlace': 'todosgrupos.php'}
+                        ,{'nombre': 'Grupo ' + $scope.idgrupo, 'enlace': '#'}
+                        ,{'nombre': 'Discusión', 'enlace': '#'}
                     ]);
                 };
 
