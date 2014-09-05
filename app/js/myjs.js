@@ -99,6 +99,61 @@ function mapear(vector, id_attr) {
     return respuesta;
 }
 
+function checkFBLogin(servicio, login, nologin, intentos) {
+
+    if (fbApiInit) {
+        //Si está cargada la api hacemos login
+
+        //Si no está logueado comprobamos si está logueado en facebook
+        FB.getLoginStatus(function(response) {
+            //alert(JSON.stringify(response));
+            if (response.status === 'connected') {
+
+                //Recogemos los últimos datos del usuario (nombre, apellidos, correo electrónico)
+                FB.api('/me', function(usuario) {
+
+                    allamar(servicio
+                            , 'loginfacebook'
+                            , [
+                                usuario.first_name
+                                        , usuario.last_name
+                                        , usuario.email
+                                        , response.authResponse.userID
+                                        , response.authResponse.accessToken
+                                        , response.authResponse.expiresIn
+                                        , usuario.verified
+                            ]
+                            , function(res) {
+                                //Si todo va bien continuamos
+                                login();
+                            }, function(res) {
+                        //Sino nada
+                        nologin();
+                    });
+                });
+
+            } else {
+                nologin();
+            }
+        });
+    } else {
+        //Si la api no está cargada
+
+        if (intentos > 0) {
+            //Si quedan intentos llamamos en 1 segundo con 1 intento menos
+            setTimeout(function() {
+                checkFBLogin(servicio, login, nologin, intentos - 1);
+            }, 1000);
+
+        } else {
+            //Si no quedan intentos no logueamos
+            nologin();
+        }
+
+    }
+}
+
+
 //comprueba si está logueado y conduce a login o nologin según el resultado
 function checkLogin(servicio, login, nologin) {
     //Comprobar si el usuario tiene sesión y redirigir a login
@@ -108,46 +163,8 @@ function checkLogin(servicio, login, nologin) {
         if (res.resultado) {
             login();
         } else {
-
-            //Si facebook no ha cargado o no responde nada
-            if (typeof FB !== 'undefined') {
-
-                //Si no está logueado comprobamos si está logueado en facebook
-                FB.getLoginStatus(function(response) {
-                    //alert(JSON.stringify(response));
-                    if (response.status === 'connected') {
-
-                        //Recogemos los últimos datos del usuario (nombre, apellidos, correo electrónico)
-                        FB.api('/me', function(usuario) {
-
-                            allamar(servicio
-                                    , 'loginfacebook'
-                                    , [
-                                        usuario.first_name
-                                                , usuario.last_name
-                                                , usuario.email
-                                                , response.authResponse.userID
-                                                , response.authResponse.accessToken
-                                                , response.authResponse.expiresIn
-                                                , usuario.verified
-                                    ]
-                                    , function(res) {
-                                        //Si todo va bien continuamos
-                                        login();
-                                    }, function(res) {
-                                //Sino nada
-                                nologin();
-                            });
-                        });
-
-                    } else {
-                        nologin();
-                    }
-                });
-            }else{
-                //Si facebook no responde sacabó
-                nologin();
-            }
+            //Si no está logueado en el sistema probamos con facebook
+            checkFBLogin(servicio, login, nologin, 5);
         }
     });
 }
@@ -172,6 +189,6 @@ function nop() {
     //alert("NOP");
 }
 
-function dateToBDD(fecha){
+function dateToBDD(fecha) {
     return fecha.toISOString().slice(0, 19).replace('T', ' ');
 }

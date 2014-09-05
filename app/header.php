@@ -12,6 +12,7 @@ include dirname(__FILE__) . "./head.php";
         <li><a title="Mi Perfil" href="<?php echo direcciones::perfil ?>"><span class="glyphicon glyphicon-user"> Perfil</span></a></li>
         <li><a title="Salir" href="<?php echo direcciones::logout ?>"><span class="glyphicon glyphicon-log-out"> Salir</span></a></li>
     </ul>
+    <!--
     <ul class="nav navmenu-nav">
         <li><a href="#">Link</a></li>
         <li><a href="#">Link</a></li>
@@ -29,6 +30,7 @@ include dirname(__FILE__) . "./head.php";
             </ul>
         </li>
     </ul>
+    -->
 </div>
 
 <div class="navbar navbar-default navbar-fixed-top">

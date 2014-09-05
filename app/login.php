@@ -28,7 +28,7 @@
     </div>
 
     <div class="container principal">
-        <form class="navbar-form navbar-right visible-xs" role="form">
+        <form class="form-inline visible-xs" role="form">
             <div class="form-group">
                 <label class="sr-only">Email</label>
                 <input type="text" class="form-control" placeholder="correo electrónico"

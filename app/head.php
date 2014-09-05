@@ -37,12 +37,17 @@
 
         <!-- Cargamos el api de facebook -->
         <script>
+            
+            var fbApiInit = false;
+            
             window.fbAsyncInit = function() {
                 FB.init({
                     appId: '605582532896240',
                     xfbml: true,
                     version: 'v2.0'
                 });
+                
+                fbApiInit = true;
             };
 
             (function(d, s, id) {
