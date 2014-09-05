@@ -156,7 +156,7 @@ function checkResult(resultado, status, xhr) {
             notificar_error(resultado.errormsg);
             respuesta = false;
         } else {
-            notificar("Todo correcto.");
+            //notificar("Todo correcto.");
         }
     } else {
         /*Si recibimos un objeto que es null (no ha podido ser parseado, 
