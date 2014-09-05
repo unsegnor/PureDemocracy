@@ -3,7 +3,7 @@
     <div class="container principal" ng-cloak>
         <div class="row" ng-show="misGrupos.length > 0">
             <div class="col-sm-4">
-                <a href="detallegrupo.php?id={{migrupo.idgrupo}}"
+                <a href="chatgrupo.php?id={{migrupo.idgrupo}}"
                    class="thumbnail" ng-repeat="migrupo in misGrupos" ng-if="($index) % 3 == 0">
                     <img class="peque" src="img/grupo.jpg" alt="...">
                     <div class="caption">
@@ -12,7 +12,7 @@
                 </a>
             </div>
             <div class="col-sm-4">
-                <a href="detallegrupo.php?id={{migrupo.idgrupo}}"
+                <a href="chatgrupo.php?id={{migrupo.idgrupo}}"
                    class="thumbnail" ng-repeat="migrupo in misGrupos" ng-if="($index) % 3 == 1">
                     <img class="peque" src="img/grupo.jpg" alt="...">
                     <div class="caption">
@@ -21,7 +21,7 @@
                 </a>
             </div>
             <div class="col-sm-4">
-                <a href="detallegrupo.php?id={{migrupo.idgrupo}}"
+                <a href="chatgrupo.php?id={{migrupo.idgrupo}}"
                    class="thumbnail" ng-repeat="migrupo in misGrupos" ng-if="($index) % 3 == 2">
                     <img class="peque" src="img/grupo.jpg" alt="...">
                     <div class="caption">

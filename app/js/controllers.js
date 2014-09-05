@@ -9,6 +9,26 @@ angular.module('puredemocracyapp.controllers', [])
                     redirect("login.php");
                 });
             }])
+        .controller('controladorvotaciones', ['$scope', '$http', function($scope, $http) {
+                //Comprobar si el usuario tiene sesión y redirigir a login
+                checkLogin($http, nop, function() {
+                    redirect("login.php");
+                });
+
+                $scope.cargarVotaciones = function() {
+                    allamar($http, 'getVotacionesSNDDeGrupoParaUsuarioActual', [$scope.id], function(res) {
+                        //alert(JSON.stringify(res));
+                        $scope.votaciones = res.resultado;
+                    });
+                };
+                
+                
+                $scope.init = function(id){
+                  $scope.id = id;
+                  $scope.cargarVotaciones();
+                };
+
+            }])
         .controller('controladorchatgrupo', ['$scope', '$http', '$interval', '$location', '$anchorScroll', function($scope, $http, $interval, $location, $anchorScroll) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 checkLogin($http, nop, function() {
@@ -27,8 +47,8 @@ angular.module('puredemocracyapp.controllers', [])
                 $scope.refreshchat = function() {
                     //Actualizar fecha de ultima actualización
                     //Si hay mensajes
-                    if($scope.mensajes.length > 0){
-                        $scope.ultimo_mensaje_visto = ($scope.mensajes[$scope.mensajes.length-1]).idchatgrupo;
+                    if ($scope.mensajes.length > 0) {
+                        $scope.ultimo_mensaje_visto = ($scope.mensajes[$scope.mensajes.length - 1]).idchatgrupo;
                     }
                     allamar($http, 'getChatGrupoNuevoID', [$scope.idgrupo, $scope.ultimo_mensaje_visto], function(res) {
                         //alert(JSON.stringify(res));
@@ -134,8 +154,6 @@ angular.module('puredemocracyapp.controllers', [])
                 checkLogin($http, nop, function() {
                     redirect("login.php");
                 });
-
-
 
                 //Cargar la información del grupo
                 $scope.cargarGrupo = function(id) {
