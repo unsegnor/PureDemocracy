@@ -5,7 +5,7 @@ include dirname(__FILE__) . "./header.php";
 $id = filter_input(INPUT_GET, 'id');
 ?>
 <div ng-controller="controladorchatgrupo" ng-init="init(<?php echo $id ?>)">
-    <div class="container nocentrado">
+    <div class="container chat" ng-cloack>
         {{ultima_actualizacion}}
 
         <ul class="media-list">
@@ -19,16 +19,11 @@ $id = filter_input(INPUT_GET, 'id');
                 </div>
             </li>
         </ul>
-<!--
-        <ul class="list-group">
-            <li class="list-group-item" ng-repeat="mensaje in mensajes"><b>{{mensaje.usuario_idusuario}}:</b> {{mensaje.mensaje}} {{mensaje.fecha}}</li>
-        </ul>
--->
-        <input type="text" class="form-control" ng-model="nuevo_mensaje.texto" ng-enter="sendmsg(nuevo_mensaje.texto)" placeholder="escribir..."/>
     </div>
 
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="navbar-inner">
+            <input type="text" class="form-control" ng-model="nuevo_mensaje.texto" ng-enter="sendmsg(nuevo_mensaje.texto)" placeholder="escribir..."/>
             <ul class="nav navbar-nav">
                 <!-- un enlace por cada objeto del menu inferior -->
                 <li ><a href="chatgrupo.php?id=<?php echo $id ?>" title="chat"><span class="glyphicon glyphicon-comment"></span></a></li>
@@ -38,5 +33,6 @@ $id = filter_input(INPUT_GET, 'id');
             </ul>
         </div>
     </nav>
+    <a id="bottom"></a>
 </div>
 <?php include dirname(__FILE__) . "./footer.php"; ?>
