@@ -77,6 +77,7 @@ angular.module('puredemocracyapp.controllers', [])
                      //alert(JSON.stringify(res));
                      //Actualizamos la información del usuario actual
                      $scope.cargarinformaciondemiembroactual($scope.idgrupo);
+                     $scope.cargarinfomiembros($scope.idgrupo);
                   });
                     
                 };
@@ -92,7 +93,8 @@ angular.module('puredemocracyapp.controllers', [])
                 $scope.solicitarbaja = function(){
                   
                     allamar($http, 'solicitarBaja', [$scope.idgrupo], function(res){
-                       $scope.cargarinformaciondemiembroactual($scope.idgrupo); 
+                       $scope.cargarinformaciondemiembroactual($scope.idgrupo);
+                       $scope.cargarinfomiembros($scope.idgrupo);
                     });
                 };
                 
