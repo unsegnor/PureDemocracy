@@ -56,6 +56,46 @@ angular.module('puredemocracyapp.controllers', [])
                         ]);
                     });
                 };
+                
+                $scope.cargarinfomiembros = function(idgrupo){
+                  allamar($http, 'getInfoMiembros', [idgrupo], function(res){
+                     //alert(JSON.stringify(res));
+                     $scope.miembros = res.resultado;
+                  });  
+                };
+                
+                $scope.cargarinformaciondemiembroactual = function(idgrupo){
+                    allamar($http, 'getInfoMiembro', [idgrupo], function(res){
+                        //alert(JSON.stringify(res));
+                        $scope.miembroactual = res.resultado;
+                    });
+                };
+
+                $scope.ingresarengrupo = function(){
+                  
+                  allamar($http, 'ingresarEnGrupo', [$scope.idgrupo], function(res){
+                     //alert(JSON.stringify(res));
+                     //Actualizamos la información del usuario actual
+                     $scope.cargarinformaciondemiembroactual($scope.idgrupo);
+                  });
+                    
+                };
+                
+                $scope.seguirgrupo = function(){
+                  
+                    allamar($http, 'seguirGrupo', [$scope.idgrupo], function(res){
+                       $scope.cargarinformaciondemiembroactual($scope.idgrupo); 
+                    });
+                    
+                };
+                
+                $scope.solicitarbaja = function(){
+                  
+                    allamar($http, 'solicitarBaja', [$scope.idgrupo], function(res){
+                       $scope.cargarinformaciondemiembroactual($scope.idgrupo); 
+                    });
+                };
+                
 
                 $scope.init = function(id) {
 
@@ -63,7 +103,10 @@ angular.module('puredemocracyapp.controllers', [])
 
                     //Cargamos los datos del grupo
                     $scope.cargardatosdegrupo($scope.idgrupo);
-
+                    //Cargamos los miembros del grupo
+                    $scope.cargarinfomiembros($scope.idgrupo);
+                    //Cargar información del miembro actual
+                    $scope.cargarinformaciondemiembroactual($scope.idgrupo);
                 };
 
 
@@ -201,14 +244,16 @@ angular.module('puredemocracyapp.controllers', [])
                 };
 
                 $scope.sendmsg = function(mensaje) {
-                    allamar($http, 'nuevoMensajeChatGrupo', [$scope.idgrupo, mensaje], function(res) {
+                    if (mensaje.length > 0) {
+                        allamar($http, 'nuevoMensajeChatGrupo', [$scope.idgrupo, mensaje], function(res) {
 
-                        $scope.refreshchat();
+                            $scope.refreshchat();
 
-                        $scope.nuevo_mensaje.texto = "";
-                        //Mover a abajo
-                        $scope.gotoBottom();
-                    });
+                            $scope.nuevo_mensaje.texto = "";
+                            //Mover a abajo
+                            $scope.gotoBottom();
+                        });
+                    }
                 };
 
             }])

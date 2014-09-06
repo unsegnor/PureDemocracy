@@ -42,6 +42,10 @@ try {
         , 'getChatGrupoNuevo'
         , 'getChatGrupoNuevoID'
         , 'getInfoDeGrupo'
+        , 'getInfoMiembro'
+        , 'getInfoMiembros'
+        , 'ingresarEnGrupo'
+        , 'seguirGrupo'
     );
     
     $funcionesProhibidas = array(

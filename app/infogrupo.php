@@ -7,13 +7,26 @@ $id = filter_input(INPUT_GET, 'id');
 //Pasamos el parámetro al controlador
 ?>
 <div ng-controller="controladorinfogrupo" ng-init="init(<?php echo $id ?>)">
-    <div class="container principal">
+    <div class="container principal" ng-cloak="ng-cloak">
 
         <!--Mostramos el nombre del grupo y el botón de ingresar / dar de baja -->
         <div class="row">
             <div class="col-sm-8">
                 <h2>{{infogrupo.descripcion}}</h2>
-            </div>           
+            </div>
+            <div class="col-sm-4">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Miembros</h3>
+                    </div>
+                        <ul class="list-group">
+                            <li class="list-group-item" ng-repeat="miembro in miembros| orderBy:'puntos_participacion'">
+                                <span class="badge">{{miembro.puntos_participacion}}</span>
+                                {{miembro.nombre}}
+                            </li>
+                        </ul>
+                </div>
+            </div>
         </div>
 
 
@@ -61,16 +74,26 @@ $id = filter_input(INPUT_GET, 'id');
             </div>
         </div>
 
-    <nav class="navbar navbar-default navbar-fixed-bottom">
-        <div class="navbar-inner">
-            <ul class="nav navbar-nav">
-                <!-- un enlace por cada objeto del menu inferior -->
-                <li ><a href="chatgrupo.php?id=<?php echo $id ?>" title="chat"><span class="glyphicon glyphicon-comment"></span></a></li>
-                <li ><a href="votaciones.php?id=<?php echo $id ?>" title="ver votaciones"><span class="glyphicon glyphicon-search"></span></a></li>
-                <li ><a href="nuevavotacion.php?id=<?php echo $id ?>" title="nueva votación"><span class="glyphicon glyphicon-plus"></span></a></li>
-                <li ><a href="infogrupo.php?id=<?php echo $id ?>" title="información de grupo"><span class="glyphicon glyphicon-info-sign"></span></a></li>
-            </ul>
-        </div>
-    </nav>
-</div>
-<?php include dirname(__FILE__) . "./footer.php"; ?>
+        <nav class="navbar navbar-default navbar-fixed-bottom" ng-cloak="ng-cloak">
+            <div class="navbar-inner">
+                <ul class="nav navbar-nav">
+                    <!-- un enlace por cada objeto del menu inferior -->
+
+                    <!--mostramos algunos botones en función de si somos o no miembros -->
+                    <li ><a href="chatgrupo.php?id=<?php echo $id ?>" title="chat"><span class="glyphicon glyphicon-comment"></span></a></li>
+                    <li ><a href="votaciones.php?id=<?php echo $id ?>" title="ver votaciones"><span class="glyphicon glyphicon-search"></span></a></li>
+
+                    <!-- si somos miembros mostramos las opciones de crear votación y solicitar baja -->
+                    <!-- si somos seguidores mostramos las opciones de ingresar y solicitar baja -->
+                    <!-- si no somos miembros ni seguidores mostramos las opciones de ingresar y seguir -->
+
+                    <li ng-hide="miembroactual.voluntad >= 2"><a href="#" title="ingresar" ng-click="ingresarengrupo()"><span class="glyphicon glyphicon-log-in"></span></a></li>
+                    <li ng-hide="miembroactual.voluntad >= 1"><a href="#" title="seguir" ng-click="seguirgrupo()"><span class="glyphicon glyphicon-bullhorn"></span></a></li>
+                    <li ng-show="miembroactual.voluntad >= 2 && miembroactual.puntos_participacion > 0"><a href="nuevavotacion.php?id=<?php echo $id ?>" title="nueva votación"><span class="glyphicon glyphicon-plus"></span></a></li>
+                    <li ng-show="miembroactual.voluntad >= 1"><a href="#" title="baja" ng-click="solicitarbaja()"><span class="glyphicon glyphicon-remove"></span></a></li>
+
+                </ul>
+            </div>
+        </nav>
+    </div>
+    <?php include dirname(__FILE__) . "./footer.php"; ?>

@@ -340,6 +340,39 @@ function getInfoDeGrupo($id_grupo) {
     return $res;
 }
 
+//Devuelve la información del usuario actual en el grupo indicado
+function getInfoMiembro($id_grupo) {
+
+    nl();
+
+    $id_usuario = $_SESSION['idusuario'];
+
+    $res = ejecutar("SELECT *"
+            . " FROM miembro"
+            . " WHERE grupo_idgrupo = " . escape($id_grupo)
+            . " AND usuario_idusuario = " . escape($id_usuario));
+
+    $res = $res->fetch_assoc();
+
+    return $res;
+}
+
+//Obtener información de los miembros de un grupo
+function getInfoMiembros($id_grupo) {
+    nl();
+
+    $res = toArray(ejecutar("SELECT "
+                    . "miembro.puntos_participacion"
+                    . ", usuario.idusuario"
+                    . ", usuario.nombre"
+                    . ", miembro.voluntad"
+                    . " FROM miembro"
+                    . " LEFT JOIN usuario ON miembro.usuario_idusuario = usuario.idusuario"
+                    . " WHERE grupo_idgrupo = " . escape($id_grupo)));
+
+    return $res;
+}
+
 function getDetalleDeGrupo($id_grupo) {
     if (checkLogin()) {
 
@@ -437,10 +470,25 @@ function solicitarIngresoEnGrupo($id_grupo) {
 }
 
 function solicitarBaja($id_grupo) {
-    if (checkLogin()) {
-        $id_usuario = $_SESSION['idusuario'];
+    nl();
 
-        delMiembro($id_usuario, $id_grupo);
+    //Si tienes puntos positivos se elimina el registro
+    $infomiembro = getInfoMiembro($id_grupo);
+
+    $id_usuario = $_SESSION['idusuario'];
+    
+    if (isset($infomiembro['puntos_participacion'])) {
+        //Es miembro así que comprobamos los puntos
+        if ($infomiembro['puntos_participacion'] >= 0) {
+            ejecutar("DELETE FROM miembro WHERE miembro.usuario_idusuario=" . escape($id_usuario) . " AND miembro.grupo_idgrupo=" . escape($id_grupo));
+        } else {
+            //Si no tiene suficientes puntos modificamos su voluntad pero no lo borraremos hasta que los tenga
+            ejecutar("UPDATE miembro SET voluntad = 0"
+                    . " WHERE grupo_idgrupo = " . escape($id_grupo)
+                    . " AND usuario_idusuario = " . escape($id_usuario));
+        }
+    } else {
+        //Si no es miembro pues nada
     }
 }
 
@@ -454,12 +502,91 @@ function getGrupoPorID($id_grupo) {
 
 function addGrupo($nombre, $descripcion) {
     if (checkLogin()) {
-        $res = insert_id("INSERT INTO `pdbdd`.`grupo` (`nombre`, `descripcion`) VALUES ('" . escape($nombre) . "','".  escape($descripcion)."')");
+        $res = insert_id("INSERT INTO `pdbdd`.`grupo` (`nombre`, `descripcion`) VALUES ('" . escape($nombre) . "','" . escape($descripcion) . "')");
         return $res;
     }
 }
 
 function addMiembro($id_usuario, $id_grupo) {
+    if (checkLogin()) {
+
+        iniciar_transaccion();
+
+        try {
+
+//Añadimos el miembro
+            ejecutar("INSERT INTO `pdbdd`.`miembro` (`grupo_idgrupo`, `usuario_idusuario`, `puntos_participacion`, `voluntad`, `ultima_actualizacion`) "
+                    . "VALUES (" . escape($id_grupo) . ", " . escape($id_usuario) . ", " . Constantes::puntos_iniciales . ", 2, now())");
+
+            actualizarTotalMiembrosDeGrupo($id_grupo);
+
+            validar_transaccion();
+        } catch (Exception $e) {
+//Si hay algún error cancelamos la transacción y seguimos propagándola
+            cancelar_transaccion();
+            throw $e;
+        }
+    }
+}
+
+function ingresarEnGrupo($id_grupo) {
+
+    nl();
+
+    //No puede ingresar si ya está o tiene puntos de participación negativos
+    //Recuperamos la información del usuario en el grupo
+    $infomiembro = getInfoMiembro($id_grupo);
+
+    $id_usuario = $_SESSION['idusuario'];
+    
+    if ($infomiembro == null) {
+        //No es miembro así que lo añadimos nuevo
+        ejecutar("INSERT INTO `pdbdd`.`miembro` (`grupo_idgrupo`, `usuario_idusuario`, `puntos_participacion`, `voluntad`, `ultima_actualizacion`) "
+                . "VALUES (" . escape($id_grupo) . ", " . escape($id_usuario) . ", " . Constantes::puntos_iniciales . ", 2, now())");
+    } else {
+        //Si ya está como miembro comprobamos en qué estado
+        if ($infomiembro['puntos_participacion'] > 0) {
+            //Si tiene suficientes puntos modificamos su voluntad
+            ejecutar("UPDATE miembro SET voluntad = 2"
+                    . " WHERE grupo_idgrupo = " . escape($id_grupo)
+                    . " AND usuario_idusuario = " . escape($id_usuario));
+        } else {
+            //Si no tiene suficientes puntos pues nada
+        }
+    }
+}
+
+function seguirGrupo($id_grupo) {
+    nl();
+
+    //Recuperamos la información del usuario en el grupo
+    $infomiembro = getInfoMiembro($id_grupo);
+
+    $id_usuario = $_SESSION['idusuario'];
+
+    if ($infomiembro == null) {
+        //No es miembro así que lo añadimos nuevo
+        ejecutar("INSERT INTO `pdbdd`.`miembro` (`grupo_idgrupo`, `usuario_idusuario`, `puntos_participacion`, `voluntad`, `ultima_actualizacion`) "
+                . "VALUES (" . escape($id_grupo) . ", " . escape($id_usuario) . ", " . Constantes::puntos_iniciales . ", 1, now())");
+    } else {
+        //Si ya está como miembro comprobamos en qué estado
+        if ($infomiembro->voluntad == 2) {
+            //Si es miembro lo pasamos a seguidor y reiniciamos los puntos
+            ejecutar("UPDATE miembro SET voluntad = 1 AND puntos_participacion == 0"
+                    . " WHERE grupo_idgrupo = " . escape($id_grupo)
+                    . " AND usuario_idusuario = " . escape($id_usuario));
+        } else if ($infomiembro->voluntad == 0) {
+            //Si el usuario no quería nada con el grupo y ahora quiere ser seguidor lo será con los mismos puntos
+            ejecutar("UPDATE miembro SET voluntad = 1"
+                    . " WHERE grupo_idgrupo = " . escape($id_grupo)
+                    . " AND usuario_idusuario = " . escape($id_usuario));
+        } else {
+            //Si no tiene suficientes puntos pues nada
+        }
+    }
+}
+
+function addSeguidor($id_usuario, $id_grupo) {
     if (checkLogin()) {
 
         iniciar_transaccion();
