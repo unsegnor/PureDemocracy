@@ -28,7 +28,7 @@ $id = filter_input(INPUT_GET, 'id');
                 <li ><a href="chatgrupo.php?id=<?php echo $id ?>" title="chat"><span class="glyphicon glyphicon-comment"></span></a></li>
                 <li ><a href="votaciones.php?id=<?php echo $id ?>" title="ver votaciones"><span class="glyphicon glyphicon-search"></span></a></li>
                 <li ><a href="nuevavotacion.php?id=<?php echo $id ?>" title="nueva votación"><span class="glyphicon glyphicon-plus"></span></a></li>
-                <li ><a href="arbolgrupo.php?id=<?php echo $id ?>" title="grupos relacionados"><span class="glyphicon glyphicon-sort"></span></a></li>
+                <li ><a href="infogrupo.php?id=<?php echo $id ?>" title="información de grupo"><span class="glyphicon glyphicon-info-sign"></span></a></li>
             </ul>
         </div>
     </nav>

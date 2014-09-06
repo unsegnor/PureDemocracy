@@ -14,20 +14,83 @@ angular.module('puredemocracyapp.controllers', [])
                     , {'nombre': 'Plantilla', 'enlace': '#'}
                 ]);
             }])
+        .controller('controladornuevogrupo', ['$scope', '$http', function($scope, $http) {
+                //Comprobar si el usuario tiene sesión y redirigir a login
+                checkLogin($http, nop, function() {
+                    redirect("login.php");
+                });
+
+                $scope.nuevogrupo = {};
+                $scope.nuevogrupo.nombre = "";
+                $scope.nuevogrupo.descripcion = "";
+
+                setMenu([
+                    {'nombre': 'Grupos', 'enlace': 'todosgrupos.php'}
+                    , {'nombre': 'Nuevo', 'enlace': '#'}
+                ]);
+
+                $scope.creargrupo = function() {
+                    allamar($http, 'addGrupo', [$scope.nuevogrupo.nombre, $scope.nuevogrupo.descripcion], function(res) {
+                        //Si no hay error redirigimos a la página del neuvo grupo
+                        if (!res.hayerror) {
+                            var idgrupo = res.resultado;
+                            redirect("infogrupo.php?id=" + idgrupo);
+                        }
+                    });
+                };
+            }])
+        .controller('controladorinfogrupo', ['$scope', '$http', function($scope, $http) {
+                //Comprobar si el usuario tiene sesión y redirigir a login
+                checkLogin($http, nop, function() {
+                    redirect("login.php");
+                });
+
+                $scope.cargardatosdegrupo = function(idgrupo) {
+                    allamar($http, 'getInfoDeGrupo', [idgrupo], function(res) {
+                        //alert(JSON.stringify(res));
+                        $scope.infogrupo = res.resultado;
+
+                        setMenu([
+                            {'nombre': 'Grupos', 'enlace': 'todosgrupos.php'}
+                            , {'nombre': $scope.infogrupo.nombre, 'enlace': 'infogrupo.php?id=' + idgrupo}
+                        ]);
+                    });
+                };
+
+                $scope.init = function(id) {
+
+                    $scope.idgrupo = id;
+
+                    //Cargamos los datos del grupo
+                    $scope.cargardatosdegrupo($scope.idgrupo);
+
+                };
+
+
+            }])
         .controller('controladornuevavotacion', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 checkLogin($http, nop, function() {
                     redirect("login.php");
                 });
 
+                $scope.cargardatosdegrupo = function(idgrupo) {
+                    allamar($http, 'getInfoDeGrupo', [idgrupo], function(res) {
+                        //alert(JSON.stringify(res));
+                        $scope.infogrupo = res.resultado;
+
+                        setMenu([
+                            {'nombre': 'Grupos', 'enlace': 'todosgrupos.php'}
+                            , {'nombre': $scope.infogrupo.nombre, 'enlace': 'infogrupo.php?id=' + idgrupo}
+                            , {'nombre': 'Nueva votación', 'enlace': '#'}
+                        ]);
+                    });
+                };
+
                 $scope.init = function(id) {
                     $scope.idgrupo = id;
 
-                    setMenu([
-                        {'nombre': 'Grupos', 'enlace': 'todosgrupos.php'}
-                        ,{'nombre': 'Grupo ' + $scope.idgrupo, 'enlace': '#'}
-                        ,{'nombre': 'Nueva votación', 'enlace': '#'}
-                    ]);
+                    $scope.cargardatosdegrupo($scope.idgrupo);
                 };
 
 
@@ -45,17 +108,24 @@ angular.module('puredemocracyapp.controllers', [])
                     });
                 };
 
+                $scope.cargardatosdegrupo = function(idgrupo) {
+                    allamar($http, 'getInfoDeGrupo', [idgrupo], function(res) {
+                        //alert(JSON.stringify(res));
+                        $scope.infogrupo = res.resultado;
+
+                        setMenu([
+                            {'nombre': 'Grupos', 'enlace': 'todosgrupos.php'}
+                            , {'nombre': $scope.infogrupo.nombre, 'enlace': 'infogrupo.php?id=' + idgrupo}
+                            , {'nombre': 'Votaciones', 'enlace': '#'}
+                        ]);
+                    });
+                };
+
 
                 $scope.init = function(id) {
                     $scope.id = id;
+                    $scope.cargardatosdegrupo($scope.id);
                     $scope.cargarVotaciones();
-
-                    setMenu([
-                        {'nombre': 'Grupos', 'enlace': 'todosgrupos.php'}
-                        ,{'nombre': 'Grupo ' + $scope.id, 'enlace': '#'}
-                        ,{'nombre': 'Votaciones', 'enlace': '#'}
-                    ]);
-
                 };
 
             }])
@@ -64,6 +134,8 @@ angular.module('puredemocracyapp.controllers', [])
                 checkLogin($http, nop, function() {
                     redirect("login.php");
                 });
+
+                var refrescando = false;
 
                 $scope.gotoBottom = function() {
                     // set the location.hash to the id of
@@ -75,19 +147,42 @@ angular.module('puredemocracyapp.controllers', [])
                 };
 
                 $scope.refreshchat = function() {
-                    //Actualizar fecha de ultima actualización
-                    //Si hay mensajes
-                    if ($scope.mensajes.length > 0) {
-                        $scope.ultimo_mensaje_visto = ($scope.mensajes[$scope.mensajes.length - 1]).idchatgrupo;
-                    }
-                    allamar($http, 'getChatGrupoNuevoID', [$scope.idgrupo, $scope.ultimo_mensaje_visto], function(res) {
-                        //alert(JSON.stringify(res));
-                        //Añadir a los mensajes si hay
-                        if (res.resultado.length > 0) {
-                            $scope.mensajes = $scope.mensajes.concat(res.resultado);
+
+
+                    if (!refrescando) {
+                        refrescando = true;
+
+                        //Actualizar fecha de ultima actualización
+                        //Si hay mensajes
+                        if ($scope.mensajes.length > 0) {
+                            $scope.ultimo_mensaje_visto = ($scope.mensajes[$scope.mensajes.length - 1]).idchatgrupo;
                         }
-                        //Después de refrescar nos vamos abajo si así queríamos
-                        //if(bajar) {$scope.gotoBottom();}
+                        allamar($http, 'getChatGrupoNuevoID', [$scope.idgrupo, $scope.ultimo_mensaje_visto], function(res) {
+                            //alert(JSON.stringify(res));
+                            //Añadir a los mensajes si hay
+                            if (res.resultado.length > 0) {
+                                $scope.mensajes = $scope.mensajes.concat(res.resultado);
+                            }
+                            //Después de refrescar nos vamos abajo si así queríamos
+                            //if(bajar) {$scope.gotoBottom();}
+                            refrescando = false;
+                        }, function()
+                        { //Si la llamada falla liberamos la función
+                            refrescando = false;
+                        });
+                    }
+                };
+
+                $scope.cargardatosdegrupo = function(idgrupo) {
+                    allamar($http, 'getInfoDeGrupo', [idgrupo], function(res) {
+                        //alert(JSON.stringify(res));
+                        $scope.infogrupo = res.resultado;
+
+                        setMenu([
+                            {'nombre': 'Grupos', 'enlace': 'todosgrupos.php'}
+                            , {'nombre': $scope.infogrupo.nombre, 'enlace': 'infogrupo.php?id=' + idgrupo}
+                            , {'nombre': 'Discusión', 'enlace': '#'}
+                        ]);
                     });
                 };
 
@@ -101,11 +196,8 @@ angular.module('puredemocracyapp.controllers', [])
 
                     $interval($scope.refreshchat, 5000);
 
-                    setMenu([
-                        {'nombre': 'Grupos', 'enlace': 'todosgrupos.php'}
-                        ,{'nombre': 'Grupo ' + $scope.idgrupo, 'enlace': '#'}
-                        ,{'nombre': 'Discusión', 'enlace': '#'}
-                    ]);
+                    $scope.cargardatosdegrupo($scope.idgrupo);
+
                 };
 
                 $scope.sendmsg = function(mensaje) {
@@ -161,12 +253,6 @@ angular.module('puredemocracyapp.controllers', [])
                     {'nombre': 'Todos los grupos', 'enlace': '#'}
                 ]);
             }])
-        .controller('controladornuevogrupo', ['$scope', '$http', function($scope, $http) {
-                //Comprobar si el usuario tiene sesión y redirigir a login
-                checkLogin($http, nop, function() {
-                    redirect("login.php");
-                });
-            }])
         .controller('controladorperfil', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 checkLogin($http, nop, function() {
@@ -196,7 +282,7 @@ angular.module('puredemocracyapp.controllers', [])
                 ]);
 
             }])
-        .controller('controladordetallegrupo', ['$scope', '$http', '$interval', '$modal', function($scope, $http, $interval, $modal) {
+        .controller('controladordetallegrupoold', ['$scope', '$http', '$interval', '$modal', function($scope, $http, $interval, $modal) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 checkLogin($http, nop, function() {
                     redirect("login.php");

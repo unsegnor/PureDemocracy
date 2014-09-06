@@ -330,6 +330,16 @@ function getGruposDeUsuarioActual() {
     }
 }
 
+function getInfoDeGrupo($id_grupo) {
+    nl();
+
+    $res = ejecutar("SELECT * FROM grupo WHERE idgrupo = " . escape($id_grupo));
+
+    $res = $res->fetch_assoc();
+
+    return $res;
+}
+
 function getDetalleDeGrupo($id_grupo) {
     if (checkLogin()) {
 
@@ -442,9 +452,9 @@ function getGrupoPorID($id_grupo) {
     }
 }
 
-function addGrupo($nombre) {
+function addGrupo($nombre, $descripcion) {
     if (checkLogin()) {
-        $res = insert_id("INSERT INTO `pdbdd`.`grupo` (`nombre`) VALUES ('" . escape($nombre) . "')");
+        $res = insert_id("INSERT INTO `pdbdd`.`grupo` (`nombre`, `descripcion`) VALUES ('" . escape($nombre) . "','".  escape($descripcion)."')");
         return $res;
     }
 }
@@ -2276,14 +2286,14 @@ function getChatGrupoNuevo($id_grupo, $ultima_actualizacion) {
                 . " LEFT JOIN usuario ON chatgrupo.usuario_idusuario = usuario.idusuario"
                 . " WHERE"
                 . " grupo_idgrupo = " . escape($id_grupo)
-                . " AND fecha > TIMESTAMP('" . escape($ultima_actualizacion)."')");
+                . " AND fecha > TIMESTAMP('" . escape($ultima_actualizacion) . "')");
 
         return toArray($res);
     }
 }
 
-function getChatGrupoNuevoID($id_grupo, $id_ultimo_mensaje_visto){
-        //Comprobamos que sea miembro del grupo
+function getChatGrupoNuevoID($id_grupo, $id_ultimo_mensaje_visto) {
+    //Comprobamos que sea miembro del grupo
     if (miembrode($id_grupo)) {
         $res = ejecutar("SELECT idchatgrupo, mensaje, usuario_idusuario, fecha"
                 . ", usuario.nombre as nombre_usuario"
@@ -2291,7 +2301,7 @@ function getChatGrupoNuevoID($id_grupo, $id_ultimo_mensaje_visto){
                 . " LEFT JOIN usuario ON chatgrupo.usuario_idusuario = usuario.idusuario"
                 . " WHERE"
                 . " grupo_idgrupo = " . escape($id_grupo)
-                . " AND idchatgrupo > ".  escape($id_ultimo_mensaje_visto));
+                . " AND idchatgrupo > " . escape($id_ultimo_mensaje_visto));
 
         return toArray($res);
     }
