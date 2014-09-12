@@ -13,64 +13,62 @@ $id = filter_input(INPUT_GET, 'id');
         <div class="row">
             <div class="col-sm-8">
                 <h2>{{infogrupo.descripcion}}</h2>
+                <!-- Mostramos todos los supergrupos -->
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Supergrupos
+                    </div>
+                    <!-- Añadir subgrupo -->
+                    <input type="text"
+                           ng-show="activo()"
+                           class="form-control"
+                           ng-model="nuevosupergrupo.nombre" 
+                           typeahead="g as (g.nombre + '_' +  g.idgrupo) for g in grupos | filter:{nombre:$viewValue}"
+                           typeahead-editable="true"
+                           ng-enter="addSuperGrupo(nuevosupergrupo.nombre, $item)"
+                           placeholder="filtrar/añadir..."/>
+                    <div class="list-group">
+                        <a class="list-group-item"
+                           ng-repeat="supergrupo in supergrupos| filter:nuevosupergrupo"
+                           href="infogrupo.php?id={{supergrupo.idgrupo}}">
+                            {{supergrupo.nombre}} 
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Mostramos todos los subgrupos -->
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Subgrupos
+                    </div>
+                    <!-- Añadir subgrupo -->
+                    <input type="text"
+                           ng-show="activo()"
+                           class="form-control" 
+                           placeholder="filtrar/añadir..."
+                           ng-model="filtro.nombre"
+                           ng-enter="addSubGrupo(filtro.nombre)">
+                    <div class="list-group">
+                        <a class="list-group-item" 
+                           ng-repeat="subgrupo in subgrupos| filter: filtro"
+                           href="infogrupo.php?id={{subgrupo.idgrupo}}">
+                            {{subgrupo.nombre}} 
+                        </a>
+                    </div>
+                </div>
             </div>
             <div class="col-sm-4">
                 <div class="panel panel-primary">
                     <div class="panel-heading">
                         <h3 class="panel-title">Miembros</h3>
                     </div>
-                        <ul class="list-group">
-                            <li class="list-group-item" ng-repeat="miembro in miembros| orderBy:'puntos_participacion'">
-                                <span class="badge">{{miembro.puntos_participacion}}</span>
-                                {{miembro.nombre}}
-                            </li>
-                        </ul>
+                    <ul class="list-group">
+                        <li class="list-group-item" ng-repeat="miembro in miembros">
+                            <span class="badge">{{miembro.puntos_participacion}}</span>
+                            {{miembro.nombre}}
+                        </li>
+                    </ul>
                 </div>
-            </div>
-        </div>
-
-
-        <!-- Mostramos todos los supergrupos -->
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                Forma parte de
-            </div>
-            <!-- Añadir subgrupo -->
-            <input type="text"
-                   ng-show="activo()"
-                   class="form-control"
-                   ng-model="nuevosupergrupo.nombre" 
-                   typeahead="g as (g.nombre + '_' +  g.idgrupo) for g in grupos | filter:{nombre:$viewValue}"
-                   typeahead-editable="true"
-                   ng-enter="addSuperGrupo(nuevosupergrupo.nombre, $item)"
-                   placeholder="filtrar/añadir..."/>
-            <div class="list-group">
-                <a class="list-group-item"
-                   ng-repeat="supergrupo in supergrupos| filter:nuevosupergrupo"
-                   href="detallegrupo.php?id={{supergrupo.idgrupo}}">
-                    {{supergrupo.nombre}} 
-                </a>
-            </div>
-        </div>
-
-        <!-- Mostramos todos los subgrupos -->
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                Compuesto por
-            </div>
-            <!-- Añadir subgrupo -->
-            <input type="text"
-                   ng-show="activo()"
-                   class="form-control" 
-                   placeholder="filtrar/añadir..."
-                   ng-model="filtro.nombre"
-                   ng-enter="addSubGrupo(filtro.nombre)">
-            <div class="list-group">
-                <a class="list-group-item" 
-                   ng-repeat="subgrupo in subgrupos| filter: filtro"
-                   href="detallegrupo.php?id={{subgrupo.idgrupo}}">
-                    {{subgrupo.nombre}} 
-                </a>
             </div>
         </div>
 

@@ -368,7 +368,8 @@ function getInfoMiembros($id_grupo) {
                     . ", miembro.voluntad"
                     . " FROM miembro"
                     . " LEFT JOIN usuario ON miembro.usuario_idusuario = usuario.idusuario"
-                    . " WHERE grupo_idgrupo = " . escape($id_grupo)));
+                    . " WHERE grupo_idgrupo = " . escape($id_grupo)
+                    . " ORDER BY puntos_participacion DESC"));
 
     return $res;
 }
