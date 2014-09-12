@@ -15,13 +15,14 @@ $id = filter_input(INPUT_GET, 'id');
                      ng-repeat="votacion in votaciones| filter:{'finalizada':0}">
                     <div class="row">
                         <div class="col-sm-2">
-                            <a href="detallegrupo.php?id={{votacion.censo}}">{{votacion.nombregrupo}}</a>  
+                            <a href="infogrupo.php?id={{votacion.censo}}">{{votacion.nombregrupo}}</a>  
                         </div>
                         <div class="col-sm-5">
                             {{votacion.enunciado}}     
                         </div>
                         <div class="col-sm-2">
-                            <progressbar class="progress-striped active" max="1" value="votacion.transcurrido" type="primary"></progressbar>
+                            <!--<progressbar class="progress-striped active" max="1" value="votacion.transcurrido" type="primary"></progressbar>-->
+                            <strong>{{votacion.horas_restantes}}:{{votacion.minutos_restantes}}:{{votacion.segundos_restantes}}</strong>
                         </div>
                         <div class="col-sm-2">
                             <div class="btn-group">

@@ -1686,7 +1686,7 @@ function crearDecision($id_grupo, $enunciado) {
 
 //Creamos la decisión asociada a la votación
         $consulta = "INSERT INTO `pdbdd`.`decisionsnd` "
-                . "(`enunciado`, `votacionsnd_idvotacionsnd`, `grupo_idgrupo`) "
+                . "(`nombre`, `votacionsnd_idvotacionsnd`, `grupo_idgrupo`) "
                 . "VALUES ('" . escape($enunciado) . "', " . escape($id_votacion) . ", " . escape($id_grupo) . ")";
 
         ejecutar($consulta);

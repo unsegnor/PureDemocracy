@@ -6,8 +6,8 @@ $id = filter_input(INPUT_GET, 'id');
 <div ng-controller="controladornuevavotacion" ng-init="init(<?php echo $id ?>)">
     <div class="container principal">
         <div class="form-group">
-            <label>Nombre de la votación</label>
-            <input type="text" class="form-control" ng-model="nuevavotacion.nombre" placeholder="Nombre">
+            <label>Enunciado</label>
+            <input type="text" class="form-control" ng-model="nuevavotacion.enunciado" placeholder="Nombre">
         </div>
         <div class="form-group">
             <label>Descripción</label>
@@ -97,7 +97,7 @@ $id = filter_input(INPUT_GET, 'id');
                     typeahead-editable="false"
                     placeholder="buscar votación..."/>
             </div>
-            
+
             <!-- Añadir acción -->
             <button class="btn btn-primary" ng-click="addAccion()">Añadir acción</button>
         </div>
@@ -107,5 +107,13 @@ $id = filter_input(INPUT_GET, 'id');
         <!-- Acción: modificar valor -->
 
     </div>
+    <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="navbar-inner">
+            <ul class="nav navbar-nav">
+                <!-- un enlace por cada objeto del menu inferior -->
+                <li ><a href="#" title="aceptar" ng-click="crearvotacion()"><span class="glyphicon glyphicon-ok"></span></a></li>
+            </ul>
+        </div>
+    </nav>
 </div>
 <?php include dirname(__FILE__) . "./footer.php"; ?>

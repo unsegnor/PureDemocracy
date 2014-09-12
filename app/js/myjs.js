@@ -209,3 +209,34 @@ function setMenu(menu) {
     document.getElementById('migasdepan').innerHTML = textoainsertar;
 }
 
+function BDDtoUTC(cadena){
+    //Deshacemos la cadena
+    var fyh = cadena.split(' ');
+    var f = fyh[0];
+    var h = fyh[1];
+    var ymd = f.split('-');
+    var year = ymd[0];
+    var month = ymd[1];
+    var day = ymd[2];
+    var hms = h.split(':');
+    var hour = hms[0];
+    var minute = hms[1];
+    var second = hms[2];
+    
+    //Ahora construimos la nueva fecha
+    return Date.UTC(year, month, day, hour, minute, second);
+}
+
+function BDDtoUTCformat(cadena){
+    
+    //Añadimos la T en el espacio
+    var respuesta = cadena.replace(' ', 'T');
+    //Añadimos los milisegundos y la Z al final
+    respuesta += ".000Z";
+    
+    return respuesta;
+}
+
+function pad(n) {
+    return (n < 10) ? ("0" + n) : n;
+}

@@ -2,7 +2,10 @@
 <div ng-controller="controladornuevogrupo">
     <div class="container principal">
         <div class="form-group">
-            <input type="text" class="form-control" placeholder="Nombre del grupo" ng-model="nuevogrupo.nombre"/>
+            <input type="text" 
+                   class="form-control" 
+                   placeholder="Nombre del grupo" 
+                   ng-model="nuevogrupo.nombre"/>
         </div>
         <div class="form-group">
             <textarea class="form-control" placeholder="Descripción" ng-model="nuevogrupo.descripcion"></textarea>

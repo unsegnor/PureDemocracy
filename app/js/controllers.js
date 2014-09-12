@@ -162,13 +162,13 @@ angular.module('puredemocracyapp.controllers', [])
                 };
 
                 $scope.init = function(id) {
-                    
+
                     //Valores por defecto
                     $scope.nuevavotacion = {};
                     $scope.nuevavotacion.tipo = 0;
                     $scope.nuevavotacion.acciones = [];
                     $scope.nuevaaccion = {};
-                    
+
                     //Cargar datos del grupo
                     $scope.idgrupo = id;
                     $scope.cargardatosdegrupo($scope.idgrupo);
@@ -220,17 +220,31 @@ angular.module('puredemocracyapp.controllers', [])
 
                     //Añadimos la acción al array
                     $scope.nuevavotacion.acciones.push(accion);
+
+                    //Reiniciamos los campos
+                    $scope.nuevaaccion.nuevadescripcion = "";
+                    $scope.nuevaaccion.grupo_out = null;
+                    $scope.nuevaaccion.grupo_in = null;
+
+                };
+
+                $scope.crearvotacion = function() {
+                    allamar($http, 'crearDecision', [$scope.idgrupo, $scope.nuevavotacion.enunciado], function(res) {
+                        if (!res.hayerror) {
+                            redirect("votaciones.php?id=" + $scope.idgrupo);
+                        }
+                    });
                 };
 
             }])
-        .controller('controladorvotaciones', ['$scope', '$http', function($scope, $http) {
+        .controller('controladorvotaciones', ['$scope', '$http', '$interval', function($scope, $http, $interval) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 checkLogin($http, nop, function() {
                     redirect("login.php");
                 });
 
                 $scope.cargarVotaciones = function() {
-                    allamar($http, 'getVotacionesSNDDeGrupo', [$scope.id], function(res) {
+                    allamar($http, 'getVotacionesSNDDeGrupoParaUsuarioActual', [$scope.id], function(res) {
                         //alert(JSON.stringify(res));
                         $scope.votaciones = res.resultado;
                     });
@@ -249,11 +263,51 @@ angular.module('puredemocracyapp.controllers', [])
                     });
                 };
 
+                $scope.votar = function(idvotacion, valor) {
+                    allamar($http, 'emitirVoto', [idvotacion, valor], function(res) {
+                        //TODO Recargar la información sobre la votación en concreto
+                        //De momento recargamos todas las votaciones
+                        $scope.cargarVotaciones();
+                    });
+                };
+
+                $scope.actualizartiempotranscurrido = function() {
+
+                    //Recorremos las votaciones y actualizamos el tiempo transcurrido desde que inició y hasta que le toque otro checktime  
+                    var ahora = new Date().getTime();
+                    for (var nvotacion in $scope.votaciones) {
+                        var votacion = $scope.votaciones[nvotacion];
+                        if (votacion.finalizada == 0) {
+                            //var f_fin = BDDtoUTC(votacion.checktime);
+                            var f_fin = new Date(BDDtoUTCformat(votacion.checktime)).getTime();
+                            var restante = f_fin - ahora;
+                            restante = restante / 1000;
+                            if (restante < 0) {
+                                votacion.restante = 0;
+                                votacion.horas_restantes = pad(0);
+                                votacion.minutos_restantes = pad(0);
+                                votacion.segundos_restantes = pad(0);
+                            } else {
+                                votacion.restante = restante; //En segundos
+                                votacion.horas_restantes = pad(Math.floor(restante / 3600));
+                                votacion.minutos_restantes = pad(Math.floor((restante % 3600) / 60));
+                                votacion.segundos_restantes = pad(Math.floor((restante % 3600) % 60));
+                            }
+                        }
+                    }
+
+                };
 
                 $scope.init = function(id) {
                     $scope.id = id;
                     $scope.cargardatosdegrupo($scope.id);
                     $scope.cargarVotaciones();
+
+                    //Llamamos una vez para inicializar
+                    $scope.actualizartiempotranscurrido();
+
+                    //Activamos el interval para actualizar los valores de las votaciones
+                    $interval($scope.actualizartiempotranscurrido, 1000);
                 };
 
             }])
