@@ -803,6 +803,8 @@ function getVotacionesSNDPendientesDeUsuarioActualComoRepresentante() {
 }
 
 function getVotacionesSNDDeGrupo($id_grupo) {
+    
+    nl();
 
     $supergrupos = getSupergruposID($id_grupo, 0);
 
@@ -2441,4 +2443,9 @@ function nuevoMensajeChatGrupo($id_grupo, $mensaje) {
         ejecutar("INSERT INTO `pdbdd`.`chatgrupo` (`grupo_idgrupo`, `usuario_idusuario`, `mensaje`)"
                 . " VALUES (" . escape($id_grupo) . "," . escape($id_usuario) . ", '" . escape($mensaje) . "')");
     }
+}
+//Devuelve los tipos de acciones automáticas que existen
+function getTiposAcciones(){
+    nl();
+    return toArray(ejecutar("SELECT * FROM accionsys"));
 }

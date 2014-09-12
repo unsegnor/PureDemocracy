@@ -56,48 +56,48 @@ angular.module('puredemocracyapp.controllers', [])
                         ]);
                     });
                 };
-                
-                $scope.cargarinfomiembros = function(idgrupo){
-                  allamar($http, 'getInfoMiembros', [idgrupo], function(res){
-                     //alert(JSON.stringify(res));
-                     $scope.miembros = res.resultado;
-                  });  
+
+                $scope.cargarinfomiembros = function(idgrupo) {
+                    allamar($http, 'getInfoMiembros', [idgrupo], function(res) {
+                        //alert(JSON.stringify(res));
+                        $scope.miembros = res.resultado;
+                    });
                 };
-                
-                $scope.cargarinformaciondemiembroactual = function(idgrupo){
-                    allamar($http, 'getInfoMiembro', [idgrupo], function(res){
+
+                $scope.cargarinformaciondemiembroactual = function(idgrupo) {
+                    allamar($http, 'getInfoMiembro', [idgrupo], function(res) {
                         //alert(JSON.stringify(res));
                         $scope.miembroactual = res.resultado;
                     });
                 };
 
-                $scope.ingresarengrupo = function(){
-                  
-                  allamar($http, 'ingresarEnGrupo', [$scope.idgrupo], function(res){
-                     //alert(JSON.stringify(res));
-                     //Actualizamos la información del usuario actual
-                     $scope.cargarinformaciondemiembroactual($scope.idgrupo);
-                     $scope.cargarinfomiembros($scope.idgrupo);
-                  });
-                    
-                };
-                
-                $scope.seguirgrupo = function(){
-                  
-                    allamar($http, 'seguirGrupo', [$scope.idgrupo], function(res){
-                       $scope.cargarinformaciondemiembroactual($scope.idgrupo); 
+                $scope.ingresarengrupo = function() {
+
+                    allamar($http, 'ingresarEnGrupo', [$scope.idgrupo], function(res) {
+                        //alert(JSON.stringify(res));
+                        //Actualizamos la información del usuario actual
+                        $scope.cargarinformaciondemiembroactual($scope.idgrupo);
+                        $scope.cargarinfomiembros($scope.idgrupo);
                     });
-                    
+
                 };
-                
-                $scope.solicitarbaja = function(){
-                  
-                    allamar($http, 'solicitarBaja', [$scope.idgrupo], function(res){
-                       $scope.cargarinformaciondemiembroactual($scope.idgrupo);
-                       $scope.cargarinfomiembros($scope.idgrupo);
+
+                $scope.seguirgrupo = function() {
+
+                    allamar($http, 'seguirGrupo', [$scope.idgrupo], function(res) {
+                        $scope.cargarinformaciondemiembroactual($scope.idgrupo);
+                    });
+
+                };
+
+                $scope.solicitarbaja = function() {
+
+                    allamar($http, 'solicitarBaja', [$scope.idgrupo], function(res) {
+                        $scope.cargarinformaciondemiembroactual($scope.idgrupo);
+                        $scope.cargarinfomiembros($scope.idgrupo);
                     });
                 };
-                
+
 
                 $scope.init = function(id) {
 
@@ -129,15 +129,98 @@ angular.module('puredemocracyapp.controllers', [])
                             , {'nombre': $scope.infogrupo.nombre, 'enlace': 'infogrupo.php?id=' + idgrupo}
                             , {'nombre': 'Nueva votación', 'enlace': '#'}
                         ]);
+
+                        $scope.nuevaaccion.descripcion = $scope.infogrupo.descripcion;
+                    });
+                };
+
+                $scope.cargartiposdeacciones = function() {
+                    allamar($http, 'getTiposAcciones', null, function(res) {
+                        $scope.tiposacciones = res.resultado;
+                        //Asignamos el valor por defecto después de cargarlas
+                        $scope.nuevaaccion.tipo = $scope.tiposacciones[0];
+                    });
+                };
+
+                $scope.cargargrupos = function() {
+                    allamar($http, 'getGrupos', null, function(res) {
+                        $scope.grupos = res.resultado;
+                    });
+                };
+
+                $scope.cargarsupergrupos = function() {
+                    allamar($http, 'getSuperGrupos', [$scope.idgrupo, 1], function(res) {
+                        $scope.supergrupos = res.resultado;
+                    });
+                };
+
+                $scope.cargarVotaciones = function() {
+                    allamar($http, 'getVotacionesSNDDeGrupo', [$scope.idgrupo], function(res) {
+                        //alert(JSON.stringify(res));
+                        $scope.votaciones = res.resultado;
                     });
                 };
 
                 $scope.init = function(id) {
+                    
+                    //Valores por defecto
+                    $scope.nuevavotacion = {};
+                    $scope.nuevavotacion.tipo = 0;
+                    $scope.nuevavotacion.acciones = [];
+                    $scope.nuevaaccion = {};
+                    
+                    //Cargar datos del grupo
                     $scope.idgrupo = id;
-
                     $scope.cargardatosdegrupo($scope.idgrupo);
+
+                    //Cargamos los grupos
+                    $scope.cargargrupos();
+
+                    //Cargar supergrupos
+                    $scope.cargarsupergrupos();
+
+                    //Obtenemos los tipos de acciones
+                    $scope.cargartiposdeacciones();
+
+                    //Cargamos las votaciones
+                    $scope.cargarVotaciones();
+
                 };
 
+                $scope.addAccion = function() {
+
+                    //Comprobamos el tipo de acción
+                    var accion = {};
+                    accion.id = $scope.nuevaaccion.tipo.idaccionsys;
+
+                    if (accion.id == 1) {
+                        //El parámetro es el id del grupo
+                        accion.parametro = $scope.nuevaaccion.grupo_in.idgrupo;
+                        //Y el texto que vamos a mostrar
+                        accion.descripcion = "Unirse al grupo '" + $scope.nuevaaccion.grupo_in.nombre + "'";
+                    } else if (accion.id == 2) {
+                        //El parámetro es el id del grupo
+                        accion.parametro = $scope.nuevaaccion.grupo_out.idgrupo;
+                        //Y el texto que vamos a mostrar
+                        accion.descripcion = "Abandonar el grupo '" + $scope.nuevaaccion.grupo_out.nombre + "'";
+                    } else if (accion.id == 3) {
+                        //El parámetro es el id del grupo
+                        accion.parametro = $scope.nuevaaccion.nuevadescripcion;
+                        //Y el texto que vamos a mostrar
+                        accion.descripcion = "Establecer la descripción del grupo como '" + $scope.nuevaaccion.nuevadescripcion + "'";
+                    } else if (accion.id == 4) {
+
+                    } else if (accion.id == 5) {
+
+                    } else if (accion.id == 6) {
+
+                    } else if (accion.id == 7) {
+
+                    }
+
+                    //Añadimos la acción al array
+                    $scope.nuevavotacion.acciones.push(accion);
+                };
 
             }])
         .controller('controladorvotaciones', ['$scope', '$http', function($scope, $http) {
@@ -147,7 +230,7 @@ angular.module('puredemocracyapp.controllers', [])
                 });
 
                 $scope.cargarVotaciones = function() {
-                    allamar($http, 'getVotacionesSNDDeGrupoParaUsuarioActual', [$scope.id], function(res) {
+                    allamar($http, 'getVotacionesSNDDeGrupo', [$scope.id], function(res) {
                         //alert(JSON.stringify(res));
                         $scope.votaciones = res.resultado;
                     });

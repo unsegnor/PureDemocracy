@@ -29,6 +29,7 @@ try {
         , 'getSuperGrupos'
         , 'addNuevoSuperGrupo'
         , 'hacerSuperGrupo'
+        , 'getVotacionesSNDDeGrupo'
         , 'getVotacionesSNDDeGrupoParaUsuarioActual'
         , 'getVotacionesSNDPendientesDeUsuarioActualComoRepresentante'
         , 'crearDecision'
@@ -46,6 +47,7 @@ try {
         , 'getInfoMiembros'
         , 'ingresarEnGrupo'
         , 'seguirGrupo'
+        , 'getTiposAcciones'
     );
     
     $funcionesProhibidas = array(
