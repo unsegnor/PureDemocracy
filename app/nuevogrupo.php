@@ -1,12 +1,14 @@
 <?php include dirname(__FILE__) . "./header.php"; ?>
 <div ng-controller="controladornuevogrupo">
     <div class="container principal">
-        
-        <input type="text" class="form-control" placeholder="nombre" ng-model="nuevogrupo.nombre"/>
-        <textarea class="form-control" placeholder="descripción" ng-model="nuevogrupo.descripcion"></textarea>
-
+        <div class="form-group">
+            <input type="text" class="form-control" placeholder="Nombre del grupo" ng-model="nuevogrupo.nombre"/>
+        </div>
+        <div class="form-group">
+            <textarea class="form-control" placeholder="Descripción" ng-model="nuevogrupo.descripcion"></textarea>
+        </div>
     </div>
-    
+
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="navbar-inner">
             <ul class="nav navbar-nav">

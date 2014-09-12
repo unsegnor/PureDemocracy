@@ -37,16 +37,16 @@
 
         <!-- Cargamos el api de facebook -->
         <script>
-            
+
             var fbApiInit = false;
-            
+
             window.fbAsyncInit = function() {
                 FB.init({
                     appId: '605582532896240',
                     xfbml: true,
                     version: 'v2.0'
                 });
-                
+
                 fbApiInit = true;
             };
 
@@ -59,6 +59,22 @@
                 js.src = "//connect.facebook.net/es_LA/sdk.js";
                 fjs.parentNode.insertBefore(js, fjs);
             }(document, 'script', 'facebook-jssdk'));
+
+            //Google Analytics
+            (function(i, s, o, g, r, a, m) {
+                i['GoogleAnalyticsObject'] = r;
+                i[r] = i[r] || function() {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date();
+                a = s.createElement(o),
+                        m = s.getElementsByTagName(o)[0];
+                a.async = 1;
+                a.src = g;
+                m.parentNode.insertBefore(a, m)
+            })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+            ga('create', 'UA-54742106-1', 'auto');
+            ga('send', 'pageview');
         </script>
 
         <!-- Angular CDN -->
