@@ -86,6 +86,15 @@ $id = filter_input(INPUT_GET, 'id');
                     ng-model="nuevaaccion.valorvariable"
                     placeholder="Valor inicial"/>
             </div>
+            
+            <!-- Determinar regla -->
+            <div ng-show="nuevaaccion.tipo.idaccionsys == 6" class="form-group">
+                <input
+                    type="text"
+                    class="form-control"
+                    ng-model="nuevaaccion.regla"
+                    placeholder="Regla"/>
+            </div>
 
             <!-- Determinar votación a invalidar -->
             <div ng-show="nuevaaccion.tipo.idaccionsys == 7" class="form-group">

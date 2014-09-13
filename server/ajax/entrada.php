@@ -48,6 +48,7 @@ try {
         , 'ingresarEnGrupo'
         , 'seguirGrupo'
         , 'getTiposAcciones'
+        , 'crearDecisionConAcciones'
     );
     
     $funcionesProhibidas = array(

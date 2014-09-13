@@ -71,10 +71,10 @@ angular.module('puredemocracyapp.controllers', [])
                         }
                     });
                 };
-                
-                $scope.init = function(id){
-                  $scope.idgrupo = id;
-                  $scope.cargardatosdegrupo(id);
+
+                $scope.init = function(id) {
+                    $scope.idgrupo = id;
+                    $scope.cargardatosdegrupo(id);
                 };
             }])
         .controller('controladorinfogrupo', ['$scope', '$http', function($scope, $http) {
@@ -263,13 +263,25 @@ angular.module('puredemocracyapp.controllers', [])
                         //Y el texto que vamos a mostrar
                         accion.descripcion = "Establecer la descripción del grupo como '" + $scope.nuevaaccion.nuevadescripcion + "'";
                     } else if (accion.id == 4) {
-
+                        //El parámetro es el id del grupo
+                        accion.parametro = $scope.nuevaaccion.nombrevariable + ";" + $scope.nuevaaccion.valorinicialvariable;
+                        //Y el texto que vamos a mostrar
+                        accion.descripcion = "Crear la variable de grupo '" + $scope.nuevaaccion.nombrevariable + "' con el valor '" + $scope.nuevaaccion.valorinicialvariable;
                     } else if (accion.id == 5) {
-
+                        //El parámetro es el id del grupo
+                        accion.parametro = $scope.nuevaaccion.nombrevariableamodificar;
+                        //Y el texto que vamos a mostrar
+                        accion.descripcion = "Establecer valor de '" + $scope.nuevaaccion.nombrevariableamodificar + "' a '" + $scope.nuevaaccion.valorvariable + "'";
                     } else if (accion.id == 6) {
-
+                        //El parámetro es el id del grupo
+                        accion.parametro = $scope.nuevaaccion.regla;
+                        //Y el texto que vamos a mostrar
+                        accion.descripcion = "Crear la regla '" + $scope.nuevaaccion.regla + "'";
                     } else if (accion.id == 7) {
-
+                        //El parámetro es el id del grupo
+                        accion.parametro = $scope.nuevaaccion.votacionainvalidar.idvotacionsnd;
+                        //Y el texto que vamos a mostrar
+                        accion.descripcion = "invalidar la votación '" + $scope.nuevaaccion.votacionainvalidar.enunciado + "'";
                     }
 
                     //Añadimos la acción al array
@@ -283,7 +295,19 @@ angular.module('puredemocracyapp.controllers', [])
                 };
 
                 $scope.crearvotacion = function() {
-                    allamar($http, 'crearDecision', [$scope.idgrupo, $scope.nuevavotacion.enunciado], function(res) {
+                    //Creamos el objeto que vamos a enviar con las acciones sin la descripción
+                    var acciones_a_enviar = [];
+                    var acciones = $scope.nuevavotacion.acciones;
+                    for (var i = 0; i < acciones.length; i++) {
+                        var aux = {};
+                        aux.id = acciones[i].id;
+                        aux.parametro = acciones[i].parametro;
+                        acciones_a_enviar.push(aux);
+                    }
+
+
+                    allamar($http, 'crearDecisionConAcciones', [$scope.idgrupo, $scope.nuevavotacion.enunciado, acciones_a_enviar], function(res) {
+                        //alert(JSON.stringify(res));
                         if (!res.hayerror) {
                             redirect("votaciones.php?id=" + $scope.idgrupo);
                         }

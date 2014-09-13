@@ -1696,6 +1696,45 @@ function crearDecision($id_grupo, $enunciado) {
     }
 }
 
+//Las acciones vienen con dos campos id y parametro
+function crearDecisionConAcciones($id_grupo, $enunciado, $acciones) {
+
+    if (miembrode($id_grupo)) {
+
+        //Creamos la ejecución
+        $id_ejecucion = insert_id("INSERT INTO `pdbdd`.`ejecucionsys` () VALUES ()");
+
+        //Añadimos las acciones
+        $consulta = "INSERT INTO `pdbdd`.`ejecucionsys_has_accionsys`"
+                . " (`ejecucionsys_idejecucionsys`, `accionsys_idaccionsys`, `orden`, `parametros`) VALUES";
+
+        $primero = true;
+
+        $l = count($acciones);
+        for ($i = 0; $i < $l; $i++) {
+            $e = $acciones[$i];
+            if ($primero) {
+                $primero = false;
+            } else {
+                $consulta.= ",";
+            }
+            $consulta.= " (" . escape($id_ejecucion) . "," . escape($e->id) . "," . $i . "," . escape($e->parametro) . ")";
+        }
+
+        ejecutar($consulta);
+
+        //Ahora creamos la votación
+        $id_votacion = crearVotacionDeGrupo($id_grupo, $enunciado);
+
+        //Creamos la decisión asociada a la votación y a la ejecución
+        $consulta = "INSERT INTO `pdbdd`.`decisionsnd` "
+                . "(`nombre`, `votacionsnd_idvotacionsnd`, `grupo_idgrupo`, `ejecucionsys_idejecucionsys`) "
+                . "VALUES ('" . escape($enunciado) . "', " . escape($id_votacion) . ", " . escape($id_grupo) . "," . escape($id_ejecucion) . ")";
+
+        ejecutar($consulta);
+    }
+}
+
 function checkTime() {
 
     sumarPuntos();
@@ -1737,6 +1776,8 @@ function checkDecisiones() {
         $resultado = $decision['resultado_votacion'];
 
         $id_decision = $decision['iddecisionsnd'];
+        
+        $id_grupo = $decision['grupo_idgrupo'];
 
         if ($resultado == 1) {
 //Si es rechazada no se hace nada, se deja en el histórico de votaciones rechazadas (si a caso)
@@ -1771,7 +1812,7 @@ function checkDecisiones() {
                 $id_ejecucion = $decision['ejecucionsys_idejecucionsys'];
 
 //Mandamos ejecutar la ejecución
-                ejecutarEjecucion($id_ejecucion);
+                ejecutarEjecucion($id_grupo, $id_ejecucion);
             }
 
 //Luego comprobamos si la aprobación de este enunciado afecta a los enunciados superiores
@@ -1783,11 +1824,50 @@ function checkDecisiones() {
     }
 }
 
-function ejecutarEjecucion($id_ejecucion) {
-    //Tendremos que comprobar que no ha sido ya ejecutada
+function ejecutarEjecucion($id_grupo, $id_ejecucion) {
+    
+    //recuperamos las acciones a ejecutar
+    $res = ejecutar("SELECT "
+            . " ejecucionsys_has_accionsys.orden"
+            . ", ejecucionsys_has_accionsys.parametros"
+            . ", ejecucionsys_has_accionsys.ejecucionsys_idejecucionsys"
+            . ", accionsys.nombre"
+            . " FROM ejecucionsys_has_accionsys"
+            . " LEFT JOIN accionsys ON accionsys.idaccionsys = ejecucionsys_has_accionsys.accionsys_idaccionsys"
+            . " WHERE ejecucionsys_has_accionsys.ejecucionsys_idejecucionsys = ".escape($id_ejecucion)
+            . " ORDER BY orden ASC");
+    
+    $acciones = toArray($res);
+    
     //Recorrer y ejecutar las acciones en orden
-    //Marcarla como ejecutada
+    foreach($acciones as $accion){
+        ejecutarAccionDeGrupo($id_grupo, $accion['nombre'], $accion['parametros']);
+    }
 }
+
+function ejecutarAccionDeGrupo($id_grupo, $nombre, $parametros){
+    //Preparamos los parámetros
+    $p = explode(';', $parametros);
+    
+    //En función del nombre de la función hacemos una cosa u otra
+    if($nombre == 'UnirGrupo'){
+        //El parámetro 0 nos dice el grupo al que nos queremos unir
+        hacerSuperGrupo($id_grupo, $p[0]);
+    }
+}
+
+function ejecutarAccion($nombre, $parametros){
+    //En función del nombre hacemos una u otra cosa
+    //Si tenemos parámetros los enviamos
+        if (isset($parametros)) {
+            //Convertimos los parámetros en un array
+            $a_parametros = explode(';', $parametros);
+            $resultado = call_user_func_array($nombre, $a_parametros);
+        } else {
+            $resultado = call_user_func($nombre);
+        }
+}
+        
 
 function checkVotaciones() {
 
