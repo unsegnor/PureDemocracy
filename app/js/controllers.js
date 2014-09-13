@@ -14,6 +14,16 @@ angular.module('puredemocracyapp.controllers', [])
                     , {'nombre': 'Plantilla', 'enlace': '#'}
                 ]);
             }])
+        .controller('controladorprincipal', ['$scope', '$http', function($scope, $http) {
+                //Comprobar si el usuario tiene sesión y redirigir a login
+                checkLogin($http, nop, function() {
+                    redirect("login.php");
+                });
+
+                setMenu([
+                    {'nombre': 'Principal', 'enlace': '#'}
+                ]);
+            }])
         .controller('controladornuevogrupo', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 checkLogin($http, nop, function() {
@@ -819,7 +829,7 @@ angular.module('puredemocracyapp.controllers', [])
                 });
 
             }])
-        .controller('controladorprincipal', ['$scope', '$http', '$interval', function($scope, $http, $interval) {
+        .controller('controladornotificaciones', ['$scope', '$http', '$interval', function($scope, $http, $interval) {
 
 
                 $scope.cargarVotaciones = function() {

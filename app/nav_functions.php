@@ -7,5 +7,6 @@ class Direcciones {
     const objetivos = "objetivos.php";
     const grupos = "todosgrupos.php";
     const perfil = "perfil.php";
+    const notificaciones = "notificaciones.php";
 
 }

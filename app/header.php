@@ -5,9 +5,9 @@ include dirname(__FILE__) . "./head.php";
 ?>
 
 <div class="navmenu navmenu-default navmenu-fixed-left offcanvas">
-    <a class="navmenu-brand" href="#">Pure Democracy</a>
+    <a class="navmenu-brand" href="<?php echo direcciones::index ?>">Pure Democracy</a>
     <ul class="nav navmenu-nav">
-        <li><a title="Notificaciones" href="<?php echo direcciones::index ?>"><span class="glyphicon glyphicon-bell"> Notificaciones</span></a></li>
+        <li><a title="Notificaciones" href="<?php echo direcciones::notificaciones ?>"><span class="glyphicon glyphicon-bell"> Notificaciones</span></a></li>
         <li><a title="Grupos" href="<?php echo direcciones::grupos ?>"><span class="glyphicon glyphicon-record"> Grupos</span></a></li>
         <li><a title="Mi Perfil" href="<?php echo direcciones::perfil ?>"><span class="glyphicon glyphicon-user"> Perfil</span></a></li>
         <li><a title="Salir" href="<?php echo direcciones::logout ?>"><span class="glyphicon glyphicon-log-out"> Salir</span></a></li>
