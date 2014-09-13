@@ -36,8 +36,7 @@
         <div class="navbar-inner">
             <ul class="nav navbar-nav">
                 <li ><a href="misgrupos.php" title="mis grupos"><span class="glyphicon glyphicon-user"></span></a></li>
-                <li ><a href="todosgrupos.php" title="todos"><span class="glyphicon glyphicon-asterisk"></span></a></li>
-                <li ><a href="buscargrupo.php" title="buscar grupo"><span class="glyphicon glyphicon-search"></span></a></li>
+                <li ><a href="todosgrupos.php" title="todos"><span class="glyphicon glyphicon-search"></span></a></li>
                 <li ><a href="nuevogrupo.php" title="nuevo grupo"><span class="glyphicon glyphicon-plus"></span></a></li>
             </ul>
         </div>

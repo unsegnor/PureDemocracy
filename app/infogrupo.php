@@ -63,7 +63,7 @@ $id = filter_input(INPUT_GET, 'id');
                         <h3 class="panel-title">Miembros</h3>
                     </div>
                     <ul class="list-group">
-                        <li class="list-group-item" ng-repeat="miembro in miembros">
+                        <li class="list-group-item list-group-item-info" ng-repeat="miembro in miembros">
                             <span class="badge">{{miembro.puntos_participacion}}</span>
                             {{miembro.nombre}}
                         </li>
