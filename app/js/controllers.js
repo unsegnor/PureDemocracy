@@ -39,6 +39,44 @@ angular.module('puredemocracyapp.controllers', [])
                     });
                 };
             }])
+        .controller('controladornuevosubgrupo', ['$scope', '$http', function($scope, $http) {
+                //Comprobar si el usuario tiene sesión y redirigir a login
+                checkLogin($http, nop, function() {
+                    redirect("login.php");
+                });
+
+                $scope.cargardatosdegrupo = function(idgrupo) {
+                    allamar($http, 'getInfoDeGrupo', [idgrupo], function(res) {
+                        //alert(JSON.stringify(res));
+                        $scope.infogrupo = res.resultado;
+
+                        setMenu([
+                            {'nombre': 'Grupos', 'enlace': 'todosgrupos.php'}
+                            , {'nombre': $scope.infogrupo.nombre, 'enlace': 'infogrupo.php?id=' + idgrupo}
+                            , {'nombre': 'Nuevo subgrupo', 'enlace': '#'}
+                        ]);
+                    });
+                };
+
+                $scope.nuevogrupo = {};
+                $scope.nuevogrupo.nombre = "";
+                $scope.nuevogrupo.descripcion = "";
+
+                $scope.creargrupo = function() {
+                    allamar($http, 'addSubGrupo', [$scope.idgrupo, $scope.nuevogrupo.nombre, $scope.nuevogrupo.descripcion], function(res) {
+                        //Si no hay error redirigimos a la página del neuvo grupo
+                        if (!res.hayerror) {
+                            var idgrupo = res.resultado;
+                            redirect("infogrupo.php?id=" + idgrupo);
+                        }
+                    });
+                };
+                
+                $scope.init = function(id){
+                  $scope.idgrupo = id;
+                  $scope.cargardatosdegrupo(id);
+                };
+            }])
         .controller('controladorinfogrupo', ['$scope', '$http', function($scope, $http) {
                 //Comprobar si el usuario tiene sesión y redirigir a login
                 checkLogin($http, nop, function() {

@@ -78,17 +78,18 @@ $id = filter_input(INPUT_GET, 'id');
                     <!-- un enlace por cada objeto del menu inferior -->
 
                     <!--mostramos algunos botones en función de si somos o no miembros -->
-                    <li ><a href="chatgrupo.php?id=<?php echo $id ?>" title="chat"><span class="glyphicon glyphicon-comment"></span></a></li>
-                    <li ><a href="votaciones.php?id=<?php echo $id ?>" title="ver votaciones"><span class="glyphicon glyphicon-search"></span></a></li>
+                    <li ><a href="chatgrupo.php?id=<?php echo $id ?>" title="chat"><span class="glyphicon glyphicon-comment"></span>Discusión</a></li>
+                    <li ><a href="votaciones.php?id=<?php echo $id ?>" title="ver votaciones"><span class="glyphicon glyphicon-search"></span>Votaciones</a></li>
 
                     <!-- si somos miembros mostramos las opciones de crear votación y solicitar baja -->
                     <!-- si somos seguidores mostramos las opciones de ingresar y solicitar baja -->
                     <!-- si no somos miembros ni seguidores mostramos las opciones de ingresar y seguir -->
 
-                    <li ng-hide="miembroactual.voluntad >= 2"><a href="#" title="ingresar" ng-click="ingresarengrupo()"><span class="glyphicon glyphicon-log-in"></span></a></li>
-                    <li ng-hide="miembroactual.voluntad >= 1"><a href="#" title="seguir" ng-click="seguirgrupo()"><span class="glyphicon glyphicon-bullhorn"></span></a></li>
-                    <li ng-show="miembroactual.voluntad >= 2 && miembroactual.puntos_participacion > 0"><a href="nuevavotacion.php?id=<?php echo $id ?>" title="nueva votación"><span class="glyphicon glyphicon-plus"></span></a></li>
-                    <li ng-show="miembroactual.voluntad >= 1"><a href="#" title="baja" ng-click="solicitarbaja()"><span class="glyphicon glyphicon-remove"></span></a></li>
+                    <li ng-hide="miembroactual.voluntad >= 2"><a href="#" title="ingresar" ng-click="ingresarengrupo()"><span class="glyphicon glyphicon-log-in">Ingresar</span></a></li>
+                    <li ng-hide="miembroactual.voluntad >= 1"><a href="#" title="seguir" ng-click="seguirgrupo()"><span class="glyphicon glyphicon-bullhorn">Seguir</span></a></li>
+                    <li ng-show="miembroactual.voluntad >= 2 && miembroactual.puntos_participacion > 0"><a href="nuevavotacion.php?id=<?php echo $id ?>" title="nueva votación"><span class="glyphicon glyphicon-plus"></span>Votación</a></li>
+                    <li ng-show="miembroactual.voluntad >= 2 && miembroactual.puntos_participacion > 0"><a href="nuevosubgrupo.php?id=<?php echo $id ?>" title="nuevo subgrupo"><span class="glyphicon glyphicon-plus"></span>Subgrupo</a></li>
+                    <li ng-show="miembroactual.voluntad >= 1"><a href="#" title="baja" ng-click="solicitarbaja()"><span class="glyphicon glyphicon-remove"></span>Baja</a></li>
 
                 </ul>
             </div>

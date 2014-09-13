@@ -477,7 +477,7 @@ function solicitarBaja($id_grupo) {
     $infomiembro = getInfoMiembro($id_grupo);
 
     $id_usuario = $_SESSION['idusuario'];
-    
+
     if (isset($infomiembro['puntos_participacion'])) {
         //Es miembro así que comprobamos los puntos
         if ($infomiembro['puntos_participacion'] >= 0) {
@@ -539,7 +539,7 @@ function ingresarEnGrupo($id_grupo) {
     $infomiembro = getInfoMiembro($id_grupo);
 
     $id_usuario = $_SESSION['idusuario'];
-    
+
     if ($infomiembro == null) {
         //No es miembro así que lo añadimos nuevo
         ejecutar("INSERT INTO `pdbdd`.`miembro` (`grupo_idgrupo`, `usuario_idusuario`, `puntos_participacion`, `voluntad`, `ultima_actualizacion`) "
@@ -628,13 +628,15 @@ function getSubGrupos($id_grupo, $nivel) {
     }
 }
 
-function addSubGrupo($id_supergrupo, $nombre) {
+function addSubGrupo($id_supergrupo, $nombre, $descripcion) {
     if (checkLogin()) {
-        $id_subgrupo = addGrupo($nombre);
+        $id_subgrupo = addGrupo($nombre, $descripcion);
 
 //Ahora añadimos el grupo al supergrupo
         hacerSubGrupo($id_supergrupo, $id_subgrupo);
     }
+
+    return $id_subgrupo;
 }
 
 function hacerSuperGrupo($id_subgrupo, $id_supergrupo) {
@@ -804,7 +806,7 @@ function getVotacionesSNDPendientesDeUsuarioActualComoRepresentante() {
 }
 
 function getVotacionesSNDDeGrupo($id_grupo) {
-    
+
     nl();
 
     $supergrupos = getSupergruposID($id_grupo, 0);
@@ -1739,30 +1741,32 @@ function checkDecisiones() {
         if ($resultado == 1) {
 //Si es rechazada no se hace nada, se deja en el histórico de votaciones rechazadas (si a caso)
         } else if ($resultado == 2) {
-
+            if (false) {//TODO Tampoco hacemos nada de momento 
 //Si sale "Depende" se crea un nuevo supergrupo con el nombre: "Discusión sobre" o "Debate:" + enunciado de la votación.    
-            $enunciado = $decision['enunciado'];
-            $nombre_grupo = "Debate: " . $enunciado;
+                $enunciado = $decision['nombre'];
+                $nombre_grupo = "Debate: " . $enunciado;
+                $descripcion = "Grupo generado automáticamente para debatir sobre '" . $enunciado . "'";
 
-            $id_supergrupo = addGrupo($nombre_grupo);
+                $id_supergrupo = addGrupo($nombre_grupo, $descripcion);
 
-            $id_subgrupo = $decision['grupo_idgrupo'];
+                $id_subgrupo = $decision['grupo_idgrupo'];
 
-            hacerSuperGrupo($id_subgrupo, $id_supergrupo);
+                hacerSuperGrupo($id_subgrupo, $id_supergrupo);
+            }
         } else if ($resultado == 3) {
 
 //Si es aprobada se crea un nuevo supergrupo con el nombre de la votación
+            if (false) { //TODO De momento no creamos grupos automáticamente
+                $enunciado = $decision['nombre'];
+                $nombre_grupo = $enunciado;
 
-            $enunciado = $decision['enunciado'];
-            $nombre_grupo = $enunciado;
+                $id_supergrupo = addGrupo($nombre_grupo);
 
-            $id_supergrupo = addGrupo($nombre_grupo);
+                $id_subgrupo = $decision['grupo_idgrupo'];
 
-            $id_subgrupo = $decision['grupo_idgrupo'];
-
-            hacerSuperGrupo($id_subgrupo, $id_supergrupo);
-
-//Si el enunciado está aprobada y tiene una ejecución asociada se ejecuta
+                hacerSuperGrupo($id_subgrupo, $id_supergrupo);
+            }
+//Si el enunciado está aprobado y tiene una ejecución asociada se ejecuta
             if (isset($decision['ejecucionsys_idejecucionsys'])) {
                 $id_ejecucion = $decision['ejecucionsys_idejecucionsys'];
 
@@ -1777,6 +1781,12 @@ function checkDecisiones() {
 //En cualquier caso actualizamos el valor del resultado de la decisión
         ejecutar("UPDATE decisionsnd SET resultado=" . escape($resultado) . " WHERE iddecisionsnd = " . escape($id_decision));
     }
+}
+
+function ejecutarEjecucion($id_ejecucion) {
+    //Tendremos que comprobar que no ha sido ya ejecutada
+    //Recorrer y ejecutar las acciones en orden
+    //Marcarla como ejecutada
 }
 
 function checkVotaciones() {
@@ -2445,8 +2455,9 @@ function nuevoMensajeChatGrupo($id_grupo, $mensaje) {
                 . " VALUES (" . escape($id_grupo) . "," . escape($id_usuario) . ", '" . escape($mensaje) . "')");
     }
 }
+
 //Devuelve los tipos de acciones automáticas que existen
-function getTiposAcciones(){
+function getTiposAcciones() {
     nl();
     return toArray(ejecutar("SELECT * FROM accionsys"));
 }

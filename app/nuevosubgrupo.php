@@ -1,5 +1,8 @@
-<?php include dirname(__FILE__) . "./header.php"; ?>
-<div ng-controller="controladornuevogrupo">
+<?php include dirname(__FILE__) . "./header.php";
+//Leemos los parámetros
+$id = filter_input(INPUT_GET, 'id');
+?>
+<div ng-controller="controladornuevosubgrupo" ng-init="init(<?php echo $id ?>)">
     <div class="container principal">
         <div class="form-group">
             <input type="text" 
@@ -11,13 +14,13 @@
             <textarea class="form-control" placeholder="Descripción" ng-model="nuevogrupo.descripcion"></textarea>
         </div>
     </div>
-
+    
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="navbar-inner">
             <ul class="nav navbar-nav">
                 <!-- un enlace por cada objeto del menu inferior -->
                 <li ><a href="#" title="aceptar" ng-click="creargrupo()"><span class="glyphicon glyphicon-ok"></span></a></li>
-                <li ><a href="todosgrupos.php" title="cancelar"><span class="glyphicon glyphicon-remove"></span></a></li>
+                <li ><a href="infogrupo.php?id=<?php echo $id ?>" title="cancelar"><span class="glyphicon glyphicon-remove"></span></a></li>
             </ul>
         </div>
     </nav>
