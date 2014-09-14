@@ -16,6 +16,10 @@ body {
     text-align: center;
 }
 
+.nocentrado{
+    padding: 40px 15px;
+}
+
 .chat{
     padding: 40px 15px 150px;
 }

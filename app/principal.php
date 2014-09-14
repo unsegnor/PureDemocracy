@@ -11,6 +11,7 @@
                 <strong>democrática</strong> y 
                 <strong>libre de corrupción</strong>.</p>
         </div>
+        <h2>Todo comienza con un grupo</h2>
         <a class="btn btn-success" href="nuevogrupo.php">Crear nuevo grupo</a>
         <a class="btn btn-primary" href="todosgrupos.php">Explorar grupos existentes</a>
     </div>

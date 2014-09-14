@@ -25,9 +25,8 @@ $id = filter_input(INPUT_GET, 'id');
             <input type="text" class="form-control" ng-model="nuevo_mensaje.texto" ng-enter="sendmsg(nuevo_mensaje.texto)" placeholder="escribir..."/>
             <ul class="nav navbar-nav">
                 <!-- un enlace por cada objeto del menu inferior -->
-                <li ><a href="chatgrupo.php?id=<?php echo $id ?>" title="chat"><span class="glyphicon glyphicon-comment"></span></a></li>
-                <li ><a href="votaciones.php?id=<?php echo $id ?>" title="ver votaciones"><span class="glyphicon glyphicon-search"></span></a></li>
-                <li ><a href="nuevavotacion.php?id=<?php echo $id ?>" title="nueva votación"><span class="glyphicon glyphicon-plus"></span></a></li>
+                <li ><a href="votaciones.php?id=<?php echo $id ?>" title="ver votaciones"><span class="glyphicon glyphicon-envelope"></span></a></li>
+                <li ><a href="nuevavotacion.php?id=<?php echo $id ?>" title="nueva votación"><span class="glyphicon glyphicon-plus"></span><span class="glyphicon glyphicon-envelope"></span></a></li>
                 <li ><a href="infogrupo.php?id=<?php echo $id ?>" title="información de grupo"><span class="glyphicon glyphicon-info-sign"></span></a></li>
             </ul>
         </div>
