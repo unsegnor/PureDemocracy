@@ -3,15 +3,17 @@
 $id = filter_input(INPUT_GET, 'id');
 ?>
 <div ng-controller="controladornuevosubgrupo" ng-init="init(<?php echo $id ?>)">
-    <div class="container principal">
+    <div class="container nocentrado">
         <div class="form-group">
+            <label>Nombre del grupo</label>
             <input type="text" 
                    class="form-control" 
-                   placeholder="Nombre del grupo" 
+                   placeholder="escribe aquí el nombre del grupo..." 
                    ng-model="nuevogrupo.nombre"/>
         </div>
         <div class="form-group">
-            <textarea class="form-control" placeholder="Descripción" ng-model="nuevogrupo.descripcion"></textarea>
+            <label>Descripción</label>
+            <textarea class="form-control" placeholder="describe brevemente el tema del grupo..." ng-model="nuevogrupo.descripcion"></textarea>
         </div>
     </div>
     
