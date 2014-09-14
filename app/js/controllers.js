@@ -317,9 +317,9 @@ angular.module('puredemocracyapp.controllers', [])
 
 
                     allamar($http, 'crearDecisionConAcciones', [$scope.idgrupo, $scope.nuevavotacion.enunciado, acciones_a_enviar], function(res) {
-                        //alert(JSON.stringify(res));
+                        alert(JSON.stringify(res));
                         if (!res.hayerror) {
-                            redirect("votaciones.php?id=" + $scope.idgrupo);
+                            //redirect("votaciones.php?id=" + $scope.idgrupo);
                         }
                     });
                 };

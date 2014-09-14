@@ -437,12 +437,13 @@ function esNato($id_usuario, $id_grupo) {
 function esMiembro($id_usuario, $id_grupo) {
 //Tenemos que contar todos los usuarios que forman parte bien del grupo directamente o de cualquier subgrupo
     $subgrupos = getSubgruposID($id_grupo, 0);
-
-//Componemos la consulta y contamos sólo los miembros natos o no de los grupos componentes de éste
-    $consulta = "SELECT COUNT(*) as es_miembro"
-            . " FROM usuario,miembro WHERE "
-            . " miembro.usuario_idusuario = usuario.idusuario "
-            . " AND usuario.idusuario = " . escape($id_usuario)
+    
+//Componemos la consulta y contamos sólo los miembros natos o no de los grupos componentes de éste que tienen suficientes puntos y voluntad
+    $consulta = "SELECT COUNT(*) as nmiembros"
+            . " FROM miembro WHERE "
+            . " miembro.usuario_idusuario = ". escape($id_usuario)
+            . " AND miembro.voluntad = 2"
+            . " AND miembro.puntos_participacion > 0"
             . " AND ("
             . " miembro.grupo_idgrupo = " . escape($id_grupo);
 
@@ -452,12 +453,12 @@ function esMiembro($id_usuario, $id_grupo) {
     }
 
     $consulta.=")";
-
+    
     $res = ejecutar($consulta);
 
     $res = $res->fetch_assoc();
 
-    return $res['es_miembro'];
+    return $res['nmiembros'] > 0;
 }
 
 function solicitarIngresoEnGrupo($id_grupo) {
@@ -1756,17 +1757,32 @@ function crearDecisionConAcciones($id_grupo, $enunciado, $acciones) {
                 }
             }
             //Añadimos la descripción de las acciones al enunciado
-            $enunciado.=" **Acciones asociadas:" . $enunciado_acciones;
+            $enunciado.=" **Acciones asociadas:" . $enunciado_acciones . "**";
+
+            //Ahora creamos la votación con el enunciado
+            $id_votacion = crearVotacionDeGrupo($id_grupo, $enunciado);
+
+            //Creamos la decisión asociada a la votación y a la ejecución
+            $consulta = "INSERT INTO `pdbdd`.`decisionsnd` "
+                    . "(`nombre`, `votacionsnd_idvotacionsnd`, `grupo_idgrupo`, `ejecucionsys_idejecucionsys`) "
+                    . "VALUES ('" . escape($enunciado) . "', " . escape($id_votacion) . ", " . escape($id_grupo) . "," . escape($id_ejecucion) . ")";
+
+            ejecutar($consulta);
+        } else {
+            //Si no tenemos acciones agregamos la votación y la decisión sin idejecución
+            
+            //Ahora creamos la votación con el enunciado
+            $id_votacion = crearVotacionDeGrupo($id_grupo, $enunciado);
+
+            //Creamos la decisión asociada a la votación y a la ejecución
+            $consulta = "INSERT INTO `pdbdd`.`decisionsnd` "
+                    . "(`nombre`, `votacionsnd_idvotacionsnd`, `grupo_idgrupo`) "
+                    . "VALUES ('" . escape($enunciado) . "', " . escape($id_votacion) . ", " . escape($id_grupo) . ")";
+
+            ejecutar($consulta);
         }
-        //Ahora creamos la votación con el enunciado
-        $id_votacion = crearVotacionDeGrupo($id_grupo, $enunciado);
-
-        //Creamos la decisión asociada a la votación y a la ejecución
-        $consulta = "INSERT INTO `pdbdd`.`decisionsnd` "
-                . "(`nombre`, `votacionsnd_idvotacionsnd`, `grupo_idgrupo`, `ejecucionsys_idejecucionsys`) "
-                . "VALUES ('" . escape($enunciado) . "', " . escape($id_votacion) . ", " . escape($id_grupo) . "," . escape($id_ejecucion) . ")";
-
-        ejecutar($consulta);
+    }else{
+        throw new Exception("No es miembro del grupo.");
     }
 }
 
@@ -1887,7 +1903,10 @@ function ejecutarAccionDeGrupo($id_grupo, $nombre, $parametros) {
     //En función del nombre de la función hacemos una cosa u otra
     if ($nombre == 'UnirGrupo') {
         //El parámetro 0 nos dice el grupo al que nos queremos unir
+        //TODO si ya son supergrupos no debería reventar
         hacerSuperGrupo($id_grupo, $p[0]);
+    } else if ($nombre == 'DejarGrupo') {
+        //TODO Eliminar la relación de subgrupo
     }
 }
 
