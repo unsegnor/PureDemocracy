@@ -4,15 +4,17 @@ include dirname(__FILE__) . "./header.php";
 $id = filter_input(INPUT_GET, 'id');
 ?>
 <div ng-controller="controladornuevavotacion" ng-init="init(<?php echo $id ?>)">
-    <div class="container principal">
+    <div class="container nocentrado">
         <div class="form-group">
             <label>Enunciado</label>
             <input type="text" class="form-control" ng-model="nuevavotacion.enunciado" placeholder="Nombre">
         </div>
+        <!--
         <div class="form-group">
             <label>Descripción</label>
             <textarea class="form-control" ng-model="nuevavotacion.descripcion" placeholder="Descripción"></textarea>
         </div>
+        -->
         <div class="form-group">
             <label>Tipo</label>
             <select class="form-control" ng-model="nuevavotacion.tipo">
