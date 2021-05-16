@@ -1,0 +1,54 @@
+version: '2'
+services:
+  pd-server:
+    build: ./docker/web-server
+    image: pd-server
+    container_name: pd-server
+    ports:
+      - "8080:80"
+    volumes:
+      - ./www:/var/www/html
+    depends_on:
+      - pd-database
+    networks:
+      pure-network:
+        aliases:
+          - pd-server
+
+  scheduler:
+    build: ./docker/scheduler
+    image: pd-scheduler
+    container_name: pd-scheduler
+    depends_on:
+      - pd-server
+    networks:
+      pure-network:
+        aliases:
+          - pd-scheduler
+      
+  pd-database:
+    image: mysql:5.6
+    restart: always
+    container_name: pd-database
+    ports:
+      - "3306:3306"
+    volumes:
+      - "./docker/database-server/config/my.cnf:/etc/mysql/my.cnf"
+      #The line below is used to import the schema and migrations into the database
+      #this docker image is going to apply every sql file into the docker-entrypoint-initdb.d folder
+      #in alphabetical order
+      - "./bdd/bdd-ini.sql:/docker-entrypoint-initdb.d/bdd-ini.sql"
+    networks:
+      pure-network:
+        aliases:
+          - pd-database
+    environment:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_DATABASE: "${PD_DATABASE_NAME}"
+      MYSQL_USER: "${PD_DATABASE_USER}"
+      MYSQL_PASSWORD: "${PD_DATABASE_PASSWORD}"
+
+networks:
+  pure-network:
+    driver: bridge
+    
